@@ -196,6 +196,16 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;ov
 .toast{background:var(--panel);border:1px solid var(--cyan);border-radius:6px;padding:10px 22px;font-size:.88rem;font-weight:700;color:var(--cyan);animation:toastIn .4s ease-out;box-shadow:0 0 30px rgba(6,182,212,.2);text-shadow:0 0 8px rgba(6,182,212,.4);font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:1px}
 @keyframes toastIn{0%{opacity:0;transform:translateY(-16px)}100%{opacity:1;transform:translateY(0)}}
 
+/* CANVAS CURSOR MODES */
+#canvas-wrap.cursor-build{cursor:crosshair}
+#canvas-wrap.cursor-demolish{cursor:not-allowed}
+#canvas-wrap.cursor-expand{cursor:cell}
+#canvas-wrap.cursor-program{cursor:pointer}
+
+/* TOAST FADE-OUT */
+.toast.toast-out{animation:toastOut .35s ease-in forwards}
+@keyframes toastOut{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-10px)}}
+
 /* SCROLLBAR */
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-track{background:var(--panel)}

@@ -67,6 +67,7 @@ export class UIManager {
     this.updateSelectedPanel();
     this.updateSpeedButtons();
     this.updateToggleButtons();
+    this.updateCanvasCursor();
   }
 
   // --- Resources ---
@@ -331,6 +332,27 @@ export class UIManager {
     if (d.soundBtn) d.soundBtn.classList.toggle('on', gameState.soundEnabled);
   }
 
+  // --- Canvas Cursor ---
+
+  updateCanvasCursor() {
+    const wrap = document.getElementById('canvas-wrap');
+    if (!wrap) return;
+    const inputSystem = this.game.inputSystem;
+    if (!inputSystem) return;
+
+    wrap.classList.remove('cursor-build', 'cursor-demolish', 'cursor-expand', 'cursor-program');
+
+    if (inputSystem.demolishMode) {
+      wrap.classList.add('cursor-demolish');
+    } else if (inputSystem.expandMode) {
+      wrap.classList.add('cursor-expand');
+    } else if (gameState.programmingAnimal) {
+      wrap.classList.add('cursor-program');
+    } else if (gameState.selectedBuild) {
+      wrap.classList.add('cursor-build');
+    }
+  }
+
   // --- Build Mode Buttons ---
 
   updateBuildButtons() {
@@ -409,7 +431,11 @@ export class UIManager {
     d.toastContainer.appendChild(toast);
 
     const duration = data.duration || 3000;
-    setTimeout(() => { toast.remove(); }, duration);
+    // Fade out before removal
+    setTimeout(() => {
+      toast.classList.add('toast-out');
+      setTimeout(() => { toast.remove(); }, 380);
+    }, duration - 380);
   }
 
   // --- Helpers ---
