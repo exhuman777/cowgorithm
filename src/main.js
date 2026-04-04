@@ -130,6 +130,7 @@ class Game {
     this.animalSystem.init();
     this.titleScreen.hide();
     document.getElementById('game-container').classList.add('active');
+    this.onResize();
     this.running = true;
     this.uiManager.init();
     if (!gameState.tutorialDone) this.tutorial.start();
@@ -144,6 +145,7 @@ class Game {
     this.animalSystem.initFromState();
     this.titleScreen.hide();
     document.getElementById('game-container').classList.add('active');
+    this.onResize();
     this.running = true;
     this.uiManager.init();
     this.renderer.setAnimationLoop(() => this.animate());
