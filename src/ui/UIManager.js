@@ -334,10 +334,17 @@ export class UIManager {
   // --- Build Mode Buttons ---
 
   updateBuildButtons() {
+    const inputSystem = this.game.inputSystem;
     const btns = document.querySelectorAll('.build-btn[data-build]');
     btns.forEach(btn => {
       const build = btn.getAttribute('data-build');
-      btn.classList.toggle('active', gameState.selectedBuild === build);
+      if (build === 'expand') {
+        btn.classList.toggle('active', inputSystem && inputSystem.expandMode);
+      } else if (build === 'demolish') {
+        btn.classList.toggle('active', inputSystem && inputSystem.demolishMode);
+      } else {
+        btn.classList.toggle('active', gameState.selectedBuild === build);
+      }
     });
   }
 

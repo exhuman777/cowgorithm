@@ -250,8 +250,34 @@ class Game {
   toggleExpand() { this.inputSystem.setExpandMode(!this.inputSystem.expandMode); }
 
   toggleQuestHint() {
-    const hint = document.getElementById('quest-hint');
-    if (hint) hint.style.display = hint.style.display === 'none' ? 'block' : 'none';
+    this.uiManager.toggleQuestHint();
+  }
+
+  // Called by UIManager onclick handlers for animal actions
+  sendAnimalToTask(action) {
+    this.inputSystem.startProgramming(action);
+  }
+
+  // Toggle auto-manage on the currently selected animal
+  toggleAnimalAuto() {
+    const animal = gameState.selectedAnimal;
+    if (!animal) return;
+    const hasGPS = gameState.techs.includes('gps');
+    if (!hasGPS) {
+      eventBus.emit(Events.NOTIFICATION, { text: 'Unlock GPS Tracking first!', type: 'error' });
+      return;
+    }
+    animal.autoManage = !animal.autoManage;
+    eventBus.emit(Events.NOTIFICATION, { text: `${animal.name} auto-manage: ${animal.autoManage ? 'ON' : 'OFF'}`, type: 'info' });
+  }
+
+  // Demolish the currently selected building
+  demolishSelected() {
+    const building = gameState.selectedBuilding;
+    if (!building) return;
+    eventBus.emit(Events.BUILDING_DEMOLISHED, { col: building.col, row: building.row });
+    gameState.selectedBuilding = null;
+    eventBus.emit(Events.SELECTION_CHANGED, { type: null, entity: null });
   }
 }
 

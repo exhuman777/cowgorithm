@@ -238,7 +238,7 @@ export function updateAnimalVisuals(group, animal, delta, elapsedTime) {
   group.position.set(worldX, 0.5 + bob, worldZ);
 
   // Face movement direction
-  if (animal.targetX !== undefined && animal.targetY !== undefined) {
+  if (animal.targetX !== null && animal.targetY !== null) {
     const dx = animal.targetX * GRID.TILE_SIZE - worldX;
     const dz = animal.targetY * GRID.TILE_SIZE - worldZ;
     if (Math.abs(dx) > 0.01 || Math.abs(dz) > 0.01) {

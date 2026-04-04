@@ -457,14 +457,14 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;ov
         </div>
         <button class="action-btn tech" onclick="window.game?.openTechTree()">Tech Tree <span style="color:rgba(255,255,255,.5);font-size:.62rem">[T]</span></button>
         <button class="action-btn sell-btn" onclick="window.game?.sellProducts()">Sell Products <span style="color:rgba(255,255,255,.5);font-size:.62rem">[S]</span></button>
-        <button class="build-btn" data-build="expand" onclick="window.game?.selectBuild('expand')">
+        <button class="build-btn" data-build="expand" onclick="window.game?.toggleExpand()">
           <span class="emoji-box" style="color:var(--cyan-light);font-family:'Share Tech Mono',monospace;font-size:.65rem">EXP</span>
           <span class="info">
             <span class="bname">Expand Land</span>
             <span class="cost">$2,000/tile</span>
           </span>
         </button>
-        <button class="build-btn" data-build="demolish" onclick="window.game?.selectBuild('demolish')">
+        <button class="build-btn" data-build="demolish" onclick="window.game?.toggleDemolish()">
           <span class="emoji-box" style="color:var(--red);font-family:'Share Tech Mono',monospace;font-size:.65rem">DEL</span>
           <span class="info">
             <span class="bname">Demolish</span>

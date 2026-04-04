@@ -1,5 +1,5 @@
 import { gameState } from '../core/GameState.js';
-import { ANIMAL_DEFS, BUILDING_DEFS, TECH_DEFS } from '../core/Constants.js';
+import { BUILDING_DEFS, TECH_DEFS } from '../core/Constants.js';
 import { eventBus, Events } from '../core/EventBus.js';
 
 export class EconomySystem {
@@ -32,18 +32,8 @@ export class EconomySystem {
       gameState.marketPrices[product] = Math.round(gameState.marketPrices[product] * 100) / 100;
     }
 
-    // 3. Feed costs per animal
-    let totalFeed = 0;
-    const feedSave = this.getTechEffect('feedSave');
-    for (const animal of gameState.animals) {
-      const def = ANIMAL_DEFS[animal.type];
-      if (def) {
-        totalFeed += def.feedCost * (1 - feedSave);
-      }
-    }
-    totalFeed = Math.round(totalFeed * 100) / 100;
-    gameState.money -= totalFeed;
-    gameState.dailyCosts += totalFeed;
+    // 3. Feed costs: handled per-animal in AnimalSystem._deductFeedCost()
+    //    (includes silo proximity bonus + tech savings, so no duplicate here)
 
     // 4. Energy: solar arrays generate energy
     const solarCount = this.buildingSystem.countBuildings('solar');
