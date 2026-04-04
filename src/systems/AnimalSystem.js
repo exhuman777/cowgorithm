@@ -75,7 +75,7 @@ export class AnimalSystem {
       name: this._randomName(type),
       task: null,
       autoManage: false,
-      collarVisible: false,
+      collarVisible: gameState.techs.includes('gps'),
       beefDayCounter: type === 'beef' ? 0 : undefined,
     };
 
@@ -158,8 +158,8 @@ export class AnimalSystem {
     for (let i = animals.length - 1; i >= 0; i--) {
       const animal = animals[i];
 
-      // 1. Auto-manage (CowGorithm v1 tech)
-      if (gameState.techs.includes('cowgorithm_v1') && animal.autoManage && !animal.task) {
+      // 1. Auto-manage (GPS = manual routing, CowGorithm v1 = auto routing)
+      if (animal.autoManage && !animal.task && gameState.techs.includes('gps')) {
         this._autoAssignTask(animal);
       }
 
@@ -646,6 +646,35 @@ export class AnimalSystem {
     this.healAnimal(gameState.selectedAnimal);
   }
 
+  // --- Breeding ---
+
+  tryBreeding() {
+    if (!gameState.techs.includes('fertility_ai')) return;
+    gameState.breedTimer++;
+    if (gameState.breedTimer < 30) return; // Every 30 days
+    gameState.breedTimer = 0;
+
+    if (gameState.animals.length === 0) return;
+
+    // Pick a random animal type that has housing capacity
+    const types = [...new Set(gameState.animals.map(a => a.type))];
+    const shuffled = types.sort(() => Math.random() - 0.5);
+
+    for (const type of shuffled) {
+      const def = ANIMAL_DEFS[type];
+      if (!def) continue;
+      const housing = def.housing;
+      const capacity = this.buildingSystem.getCapacity(housing);
+      const current = this.buildingSystem.getHousingCount(housing);
+      if (current < capacity) {
+        const baby = this.spawnAnimal(type);
+        eventBus.emit(Events.NOTIFICATION, { text: `Fertility AI: ${baby.name} was born!`, type: 'success' });
+        eventBus.emit(Events.TOAST, { text: `New ${def.name} born!`, color: '#10b981' });
+        return;
+      }
+    }
+  }
+
   // --- Auto-manage ---
 
   autoManageAll() {
@@ -655,19 +684,15 @@ export class AnimalSystem {
       return;
     }
 
-    let count = 0;
+    // GPS unlocked = all animals get collars
+    const toggling = gameState.animals.length > 0;
+    const newState = !gameState.animals[0]?.autoManage;
     for (const animal of gameState.animals) {
-      if (animal.collarVisible) {
-        animal.autoManage = !animal.autoManage;
-        count++;
-      }
+      animal.autoManage = newState;
     }
 
-    if (count === 0) {
-      eventBus.emit(Events.NOTIFICATION, { text: 'No animals have GPS collars!', type: 'error' });
-    } else {
-      const mode = gameState.animals.find(a => a.collarVisible)?.autoManage ? 'ON' : 'OFF';
-      eventBus.emit(Events.NOTIFICATION, { text: `Auto-manage ${mode} for ${count} animals`, type: 'info' });
+    if (toggling) {
+      eventBus.emit(Events.NOTIFICATION, { text: `Auto-manage ${newState ? 'ON' : 'OFF'} for all animals`, type: 'info' });
     }
   }
 

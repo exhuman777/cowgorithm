@@ -87,7 +87,7 @@ class Game {
     this.techSystem = new TechSystem(this.buildingSystem);
     this.questSystem = new QuestSystem(this.buildingSystem);
     this.milestoneSystem = new MilestoneSystem(this.buildingSystem);
-    this.weatherSystem = new WeatherSystem();
+    this.weatherSystem = new WeatherSystem(this.buildingSystem);
     this.dayNightSystem = new DayNightSystem(this.scene, this.dirLight, this.ambientLight);
     this.particles = new ParticleSystem(this.scene);
     this.inputSystem = new InputSystem(this.camera, this.renderer.domElement, this.farmGrid);
@@ -192,6 +192,25 @@ class Game {
     gameState.day++;
     this.economySystem.newDay();
     this.weatherSystem.checkWeatherEvent();
+
+    // Grass regrowth with tech bonuses
+    const techGrassRegrow = this.economySystem.getTechEffect('grassRegrow');
+    const techGrassBonus = this.economySystem.getTechEffect('grassBonus');
+    this.farmGrid.growGrass(gameState.weatherBonus, techGrassRegrow, techGrassBonus);
+
+    // Auto-heal from Predictive Vet AI
+    if (this.economySystem.getTechEffect('autoHeal') > 0) {
+      for (const animal of gameState.animals) {
+        if (animal.sick) {
+          animal.sick = false;
+          animal.health = 100;
+        }
+      }
+    }
+
+    // Breeding from Fertility AI
+    this.animalSystem.tryBreeding();
+
     this.milestoneSystem.checkMilestones();
     if (gameState.day % 10 === 0) gameState.save();
     eventBus.emit(Events.NOTIFICATION, { msg: 'Day ' + gameState.day + ' begins.' });

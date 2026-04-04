@@ -128,6 +128,22 @@ export class FarmGrid {
     }
   }
 
+  growGrass(weatherBonus, techGrassRegrow, techGrassBonus) {
+    // Daily grass regrowth
+    const baseRegrow = 2; // base regrowth per day
+    const regrowRate = baseRegrow * weatherBonus * (1 + techGrassRegrow);
+    for (let row = 0; row < GRID.ROWS; row++) {
+      for (let col = 0; col < GRID.COLS; col++) {
+        const tile = gameState.map[row][col];
+        if (tile.type !== 'grass') continue;
+        if (tile.grassLevel >= 100) continue;
+        let rate = regrowRate;
+        if (tile.isPasture) rate *= (1.5 + techGrassBonus); // pastures regrow faster
+        tile.grassLevel = Math.min(100, tile.grassLevel + rate);
+      }
+    }
+  }
+
   worldToTile(worldX, worldZ) {
     const col = Math.floor(worldX / GRID.TILE_SIZE);
     const row = Math.floor(worldZ / GRID.TILE_SIZE);

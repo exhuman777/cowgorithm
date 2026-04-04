@@ -53,9 +53,10 @@ class GameState {
       map[y] = [];
       for (let x = 0; x < GRID.COLS; x++) {
         let type = 'grass';
-        // Water pond/stream
-        if ((x === 15 && y >= 5 && y <= 8) || (x === 16 && y >= 7 && y <= 10) ||
-            (x === 17 && y === 9) || (x === 14 && y === 5) || (x === 16 && y === 6)) type = 'water';
+        // Water pond/stream (avoid starting buildings at 14,9 and 16,9)
+        if ((x >= 18 && x <= 19 && y >= 7 && y <= 10) ||
+            (x === 20 && y >= 8 && y <= 9) ||
+            (x === 17 && y === 7) || (x === 17 && y === 8)) type = 'water';
         // Forest at edges
         const seed = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
         const edgeY = y <= 1 || y >= GRID.ROWS - 2;

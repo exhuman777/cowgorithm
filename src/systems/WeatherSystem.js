@@ -1,9 +1,11 @@
 import { gameState } from '../core/GameState.js';
-import { WEATHER_EVENTS } from '../core/Constants.js';
+import { WEATHER_EVENTS, TECH_DEFS } from '../core/Constants.js';
 import { eventBus, Events } from '../core/EventBus.js';
 
 export class WeatherSystem {
-  constructor() {}
+  constructor(buildingSystem) {
+    this.buildingSystem = buildingSystem;
+  }
 
   checkWeatherEvent() {
     // Only trigger after day 3
@@ -38,15 +40,35 @@ export class WeatherSystem {
       case 'Market Boom':
         gameState.marketBonus = 0.3; // +30% sell prices
         break;
-      case 'Disease':
-        // Infect random animals (up to 30%)
-        const count = Math.max(1, Math.floor(gameState.animals.length * 0.3));
+      case 'Disease': {
+        // Apply disease reduction from tech
+        let diseaseReduce = 0;
+        for (const techId of gameState.techs) {
+          const tech = TECH_DEFS.find(t => t.id === techId);
+          if (tech && tech.effect && tech.effect.diseaseReduce) {
+            diseaseReduce += tech.effect.diseaseReduce;
+          }
+        }
+        diseaseReduce = Math.min(diseaseReduce, 0.95);
+
+        // Infect animals, reduced by tech + vet proximity
         const shuffled = [...gameState.animals].sort(() => Math.random() - 0.5);
-        for (let i = 0; i < Math.min(count, shuffled.length); i++) {
-          shuffled[i].sick = true;
-          shuffled[i].health = 50;
+        let infected = 0;
+        for (const animal of shuffled) {
+          if (infected >= Math.max(1, Math.floor(gameState.animals.length * 0.3))) break;
+          // Vet lab proximity reduces disease chance
+          const animalCol = Math.floor(animal.x);
+          const animalRow = Math.floor(animal.y);
+          const nearVet = this.buildingSystem ? this.buildingSystem.isNearVet(animalCol, animalRow) : false;
+          const totalReduce = diseaseReduce + (nearVet ? 0.3 : 0);
+          if (Math.random() < (1 - totalReduce)) {
+            animal.sick = true;
+            animal.health = 50;
+            infected++;
+          }
         }
         break;
+      }
       case 'Premium Buyer':
         gameState.marketBonus = 0.5; // +50% sell prices
         break;

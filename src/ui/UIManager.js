@@ -402,14 +402,32 @@ export class UIManager {
     el.textContent = data.text || '';
     el.style.color = data.color || 'var(--emerald-light)';
 
-    // Position: if screen coords provided use them, otherwise center with random offset
-    const x = data.screenX != null ? data.screenX : (window.innerWidth / 2 + (Math.random() - 0.5) * 200);
-    const y = data.screenY != null ? data.screenY : (window.innerHeight / 2 + (Math.random() - 0.5) * 100);
+    let x, y;
+    // Project 3D world position to screen coordinates
+    if (data.x != null && data.z != null && this.game.camera && this.game.renderer) {
+      const vec = new (window.THREE || this._getThree()).Vector3(data.x, data.y || 2, data.z);
+      vec.project(this.game.camera);
+      const canvas = this.game.renderer.domElement;
+      const rect = canvas.getBoundingClientRect();
+      x = rect.left + (vec.x * 0.5 + 0.5) * rect.width + (Math.random() - 0.5) * 30;
+      y = rect.top + (-vec.y * 0.5 + 0.5) * rect.height - 20;
+    } else {
+      x = window.innerWidth / 2 + (Math.random() - 0.5) * 200;
+      y = window.innerHeight / 2 + (Math.random() - 0.5) * 100;
+    }
     el.style.left = x + 'px';
     el.style.top = y + 'px';
 
     d.floatTexts.appendChild(el);
     setTimeout(() => { el.remove(); }, 1500);
+  }
+
+  _getThree() {
+    // Lazy import THREE for Vector3 projection
+    if (!this._three) {
+      this._three = { Vector3: this.game.camera.position.constructor };
+    }
+    return this._three;
   }
 
   // --- Toast ---
