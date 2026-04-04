@@ -1,0 +1,417 @@
+// src/ui/UIManager.js
+import { gameState } from '../core/GameState.js';
+import { eventBus, Events } from '../core/EventBus.js';
+import { QUESTS, MILESTONES, TECH_DEFS, ANIMAL_DEFS, BUILDING_DEFS } from '../core/Constants.js';
+
+export class UIManager {
+  constructor(game) {
+    this.game = game;
+    this.dom = {};
+    this.hintVisible = false;
+  }
+
+  init() {
+    // Cache all DOM refs
+    this.dom = {
+      money: document.getElementById('r-money'),
+      milk: document.getElementById('r-milk'),
+      wool: document.getElementById('r-wool'),
+      eggs: document.getElementById('r-eggs'),
+      energy: document.getElementById('r-energy'),
+      data: document.getElementById('r-data'),
+      netIncome: document.getElementById('net-income'),
+      dayCounter: document.getElementById('day-counter'),
+      questPhase: document.getElementById('quest-phase'),
+      questText: document.getElementById('quest-text'),
+      questHint: document.getElementById('quest-hint'),
+      questHintBtn: document.getElementById('quest-hint-btn'),
+      questProgress: document.getElementById('quest-progress'),
+      statAnimals: document.getElementById('stat-animals'),
+      statBuildings: document.getElementById('stat-buildings'),
+      statLand: document.getElementById('stat-land'),
+      statTechs: document.getElementById('stat-techs'),
+      statIncome: document.getElementById('stat-income'),
+      statCosts: document.getElementById('stat-costs'),
+      statTotal: document.getElementById('stat-total'),
+      marketMilk: document.getElementById('market-milk'),
+      marketWool: document.getElementById('market-wool'),
+      marketEggs: document.getElementById('market-eggs'),
+      milestonesList: document.getElementById('milestones-list'),
+      selectedPanel: document.getElementById('selected-panel'),
+      selectedPanelTitle: document.getElementById('selected-panel-title'),
+      selectedPanelBody: document.getElementById('selected-panel-body'),
+      logFeed: document.getElementById('log-feed'),
+      floatTexts: document.getElementById('float-texts'),
+      toastContainer: document.getElementById('toast-container'),
+      autoSellBtn: document.getElementById('auto-sell-btn'),
+      soundBtn: document.getElementById('sound-btn'),
+      questBar: document.getElementById('quest-bar'),
+    };
+
+    // Set up event listeners
+    eventBus.on(Events.NOTIFICATION, (data) => this.addNotification(data));
+    eventBus.on(Events.FLOAT_TEXT, (data) => this.addFloatText(data));
+    eventBus.on(Events.TOAST, (data) => this.addToast(data));
+    eventBus.on(Events.SELECTION_CHANGED, () => this.updateSelectedPanel());
+    eventBus.on(Events.BUILD_MODE_CHANGED, () => this.updateBuildButtons());
+  }
+
+  update() {
+    this.updateResources();
+    this.updateNetIncome();
+    this.updateDayCounter();
+    this.updateQuestBar();
+    this.updateMarketPrices();
+    this.updateMilestones();
+    this.updateStationStats();
+    this.updateSelectedPanel();
+    this.updateSpeedButtons();
+    this.updateToggleButtons();
+  }
+
+  // --- Resources ---
+
+  updateResources() {
+    const d = this.dom;
+    if (d.money) d.money.textContent = this.formatMoney(gameState.money);
+    if (d.milk) d.milk.textContent = Math.floor(gameState.milk);
+    if (d.wool) d.wool.textContent = Math.floor(gameState.wool);
+    if (d.eggs) d.eggs.textContent = Math.floor(gameState.eggs);
+    if (d.energy) d.energy.textContent = Math.floor(gameState.energy);
+    if (d.data) d.data.textContent = Math.floor(gameState.data);
+  }
+
+  // --- Net Income ---
+
+  updateNetIncome() {
+    const d = this.dom;
+    if (!d.netIncome) return;
+    const net = gameState.lastDayIncome - gameState.lastDayCosts;
+    const sign = net >= 0 ? '+' : '';
+    d.netIncome.textContent = `${sign}${this.formatMoney(net)}/day`;
+    d.netIncome.className = 'net-income ' + (net >= 0 ? 'pos' : 'neg');
+  }
+
+  // --- Day Counter ---
+
+  updateDayCounter() {
+    const d = this.dom;
+    if (d.dayCounter) d.dayCounter.textContent = `Day ${gameState.day}`;
+  }
+
+  // --- Quest Bar ---
+
+  updateQuestBar() {
+    const d = this.dom;
+    const questSystem = this.game.questSystem;
+    if (!questSystem) return;
+
+    const quest = questSystem.getCurrentQuest();
+    const phase = questSystem.getPhase();
+    const idx = questSystem.getCurrentQuestIndex();
+
+    if (d.questPhase) d.questPhase.textContent = `PHASE ${phase}`;
+    if (d.questText) d.questText.textContent = quest ? quest.text : 'All quests complete!';
+    if (d.questProgress) d.questProgress.textContent = `${idx + 1}/${QUESTS.length}`;
+
+    // Update hint visibility
+    if (d.questHint && this.hintVisible && quest) {
+      d.questHint.style.display = 'block';
+      d.questHint.textContent = quest.hint || '';
+    } else if (d.questHint && !this.hintVisible) {
+      d.questHint.style.display = 'none';
+    }
+  }
+
+  toggleQuestHint() {
+    this.hintVisible = !this.hintVisible;
+    this.updateQuestBar();
+  }
+
+  // --- Market Prices ---
+
+  updateMarketPrices() {
+    const d = this.dom;
+    const prices = gameState.marketPrices;
+    const prev = gameState.prevMarketPrices;
+
+    this.setMarketCell(d.marketMilk, prices.milk, prev.milk);
+    this.setMarketCell(d.marketWool, prices.wool, prev.wool);
+    this.setMarketCell(d.marketEggs, prices.eggs, prev.eggs);
+  }
+
+  setMarketCell(el, price, prevPrice) {
+    if (!el) return;
+    let trendClass = 'flat';
+    let trendSymbol = '--';
+    if (price > prevPrice) { trendClass = 'up'; trendSymbol = '/\\'; }
+    else if (price < prevPrice) { trendClass = 'down'; trendSymbol = '\\/'; }
+    el.className = trendClass;
+    el.innerHTML = `$${price.toFixed(1)} <span class="trend">${trendSymbol}</span>`;
+  }
+
+  // --- Milestones ---
+
+  updateMilestones() {
+    const d = this.dom;
+    if (!d.milestonesList) return;
+    const milestoneSystem = this.game.milestoneSystem;
+    if (!milestoneSystem) return;
+
+    let html = '';
+    for (const ms of MILESTONES) {
+      const done = gameState.completedMilestones.includes(ms.id);
+      const progress = milestoneSystem.getMilestoneProgress(ms);
+      const pct = Math.min(100, (progress / ms.target) * 100);
+      const progressText = ms.target >= 1000 ? `${this.formatMoney(progress)}/${this.formatMoney(ms.target)}` : `${Math.min(progress, ms.target)}/${ms.target}`;
+
+      html += `
+        <div class="milestone ${done ? 'done' : ''}">
+          <div class="m-title">${ms.name}</div>
+          <div class="m-desc">${ms.desc} - ${done ? ms.reward : progressText}</div>
+          <div class="m-bar"><div class="m-fill" style="width:${pct}%"></div></div>
+        </div>`;
+    }
+    d.milestonesList.innerHTML = html;
+  }
+
+  // --- Station Stats ---
+
+  updateStationStats() {
+    const d = this.dom;
+    const buildingSystem = this.game.buildingSystem;
+    if (!buildingSystem) return;
+
+    if (d.statAnimals) d.statAnimals.textContent = gameState.animals.length;
+
+    // Count all buildings (excluding farmhouse)
+    let buildingCount = 0;
+    for (const type of Object.keys(BUILDING_DEFS)) {
+      if (type === 'farmhouse') continue;
+      buildingCount += buildingSystem.countBuildings(type);
+    }
+    if (d.statBuildings) d.statBuildings.textContent = buildingCount;
+
+    if (d.statLand) d.statLand.textContent = buildingSystem.countOwned();
+    if (d.statTechs) d.statTechs.textContent = `${gameState.techs.length}/${TECH_DEFS.length}`;
+    if (d.statIncome) d.statIncome.textContent = `$${Math.floor(gameState.lastDayIncome).toLocaleString()}`;
+    if (d.statCosts) d.statCosts.textContent = `$${Math.floor(gameState.lastDayCosts).toLocaleString()}`;
+    if (d.statTotal) d.statTotal.textContent = this.formatMoney(gameState.totalEarnings);
+  }
+
+  // --- Selected Panel ---
+
+  updateSelectedPanel() {
+    const d = this.dom;
+    if (!d.selectedPanel) return;
+
+    const animal = gameState.selectedAnimal;
+    const building = gameState.selectedBuilding;
+
+    if (animal) {
+      d.selectedPanel.style.display = 'block';
+      this.renderAnimalPanel(animal);
+    } else if (building) {
+      d.selectedPanel.style.display = 'block';
+      this.renderBuildingPanel(building);
+    } else {
+      d.selectedPanel.style.display = 'none';
+    }
+  }
+
+  renderAnimalPanel(animal) {
+    const d = this.dom;
+    const def = ANIMAL_DEFS[animal.type];
+    if (!def) return;
+
+    if (d.selectedPanelTitle) d.selectedPanelTitle.textContent = `${animal.name}`;
+
+    const healthPct = Math.max(0, Math.min(100, animal.health || 100));
+    const happyPct = Math.max(0, Math.min(100, animal.happiness || 100));
+    const hasGPS = gameState.techs.includes('gps');
+    const isSick = animal.sick || false;
+
+    let buttonsHtml = '';
+
+    // GPS-dependent actions
+    if (hasGPS) {
+      if (def.product === 'milk') {
+        buttonsHtml += `<button class="sel-btn heal" onclick="window.game?.sendAnimalToTask('milk')">Send to Milk</button>`;
+      }
+      if (def.product === 'wool') {
+        buttonsHtml += `<button class="sel-btn heal" onclick="window.game?.sendAnimalToTask('shear')">Send to Shear</button>`;
+      }
+    }
+
+    // Heal if sick
+    if (isSick) {
+      buttonsHtml += `<button class="sel-btn heal" onclick="window.game?.healAnimal()">Heal ($200)</button>`;
+    }
+
+    // Sell
+    const sellValue = animal.sellValue || def.sellValue || 0;
+    buttonsHtml += `<button class="sel-btn sell" onclick="window.game?.sellAnimal()">Sell ($${sellValue})</button>`;
+
+    // Auto-manage toggle
+    const autoLabel = animal.autoManage ? 'Auto: ON' : 'Auto: OFF';
+    buttonsHtml += `<button class="sel-btn heal" onclick="window.game?.toggleAnimalAuto()">${autoLabel}</button>`;
+
+    if (d.selectedPanelBody) {
+      d.selectedPanelBody.innerHTML = `
+        <div style="margin-bottom:6px">
+          <span class="label">${def.name}</span>
+          ${isSick ? '<span style="color:var(--red);font-size:.7rem;margin-left:6px;font-weight:700">SICK</span>' : ''}
+        </div>
+        <div style="margin-bottom:4px">
+          <div style="display:flex;justify-content:space-between;font-size:.62rem;margin-bottom:2px">
+            <span style="color:#6ea8c9">Health</span>
+            <span style="color:var(--emerald-light)">${Math.floor(healthPct)}%</span>
+          </div>
+          <div style="height:4px;background:rgba(8,51,68,0.5);border-radius:2px;overflow:hidden">
+            <div style="height:100%;width:${healthPct}%;background:${healthPct > 50 ? 'var(--emerald)' : healthPct > 25 ? 'var(--amber)' : 'var(--red)'};border-radius:2px;transition:width .3s"></div>
+          </div>
+        </div>
+        <div style="margin-bottom:6px">
+          <div style="display:flex;justify-content:space-between;font-size:.62rem;margin-bottom:2px">
+            <span style="color:#6ea8c9">Happiness</span>
+            <span style="color:var(--cyan-light)">${Math.floor(happyPct)}%</span>
+          </div>
+          <div style="height:4px;background:rgba(8,51,68,0.5);border-radius:2px;overflow:hidden">
+            <div style="height:100%;width:${happyPct}%;background:var(--cyan);border-radius:2px;transition:width .3s"></div>
+          </div>
+        </div>
+        ${animal.task ? `<div style="font-size:.62rem;color:var(--amber);margin-bottom:4px">Task: ${animal.task.type}</div>` : ''}
+        <div style="margin-top:4px">${buttonsHtml}</div>
+      `;
+    }
+  }
+
+  renderBuildingPanel(building) {
+    const d = this.dom;
+    const def = BUILDING_DEFS[building.type];
+    if (!def) return;
+
+    if (d.selectedPanelTitle) d.selectedPanelTitle.textContent = def.name;
+
+    let infoHtml = `<div class="label" style="margin-bottom:4px">${def.desc}</div>`;
+    if (def.range) {
+      infoHtml += `<div style="font-size:.62rem;color:#6ea8c9;margin-top:4px">Range: ${def.range} tiles</div>`;
+    }
+    if (def.capacity) {
+      infoHtml += `<div style="font-size:.62rem;color:#6ea8c9;margin-top:2px">Capacity: ${def.capacity}</div>`;
+    }
+    if (def.energyGen) {
+      infoHtml += `<div style="font-size:.62rem;color:var(--amber);margin-top:2px">+${def.energyGen} energy/day</div>`;
+    }
+
+    if (building.type !== 'farmhouse') {
+      infoHtml += `<button class="sel-btn demolish" style="margin-top:8px" onclick="window.game?.demolishSelected()">Demolish</button>`;
+    }
+
+    if (d.selectedPanelBody) d.selectedPanelBody.innerHTML = infoHtml;
+  }
+
+  // --- Speed Buttons ---
+
+  updateSpeedButtons() {
+    const btns = document.querySelectorAll('.speed-btn');
+    const speeds = [0, 1, 2, 5, 10];
+    btns.forEach((btn, i) => {
+      if (i < speeds.length) {
+        btn.classList.toggle('active', gameState.gameSpeed === speeds[i]);
+      }
+    });
+  }
+
+  // --- Toggle Buttons ---
+
+  updateToggleButtons() {
+    const d = this.dom;
+    if (d.autoSellBtn) d.autoSellBtn.classList.toggle('on', gameState.autoSell);
+    if (d.soundBtn) d.soundBtn.classList.toggle('on', gameState.soundEnabled);
+  }
+
+  // --- Build Mode Buttons ---
+
+  updateBuildButtons() {
+    const btns = document.querySelectorAll('.build-btn[data-build]');
+    btns.forEach(btn => {
+      const build = btn.getAttribute('data-build');
+      btn.classList.toggle('active', gameState.selectedBuild === build);
+    });
+  }
+
+  // --- Notification Log ---
+
+  addNotification(data) {
+    const d = this.dom;
+    if (!d.logFeed) return;
+
+    const msg = data.msg || data.text || '';
+    const type = data.type || '';
+
+    const entry = document.createElement('div');
+    entry.className = `notif ${type}`;
+    entry.innerHTML = `<span class="time">D${gameState.day}</span>${msg}`;
+
+    d.logFeed.insertBefore(entry, d.logFeed.firstChild);
+
+    // Cap at 50 entries
+    while (d.logFeed.children.length > 50) {
+      d.logFeed.removeChild(d.logFeed.lastChild);
+    }
+  }
+
+  // --- Float Text ---
+
+  addFloatText(data) {
+    const d = this.dom;
+    if (!d.floatTexts) return;
+
+    const el = document.createElement('div');
+    el.className = 'float-text';
+    el.textContent = data.text || '';
+    el.style.color = data.color || 'var(--emerald-light)';
+
+    // Position: if screen coords provided use them, otherwise center with random offset
+    const x = data.screenX != null ? data.screenX : (window.innerWidth / 2 + (Math.random() - 0.5) * 200);
+    const y = data.screenY != null ? data.screenY : (window.innerHeight / 2 + (Math.random() - 0.5) * 100);
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+
+    d.floatTexts.appendChild(el);
+    setTimeout(() => { el.remove(); }, 1500);
+  }
+
+  // --- Toast ---
+
+  addToast(data) {
+    const d = this.dom;
+    if (!d.toastContainer) return;
+
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = data.text || '';
+    if (data.color) {
+      toast.style.color = data.color;
+      toast.style.borderColor = data.color;
+      toast.style.textShadow = `0 0 8px ${data.color}40`;
+      toast.style.boxShadow = `0 0 30px ${data.color}30`;
+    }
+
+    d.toastContainer.appendChild(toast);
+
+    const duration = data.duration || 3000;
+    setTimeout(() => { toast.remove(); }, duration);
+  }
+
+  // --- Helpers ---
+
+  formatMoney(val) {
+    const abs = Math.abs(val);
+    const sign = val < 0 ? '-' : '';
+    if (abs >= 1000000) return `${sign}$${(abs / 1000000).toFixed(1)}M`;
+    if (abs >= 1000) return `${sign}$${(abs / 1000).toFixed(1)}K`;
+    return `${sign}$${Math.floor(abs)}`;
+  }
+}
