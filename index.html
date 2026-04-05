@@ -545,7 +545,16 @@ body{background:var(--bg-base);color:var(--ink);font-family:var(--sans);overflow
     </div>
 
     <!-- THREE.JS CANVAS WRAPPER -->
-    <div id="canvas-wrap"></div>
+    <div id="canvas-wrap">
+      <!-- VIEWPORT DECISION MODAL -->
+      <div id="decision-overlay" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.4);z-index:10;pointer-events:auto">
+        <div id="decision-card" style="position:absolute;top:20px;left:50%;transform:translateX(-50%);max-width:320px;width:90%;background:var(--bg-base);border:1px solid var(--accent);padding:16px 20px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.3);z-index:11">
+          <h3 id="decision-title" style="font-size:.9rem;font-family:var(--mono);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;color:var(--ink)">Event</h3>
+          <p id="decision-desc" style="font-size:.75rem;color:rgba(128,128,128,0.8);margin-bottom:12px;font-family:var(--sans)"></p>
+          <div id="decision-options" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"></div>
+        </div>
+      </div>
+    </div>
 
     <!-- RIGHT PANEL -->
     <div id="right-panel">
@@ -641,15 +650,6 @@ body{background:var(--bg-base);color:var(--ink);font-family:var(--sans);overflow
     <button class="modal-close" onclick="window.game?.closeTechTree()">&times;</button>
     <p class="modal-desc">Unlock precision agriculture AI. Higher tiers require prerequisites and an AI Center building.</p>
     <div id="tech-grid"></div>
-  </div>
-</div>
-
-<!-- DECISION EVENT MODAL -->
-<div class="modal-overlay" id="decision-overlay">
-  <div class="modal" style="max-width:420px;text-align:center">
-    <h2 id="decision-title">Event</h2>
-    <p id="decision-desc" style="font-size:.8rem;color:rgba(15,15,15,0.7);margin-bottom:16px;font-family:var(--sans)"></p>
-    <div id="decision-options" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"></div>
   </div>
 </div>
 

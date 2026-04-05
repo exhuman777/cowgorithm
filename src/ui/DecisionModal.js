@@ -1,6 +1,5 @@
 // src/ui/DecisionModal.js
 import { gameState } from '../core/GameState.js';
-import { eventBus, Events } from '../core/EventBus.js';
 
 export class DecisionModal {
   constructor() {
@@ -22,7 +21,7 @@ export class DecisionModal {
       event.options.forEach((opt, idx) => {
         const btn = document.createElement('button');
         btn.className = 'sel-btn' + (idx === 0 ? ' heal' : '');
-        btn.style.cssText = 'padding:8px 20px;font-size:.75rem';
+        btn.style.cssText = 'padding:6px 16px;font-size:.7rem';
         btn.textContent = opt.label;
         btn.addEventListener('click', () => {
           this.close();
@@ -31,11 +30,11 @@ export class DecisionModal {
         this.optionsEl.appendChild(btn);
       });
     }
-    if (this.overlay) this.overlay.classList.add('active');
+    if (this.overlay) this.overlay.style.display = 'block';
   }
 
   close() {
-    if (this.overlay) this.overlay.classList.remove('active');
+    if (this.overlay) this.overlay.style.display = 'none';
     this.currentEvent = null;
   }
 }
