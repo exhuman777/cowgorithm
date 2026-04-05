@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { GRID, COLORS, SEASON_COLORS } from '../core/Constants.js';
 import { gameState } from '../core/GameState.js';
-import { createTree } from '../entities/TreeFactory.js';
+import { createTree, createSakuraTree, updateTreeSeason } from '../entities/TreeFactory.js';
 
 export class FarmGrid {
   constructor(scene) {
@@ -94,36 +94,51 @@ export class FarmGrid {
   }
 
   placeTrees() {
+    let treeIndex = 0;
     for (let row = 0; row < GRID.ROWS; row++) {
       for (let col = 0; col < GRID.COLS; col++) {
         if (gameState.map[row][col].type === 'forest') {
-          const tree = createTree();
+          // Deterministic sakura selection: ~35% of forest tiles
+          const seed = Math.sin(col * 12.9898 + row * 78.233) * 43758.5453;
+          const isSakura = ((seed % 1 + 1) % 1) < 0.35;
+
+          const tree = isSakura ? createSakuraTree() : createTree();
           tree.position.set(
             col * GRID.TILE_SIZE + GRID.TILE_SIZE / 2,
             0,
             row * GRID.TILE_SIZE + GRID.TILE_SIZE / 2
           );
+
+          // Dim trees on unowned land
+          if (!gameState.map[row][col].owned) {
+            tree.children.forEach(child => {
+              if (child.material) {
+                child.material = child.material.clone();
+                child.material.color.multiplyScalar(0.4);
+              }
+            });
+            tree.userData.dimmed = true;
+          }
+
           this.scene.add(tree);
           this.trees.push(tree);
+          treeIndex++;
         }
       }
     }
   }
 
   updateTreeColors() {
-    const foliageColors = {
-      spring: 0x2d6a1e,
-      summer: 0x3a7a28,
-      fall:   0xc47a1a,
-      winter: 0x6a6a60,
-    };
-    const color = foliageColors[this.currentSeason] || 0x2d6a1e;
     for (const tree of this.trees) {
-      // children[1] is foliage cone (children[0] is trunk)
-      if (tree.children[1]) {
-        tree.children[1].material.color.setHex(color);
-      }
+      if (tree.userData.dimmed) continue;
+      updateTreeSeason(tree, this.currentSeason);
     }
+  }
+
+  getSakuraPositions() {
+    return this.trees
+      .filter(t => t.userData.isSakura && !t.userData.dimmed)
+      .map(t => ({ x: t.position.x, z: t.position.z }));
   }
 
   updateWater(elapsedTime) {
