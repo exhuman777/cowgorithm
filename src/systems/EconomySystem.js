@@ -1,5 +1,5 @@
 import { gameState } from '../core/GameState.js';
-import { BUILDING_DEFS, TECH_DEFS } from '../core/Constants.js';
+import { BUILDING_DEFS, TECH_DEFS, getSeason, SEASON_EFFECTS } from '../core/Constants.js';
 import { eventBus, Events } from '../core/EventBus.js';
 
 export class EconomySystem {
@@ -19,14 +19,18 @@ export class EconomySystem {
     gameState.dailyIncome = 0;
     gameState.dailyCosts = 0;
 
-    // 2. Market price fluctuation (random walk)
+    // 2. Season detection
+    const season = getSeason(gameState.day);
+    const seasonFx = SEASON_EFFECTS[season];
+
+    // 3. Market price fluctuation (random walk)
     gameState.prevMarketPrices = { ...gameState.marketPrices };
     for (const product of ['milk', 'wool', 'eggs']) {
-      const base = product === 'milk' ? 15 : product === 'wool' ? 5 : 2;
+      const base = product === 'milk' ? 15 : product === 'wool' ? 7 : 2;
       const factor = 0.92 + Math.random() * 0.16; // 0.92 to 1.08
       gameState.marketPrices[product] = Math.max(
         base * 0.5,
-        Math.min(base * 2, gameState.marketPrices[product] * factor)
+        Math.min(base * 2.5, gameState.marketPrices[product] * factor)
       );
       // Round to 2 decimal places
       gameState.marketPrices[product] = Math.round(gameState.marketPrices[product] * 100) / 100;
@@ -72,24 +76,26 @@ export class EconomySystem {
   sellProducts() {
     let total = 0;
     const bonus = 1 + gameState.marketBonus;
+    const season = getSeason(gameState.day);
+    const seasonPriceMod = SEASON_EFFECTS[season].priceMod;
 
     // Sell milk
     if (gameState.milk > 0) {
-      const income = gameState.milk * gameState.marketPrices.milk * bonus;
+      const income = gameState.milk * gameState.marketPrices.milk * bonus * seasonPriceMod;
       total += income;
       gameState.milk = 0;
     }
 
     // Sell wool
     if (gameState.wool > 0) {
-      const income = gameState.wool * gameState.marketPrices.wool * bonus;
+      const income = gameState.wool * gameState.marketPrices.wool * bonus * seasonPriceMod;
       total += income;
       gameState.wool = 0;
     }
 
     // Sell eggs
     if (gameState.eggs > 0) {
-      const income = gameState.eggs * gameState.marketPrices.eggs * bonus;
+      const income = gameState.eggs * gameState.marketPrices.eggs * bonus * seasonPriceMod;
       total += income;
       gameState.eggs = 0;
     }
@@ -104,6 +110,16 @@ export class EconomySystem {
       eventBus.emit(Events.SFX_PLAY, { sound: 'sell' });
       eventBus.emit(Events.MONEY_CHANGED, { money: gameState.money });
     }
+  }
+
+  getSeasonProdMod() {
+    const season = getSeason(gameState.day);
+    return SEASON_EFFECTS[season].prodMod;
+  }
+
+  getSeasonFeedMod() {
+    const season = getSeason(gameState.day);
+    return SEASON_EFFECTS[season].feedMod;
   }
 
   getTechEffect(effectName) {
