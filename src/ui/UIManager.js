@@ -445,6 +445,9 @@ export class UIManager {
     const d = this.dom;
     if (!d.floatTexts) return;
 
+    // Cap active float texts to prevent visual clutter
+    if (d.floatTexts.childElementCount >= 8) return;
+
     const el = document.createElement('div');
     el.className = 'float-text';
     el.textContent = data.text || '';

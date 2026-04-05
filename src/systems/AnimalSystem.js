@@ -353,15 +353,18 @@ export class AnimalSystem {
     // Emit events
     eventBus.emit(Events.ANIMAL_PRODUCE, { animal, product, amount });
 
-    const worldX = animal.x * GRID.TILE_SIZE;
-    const worldZ = animal.y * GRID.TILE_SIZE;
-    eventBus.emit(Events.FLOAT_TEXT, {
-      text: `+${amount} ${product}`,
-      x: worldX,
-      y: 2,
-      z: worldZ,
-      color: '#06b6d4',
-    });
+    // Show float text for ~30% of production events to reduce clutter
+    if (Math.random() < 0.3) {
+      const worldX = animal.x * GRID.TILE_SIZE;
+      const worldZ = animal.y * GRID.TILE_SIZE;
+      eventBus.emit(Events.FLOAT_TEXT, {
+        text: `+${amount} ${product}`,
+        x: worldX,
+        y: 2,
+        z: worldZ,
+        color: '#06b6d4',
+      });
+    }
   }
 
   _matureBeef(animal) {
