@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { eventBus, Events } from './core/EventBus.js';
 import { gameState } from './core/GameState.js';
-import { GRID, GAME, CAMERA, COLORS, getSeason } from './core/Constants.js';
+import { GRID, GAME, CAMERA, COLORS, getSeason, TECH_DEFS } from './core/Constants.js';
 
 // Systems
 import { FarmGrid } from './systems/FarmGrid.js';
@@ -124,6 +124,9 @@ class Game {
         this.techModal.open();
       }
     });
+
+    // Win detection on tech unlock
+    eventBus.on(Events.TECH_UNLOCKED, () => this.checkWinCondition());
 
     // Show continue button if save exists
     if (gameState.hasSave()) this.titleScreen.showContinueButton();
@@ -362,6 +365,84 @@ class Game {
         break;
     }
     eventBus.emit(Events.NOTIFICATION, { msg: `Decision: ${opt.label}` });
+  }
+
+  checkWinCondition() {
+    if (gameState.completionDay > 0) return; // Already won this run
+    const totalTechs = TECH_DEFS.length;
+    if (gameState.techs.length >= totalTechs) {
+      gameState.completionDay = gameState.day;
+      this.showWinScreen();
+    }
+  }
+
+  showWinScreen() {
+    const day = gameState.completionDay;
+    const season = getSeason(day);
+
+    // Save run
+    const run = {
+      runId: crypto.randomUUID(),
+      playerName: 'Anonymous',
+      completionDay: day,
+      completionSeason: season,
+      date: new Date().toISOString(),
+      version: 'v3',
+      hash: '',
+    };
+
+    // Update PB
+    let isNewPB = false;
+    try {
+      const rawPB = localStorage.getItem('cowgorithm_pb');
+      const pb = rawPB ? JSON.parse(rawPB) : null;
+      if (!pb || day < pb.completionDay) {
+        localStorage.setItem('cowgorithm_pb', JSON.stringify(run));
+        isNewPB = true;
+      }
+
+      // Save to runs array
+      const rawRuns = localStorage.getItem('cowgorithm_runs');
+      const runs = rawRuns ? JSON.parse(rawRuns) : [];
+      runs.push(run);
+      if (runs.length > 20) runs.shift();
+      localStorage.setItem('cowgorithm_runs', JSON.stringify(runs));
+    } catch (e) {}
+
+    // Show win overlay
+    const overlay = document.getElementById('win-overlay');
+    const daysEl = document.getElementById('win-days');
+    const pbEl = document.getElementById('win-pb');
+    if (daysEl) daysEl.textContent = day;
+    if (pbEl) {
+      if (isNewPB) {
+        pbEl.textContent = 'NEW PERSONAL BEST!';
+        pbEl.style.color = '#88e0b0';
+      } else {
+        try {
+          const pb = JSON.parse(localStorage.getItem('cowgorithm_pb'));
+          pbEl.textContent = `Personal Best: ${pb.completionDay} days`;
+        } catch (e) {}
+      }
+    }
+    if (overlay) overlay.style.display = 'flex';
+  }
+
+  newGameFromWin() {
+    // Save name if entered
+    const nameInput = document.getElementById('win-name');
+    if (nameInput && nameInput.value.trim()) {
+      try {
+        const rawPB = localStorage.getItem('cowgorithm_pb');
+        if (rawPB) {
+          const pb = JSON.parse(rawPB);
+          pb.playerName = nameInput.value.trim();
+          localStorage.setItem('cowgorithm_pb', JSON.stringify(pb));
+        }
+      } catch (e) {}
+    }
+    document.getElementById('win-overlay').style.display = 'none';
+    location.reload();
   }
 
   // Demolish the currently selected building
