@@ -255,12 +255,12 @@ function buildVet() {
 function buildAICenter() {
   const group = new THREE.Group();
 
-  const walls = new THREE.Mesh(new THREE.BoxGeometry(2, 1.5, 2), mat(0x6d28d9));
+  const walls = new THREE.Mesh(new THREE.BoxGeometry(2, 1.5, 2), mat(0x1a5a8a));
   walls.position.y = 0.75;
   walls.castShadow = true;
   group.add(walls);
 
-  const roof = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.1, 2.1), mat(0x5b21b6));
+  const roof = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.1, 2.1), mat(0x134668));
   roof.position.y = 1.55;
   group.add(roof);
 
@@ -281,7 +281,7 @@ function buildAICenter() {
   group.userData.beacon = beacon;
 
   // Decorative panels on sides
-  const panelMat = mat(0x7c3aed);
+  const panelMat = mat(0x1a6a9a);
   for (const [px, pz, rotY] of [[0, 1.06, 0], [0, -1.06, Math.PI], [1.06, 0, Math.PI / 2], [-1.06, 0, -Math.PI / 2]]) {
     const panel = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.8, 0.04), panelMat);
     panel.position.set(px, 0.9, pz);

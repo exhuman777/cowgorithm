@@ -254,32 +254,32 @@ body{background:var(--bg-base);color:var(--ink);font-family:var(--sans);overflow
   <!-- TOP BAR -->
   <div id="top-bar">
     <div class="resource">
-      <span class="icon" style="color:var(--emerald-light);font-family:'JetBrains Mono',monospace;font-size:.8rem">$</span>
+      <span class="icon" style="color:var(--emerald-light);font-family:var(--mono);font-size:.8rem">$</span>
       <span class="val" id="r-money">15000</span>
       <div class="res-tooltip">Cash on hand</div>
     </div>
     <div class="resource">
-      <span class="icon" style="color:#c4e8ff;font-family:'JetBrains Mono',monospace;font-size:.78rem">MLK</span>
+      <span class="icon" style="color:#c4e8ff;font-family:var(--mono);font-size:.78rem">MLK</span>
       <span class="val" id="r-milk">0</span>
       <div class="res-tooltip">Milk units stored</div>
     </div>
     <div class="resource">
-      <span class="icon" style="color:#e8d5c4;font-family:'JetBrains Mono',monospace;font-size:.78rem">WOL</span>
+      <span class="icon" style="color:#e8d5c4;font-family:var(--mono);font-size:.78rem">WOL</span>
       <span class="val" id="r-wool">0</span>
       <div class="res-tooltip">Wool units stored</div>
     </div>
     <div class="resource">
-      <span class="icon" style="color:#ffe8c4;font-family:'JetBrains Mono',monospace;font-size:.78rem">EGG</span>
+      <span class="icon" style="color:#ffe8c4;font-family:var(--mono);font-size:.78rem">EGG</span>
       <span class="val" id="r-eggs">0</span>
       <div class="res-tooltip">Egg units stored</div>
     </div>
     <div class="resource">
-      <span class="icon" style="color:var(--amber);font-family:'JetBrains Mono',monospace;font-size:.78rem">PWR</span>
+      <span class="icon" style="color:var(--amber);font-family:var(--mono);font-size:.78rem">PWR</span>
       <span class="val" id="r-energy" style="color:var(--amber-light)">100</span>
       <div class="res-tooltip">Farm energy capacity</div>
     </div>
     <div class="resource">
-      <span class="icon" style="color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:.78rem">DAT</span>
+      <span class="icon" style="color:var(--cyan);font-family:var(--mono);font-size:.78rem">DAT</span>
       <span class="val" id="r-data" style="color:var(--cyan)">0</span>
       <div class="res-tooltip">AI data points collected</div>
     </div>
@@ -302,7 +302,7 @@ body{background:var(--bg-base);color:var(--ink);font-family:var(--sans);overflow
   <!-- QUEST BAR -->
   <div id="quest-bar">
     <div id="quest-phase">PHASE 1</div>
-    <div id="quest-icon" style="color:var(--amber);font-family:'JetBrains Mono',monospace;font-size:.8rem">[*]</div>
+    <div id="quest-icon" style="color:var(--amber);font-family:var(--mono);font-size:.8rem">[*]</div>
     <div id="quest-text">Initializing farm...</div>
     <div id="quest-hint-btn" onclick="window.game?.toggleQuestHint()" title="Show hint">?</div>
     <div id="quest-progress">1/12</div>
@@ -322,70 +322,70 @@ body{background:var(--bg-base);color:var(--ink);font-family:var(--sans);overflow
           Infrastructure
         </div>
         <button class="build-btn" data-build="pasture" onclick="window.game?.selectBuild('pasture')">
-          <span class="emoji-box" style="color:var(--emerald-light);font-family:'JetBrains Mono',monospace;font-size:.65rem">PST</span>
+          <span class="emoji-box" style="color:var(--emerald-light);font-family:var(--mono);font-size:.65rem">PST</span>
           <span class="info">
             <span class="bname">Pasture <span class="hotkey">[P]</span></span>
             <span class="cost">$200</span>
           </span>
         </button>
         <button class="build-btn" data-build="barn" onclick="window.game?.selectBuild('barn')">
-          <span class="emoji-box" style="color:var(--amber);font-family:'JetBrains Mono',monospace;font-size:.65rem">BRN</span>
+          <span class="emoji-box" style="color:var(--amber);font-family:var(--mono);font-size:.65rem">BRN</span>
           <span class="info">
             <span class="bname">Barn <span class="hotkey">[B]</span></span>
             <span class="cost">$5,000</span>
           </span>
         </button>
         <button class="build-btn" data-build="milking" onclick="window.game?.selectBuild('milking')">
-          <span class="emoji-box" style="color:#c4e8ff;font-family:'JetBrains Mono',monospace;font-size:.65rem">MLK</span>
+          <span class="emoji-box" style="color:#c4e8ff;font-family:var(--mono);font-size:.65rem">MLK</span>
           <span class="info">
             <span class="bname">Milking Station</span>
             <span class="cost">$8,000</span>
           </span>
         </button>
         <button class="build-btn" data-build="shearing" onclick="window.game?.selectBuild('shearing')">
-          <span class="emoji-box" style="color:#e8d5c4;font-family:'JetBrains Mono',monospace;font-size:.65rem">SHR</span>
+          <span class="emoji-box" style="color:#e8d5c4;font-family:var(--mono);font-size:.65rem">SHR</span>
           <span class="info">
             <span class="bname">Shearing Shed</span>
             <span class="cost">$6,000</span>
           </span>
         </button>
         <button class="build-btn" data-build="coop" onclick="window.game?.selectBuild('coop')">
-          <span class="emoji-box" style="color:#ffe8c4;font-family:'JetBrains Mono',monospace;font-size:.65rem">COP</span>
+          <span class="emoji-box" style="color:#ffe8c4;font-family:var(--mono);font-size:.65rem">COP</span>
           <span class="info">
             <span class="bname">Chicken Coop</span>
             <span class="cost">$3,000</span>
           </span>
         </button>
         <button class="build-btn" data-build="silo" onclick="window.game?.selectBuild('silo')">
-          <span class="emoji-box" style="color:#b0c4de;font-family:'JetBrains Mono',monospace;font-size:.65rem">SLO</span>
+          <span class="emoji-box" style="color:#b0c4de;font-family:var(--mono);font-size:.65rem">SLO</span>
           <span class="info">
             <span class="bname">Feed Silo</span>
             <span class="cost">$4,000</span>
           </span>
         </button>
         <button class="build-btn" data-build="solar" onclick="window.game?.selectBuild('solar')">
-          <span class="emoji-box" style="color:var(--amber-light);font-family:'JetBrains Mono',monospace;font-size:.65rem">SOL</span>
+          <span class="emoji-box" style="color:var(--amber-light);font-family:var(--mono);font-size:.65rem">SOL</span>
           <span class="info">
             <span class="bname">Solar Array</span>
             <span class="cost">$10,000</span>
           </span>
         </button>
         <button class="build-btn" data-build="drone" onclick="window.game?.selectBuild('drone')">
-          <span class="emoji-box" style="color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:.65rem">DRN</span>
+          <span class="emoji-box" style="color:var(--cyan);font-family:var(--mono);font-size:.65rem">DRN</span>
           <span class="info">
             <span class="bname">Drone Station</span>
             <span class="cost">$15,000</span>
           </span>
         </button>
         <button class="build-btn" data-build="vet" onclick="window.game?.selectBuild('vet')">
-          <span class="emoji-box" style="color:var(--emerald-light);font-family:'JetBrains Mono',monospace;font-size:.65rem">VET</span>
+          <span class="emoji-box" style="color:var(--emerald-light);font-family:var(--mono);font-size:.65rem">VET</span>
           <span class="info">
             <span class="bname">Vet Lab</span>
             <span class="cost">$12,000</span>
           </span>
         </button>
         <button class="build-btn" data-build="ai_center" onclick="window.game?.selectBuild('ai_center')">
-          <span class="emoji-box" style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:.65rem">AIC</span>
+          <span class="emoji-box" style="color:var(--accent);font-family:var(--mono);font-size:.65rem">AIC</span>
           <span class="info">
             <span class="bname">AI Center</span>
             <span class="cost">$25,000</span>
@@ -400,35 +400,35 @@ body{background:var(--bg-base);color:var(--ink);font-family:var(--sans);overflow
           Livestock
         </div>
         <button class="build-btn" onclick="window.game?.buyAnimal('cow')">
-          <span class="emoji-box" style="color:#c4e8ff;font-family:'JetBrains Mono',monospace;font-size:.65rem">COW</span>
+          <span class="emoji-box" style="color:#c4e8ff;font-family:var(--mono);font-size:.65rem">COW</span>
           <span class="info">
             <span class="bname">Dairy Cow</span>
             <span class="cost">$1,500</span>
           </span>
         </button>
         <button class="build-btn" onclick="window.game?.buyAnimal('beef')">
-          <span class="emoji-box" style="color:#e8c4a0;font-family:'JetBrains Mono',monospace;font-size:.65rem">BEF</span>
+          <span class="emoji-box" style="color:#e8c4a0;font-family:var(--mono);font-size:.65rem">BEF</span>
           <span class="info">
             <span class="bname">Beef Cattle</span>
             <span class="cost">$1,200</span>
           </span>
         </button>
         <button class="build-btn" onclick="window.game?.buyAnimal('sheep')">
-          <span class="emoji-box" style="color:#e8e8e8;font-family:'JetBrains Mono',monospace;font-size:.65rem">SHP</span>
+          <span class="emoji-box" style="color:#e8e8e8;font-family:var(--mono);font-size:.65rem">SHP</span>
           <span class="info">
             <span class="bname">Sheep</span>
             <span class="cost">$300</span>
           </span>
         </button>
         <button class="build-btn" onclick="window.game?.buyAnimal('goat')">
-          <span class="emoji-box" style="color:#d4c4a0;font-family:'JetBrains Mono',monospace;font-size:.65rem">GOT</span>
+          <span class="emoji-box" style="color:#d4c4a0;font-family:var(--mono);font-size:.65rem">GOT</span>
           <span class="info">
             <span class="bname">Goat</span>
             <span class="cost">$250</span>
           </span>
         </button>
         <button class="build-btn" onclick="window.game?.buyAnimal('chicken')">
-          <span class="emoji-box" style="color:#ffe8a0;font-family:'JetBrains Mono',monospace;font-size:.65rem">CHK</span>
+          <span class="emoji-box" style="color:#ffe8a0;font-family:var(--mono);font-size:.65rem">CHK</span>
           <span class="info">
             <span class="bname">Chicken</span>
             <span class="cost">$20</span>
@@ -445,14 +445,14 @@ body{background:var(--bg-base);color:var(--ink);font-family:var(--sans);overflow
         <button class="action-btn tech" onclick="window.game?.openTechTree()">Tech Tree <span style="font-size:.62rem;opacity:.6">[T]</span></button>
         <button class="action-btn sell-btn" onclick="window.game?.sellProducts()">Sell Products <span style="font-size:.62rem;opacity:.6">[S]</span></button>
         <button class="build-btn" data-build="expand" onclick="window.game?.toggleExpand()">
-          <span class="emoji-box" style="color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:.65rem">EXP</span>
+          <span class="emoji-box" style="color:var(--cyan);font-family:var(--mono);font-size:.65rem">EXP</span>
           <span class="info">
             <span class="bname">Expand Land</span>
             <span class="cost">$2,000/tile</span>
           </span>
         </button>
         <button class="build-btn" data-build="demolish" onclick="window.game?.toggleDemolish()">
-          <span class="emoji-box" style="color:var(--red);font-family:'JetBrains Mono',monospace;font-size:.65rem">DEL</span>
+          <span class="emoji-box" style="color:var(--red);font-family:var(--mono);font-size:.65rem">DEL</span>
           <span class="info">
             <span class="bname">Demolish</span>
             <span class="cost">Click to remove</span>
