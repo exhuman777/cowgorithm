@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { eventBus, Events } from './core/EventBus.js';
 import { gameState } from './core/GameState.js';
-import { GRID, GAME, CAMERA, COLORS } from './core/Constants.js';
+import { GRID, GAME, CAMERA, COLORS, getSeason } from './core/Constants.js';
 
 // Systems
 import { FarmGrid } from './systems/FarmGrid.js';
@@ -100,6 +100,7 @@ class Game {
 
     // Game tick accumulator
     this.dayTickAccum = 0;
+    this.visualTimeAccum = 0;
     this.running = false;
 
     // Resize handler
@@ -166,10 +167,14 @@ class Game {
     }
 
     // Visual updates (every frame regardless of speed)
+    // Visual day/night runs on real wall-clock time: 60-second cycle
+    this.visualTimeAccum += rawDelta;
+    gameState.visualDayProgress = (this.visualTimeAccum % 60) / 60;
+
     this.animalSystem.updateVisuals(delta);
     this.farmGrid.updateWater(this.clock.elapsedTime);
     this.farmGrid.maybeUpdateColors();
-    this.dayNightSystem.update(gameState.dayProgress);
+    this.dayNightSystem.update(gameState.visualDayProgress);
     this.particles.update(delta);
     this.uiManager.update();
 
@@ -190,6 +195,12 @@ class Game {
 
   newDay() {
     gameState.day++;
+
+    // Update season
+    const season = getSeason(gameState.day);
+    this.dayNightSystem.setSeason(season);
+    if (this.farmGrid.setSeason) this.farmGrid.setSeason(season);
+
     this.economySystem.newDay();
     this.weatherSystem.checkWeatherEvent();
 

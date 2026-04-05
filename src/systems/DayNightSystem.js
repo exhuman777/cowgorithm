@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { COLORS } from '../core/Constants.js';
 
 export class DayNightSystem {
   constructor(scene, dirLight, ambientLight) {
@@ -7,9 +6,15 @@ export class DayNightSystem {
     this.dirLight = dirLight;
     this.ambientLight = ambientLight;
     this.skyColor = new THREE.Color();
-    this.dayColor = new THREE.Color(COLORS.SKY);
-    this.nightColor = new THREE.Color(COLORS.SKY_NIGHT);
-    this.sunsetColor = new THREE.Color(COLORS.SKY_SUNSET);
+
+    // Season-specific palettes (day, night, sunset)
+    this.palettes = {
+      spring: { day: new THREE.Color(0x8ecae6), night: new THREE.Color(0x0a1628), sunset: new THREE.Color(0xff9eb5) },
+      summer: { day: new THREE.Color(0x87ceeb), night: new THREE.Color(0x0a1628), sunset: new THREE.Color(0xff7b54) },
+      fall:   { day: new THREE.Color(0x7ba7bc), night: new THREE.Color(0x0d1a2a), sunset: new THREE.Color(0xc44536) },
+      winter: { day: new THREE.Color(0xb0c4d8), night: new THREE.Color(0x101828), sunset: new THREE.Color(0x8a7fa0) },
+    };
+    this.currentPalette = this.palettes.spring;
 
     // Sun - small yellow sphere, emissive so it glows without needing light
     const sunGeo = new THREE.SphereGeometry(1.8, 8, 8);
@@ -49,69 +54,68 @@ export class DayNightSystem {
     return points;
   }
 
-  update(dayProgress) {
-    // dayProgress 0-1: 0=dawn, 0.25=noon, 0.5=sunset, 0.75=midnight
+  setSeason(seasonKey) {
+    this.currentPalette = this.palettes[seasonKey] || this.palettes.spring;
+  }
+
+  update(visualProgress) {
+    const p = this.currentPalette;
     let t;
-    if (dayProgress < 0.25) {
-      t = dayProgress / 0.25;
-      this.skyColor.lerpColors(this.sunsetColor, this.dayColor, t);
+    if (visualProgress < 0.25) {
+      t = visualProgress / 0.25;
+      this.skyColor.lerpColors(p.sunset, p.day, t);
       this.ambientLight.intensity = 0.3 + 0.4 * t;
       this.dirLight.intensity = 0.4 + 0.6 * t;
-    } else if (dayProgress < 0.5) {
-      t = (dayProgress - 0.25) / 0.25;
-      this.skyColor.lerpColors(this.dayColor, this.sunsetColor, t);
+    } else if (visualProgress < 0.5) {
+      t = (visualProgress - 0.25) / 0.25;
+      this.skyColor.lerpColors(p.day, p.sunset, t);
       this.ambientLight.intensity = 0.7 - 0.2 * t;
       this.dirLight.intensity = 1.0 - 0.4 * t;
-    } else if (dayProgress < 0.75) {
-      t = (dayProgress - 0.5) / 0.25;
-      this.skyColor.lerpColors(this.sunsetColor, this.nightColor, t);
+    } else if (visualProgress < 0.75) {
+      t = (visualProgress - 0.5) / 0.25;
+      this.skyColor.lerpColors(p.sunset, p.night, t);
       this.ambientLight.intensity = 0.5 - 0.3 * t;
       this.dirLight.intensity = 0.6 - 0.4 * t;
     } else {
-      t = (dayProgress - 0.75) / 0.25;
-      this.skyColor.lerpColors(this.nightColor, this.sunsetColor, t);
+      t = (visualProgress - 0.75) / 0.25;
+      this.skyColor.lerpColors(p.night, p.sunset, t);
       this.ambientLight.intensity = 0.2 + 0.1 * t;
       this.dirLight.intensity = 0.2 + 0.2 * t;
     }
 
     this.scene.background = this.skyColor;
 
-    // Sun/moon orbit - shared arc parameters
-    const angle = dayProgress * Math.PI * 2;
+    const angle = visualProgress * Math.PI * 2;
     const orbitRadius = 60;
     const cx = 32, cz = 20;
 
-    // Sun position: visible during day half (progress 0-0.5)
     this.sun.position.set(
       Math.cos(angle) * orbitRadius * 0.5 + cx,
       Math.sin(angle) * orbitRadius,
       cz
     );
-    this.sun.visible = dayProgress < 0.55;
+    this.sun.visible = visualProgress < 0.55;
 
-    // Moon position: opposite side of orbit
     const moonAngle = angle + Math.PI;
     this.moon.position.set(
       Math.cos(moonAngle) * orbitRadius * 0.4 + cx,
       Math.sin(moonAngle) * orbitRadius,
       cz
     );
-    this.moon.visible = dayProgress > 0.45;
+    this.moon.visible = visualProgress > 0.45;
 
-    // Directional light follows sun
     this.dirLight.position.set(
       Math.cos(angle) * 40 + cx,
       Math.sin(angle) * 30 + 10,
       cz
     );
 
-    // Stars: fade in at dusk, out at dawn
-    const isNight = dayProgress > 0.45 && dayProgress < 0.95;
+    const isNight = visualProgress > 0.45 && visualProgress < 0.95;
     this.stars.visible = isNight;
     if (isNight) {
       let starAlpha;
-      if (dayProgress < 0.55) starAlpha = (dayProgress - 0.45) / 0.1;
-      else if (dayProgress > 0.85) starAlpha = (0.95 - dayProgress) / 0.1;
+      if (visualProgress < 0.55) starAlpha = (visualProgress - 0.45) / 0.1;
+      else if (visualProgress > 0.85) starAlpha = (0.95 - visualProgress) / 0.1;
       else starAlpha = 1;
       this.stars.material.opacity = Math.min(starAlpha, 1);
       this.stars.material.transparent = true;
