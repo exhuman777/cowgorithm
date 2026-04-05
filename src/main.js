@@ -287,6 +287,17 @@ class Game {
     this.audio.enabled = gameState.soundEnabled;
   }
 
+  toggleTheme() {
+    const isDark = document.documentElement.dataset.theme === 'dark';
+    if (isDark) {
+      delete document.documentElement.dataset.theme;
+      localStorage.setItem('cowgorithm_theme', 'light');
+    } else {
+      document.documentElement.dataset.theme = 'dark';
+      localStorage.setItem('cowgorithm_theme', 'dark');
+    }
+  }
+
   autoManageAll() { this.animalSystem.autoManageAll(); }
   startProgramming(action) { this.inputSystem.startProgramming(action); }
   sellAnimal() { this.animalSystem.sellSelectedAnimal(); }

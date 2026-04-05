@@ -368,6 +368,8 @@ export class UIManager {
     const d = this.dom;
     if (d.autoSellBtn) d.autoSellBtn.classList.toggle('on', gameState.autoSell);
     if (d.soundBtn) d.soundBtn.classList.toggle('on', gameState.soundEnabled);
+    const themeBtn = document.getElementById('theme-btn');
+    if (themeBtn) themeBtn.textContent = document.documentElement.dataset.theme === 'dark' ? 'Dark' : 'Light';
   }
 
   // --- Canvas Cursor ---
