@@ -97,7 +97,10 @@ export class UIManager {
 
   updateDayCounter() {
     const d = this.dom;
-    if (d.dayCounter) d.dayCounter.textContent = `Day ${gameState.day}`;
+    if (!d.dayCounter) return;
+    const seasonNames = ['Spring', 'Summer', 'Fall', 'Winter'];
+    const seasonIdx = Math.floor(((gameState.day - 1) % 120) / 30);
+    d.dayCounter.textContent = `Day ${gameState.day} | ${seasonNames[seasonIdx]}`;
   }
 
   // --- Quest Bar ---

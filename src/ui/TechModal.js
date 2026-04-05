@@ -26,7 +26,7 @@ export class TechModal {
       const tierTechs = TECH_DEFS.filter(t => t.tier === tier);
 
       const tierHeader = document.createElement('div');
-      tierHeader.style.cssText = 'grid-column:1/-1;color:rgba(15,15,15,0.5);font-size:12px;margin-top:8px;padding:4px 0;border-bottom:1px solid var(--ink);font-family:var(--mono);letter-spacing:2px';
+      tierHeader.style.cssText = 'grid-column:1/-1;color:rgba(15,15,15,0.5);font-size:11px;margin-top:8px;padding:4px 0;border-bottom:1px solid rgba(15,15,15,0.1);font-family:var(--mono);letter-spacing:2px';
       tierHeader.textContent = `TIER ${tier}`;
       this.grid.appendChild(tierHeader);
 
@@ -40,7 +40,7 @@ export class TechModal {
         let opacity = '0.5';
         let cursor = 'default';
         if (status === 'unlocked') { borderColor = 'var(--emerald)'; opacity = '1'; }
-        else if (status === 'available') { borderColor = 'var(--cyan)'; opacity = '1'; cursor = 'pointer'; }
+        else if (status === 'available') { borderColor = 'var(--accent)'; opacity = '1'; cursor = 'pointer'; }
 
         card.style.cssText = `
           background:var(--box-bg);border:1px solid ${borderColor};
@@ -63,7 +63,7 @@ export class TechModal {
           <div style="font-size:13px;font-weight:700;color:${status === 'unlocked' ? 'var(--emerald)' : 'var(--ink)'};margin-bottom:4px">${tech.name}</div>
           <div style="font-size:11px;color:rgba(15,15,15,0.6);margin-bottom:6px">${tech.desc}</div>
           ${prereqText}
-          <div style="font-size:12px;font-weight:700;margin-top:6px;color:${status === 'unlocked' ? 'var(--emerald)' : status === 'available' ? 'var(--amber)' : 'rgba(15,15,15,0.4)'}">
+          <div style="font-size:12px;font-weight:700;margin-top:6px;color:${status === 'unlocked' ? 'var(--emerald)' : status === 'available' ? 'var(--accent)' : 'rgba(15,15,15,0.4)'}">
             ${status === 'unlocked' ? 'UNLOCKED' : `$${cost.toLocaleString()}`}
           </div>
         `;
@@ -74,7 +74,7 @@ export class TechModal {
             this.render();
           });
           card.addEventListener('mouseenter', () => { card.style.borderColor = 'var(--accent)'; });
-          card.addEventListener('mouseleave', () => { card.style.borderColor = 'var(--cyan)'; });
+          card.addEventListener('mouseleave', () => { card.style.borderColor = 'var(--accent)'; });
         }
 
         this.grid.appendChild(card);
