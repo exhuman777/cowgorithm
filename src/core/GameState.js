@@ -45,6 +45,13 @@ class GameState {
     this.dailyCosts = 0;
     this.lastDayIncome = 0;
     this.lastDayCosts = 0;
+    this.activeEffects = []; // { name, daysLeft, data }
+    this.decisionCooldown = 0;
+    this.merchantDiscount = false;
+    this.milkContractDays = 0;
+    this.stormProtected = false;
+    this.disabledBuilding = null;
+    this.visualDayProgress = 0;
   }
 
   createMap() {
@@ -93,11 +100,17 @@ class GameState {
       breedTimer: this.breedTimer, tutorialDone: this.tutorialDone,
       autoSell: this.autoSell, soundEnabled: this.soundEnabled,
       marketPrices: this.marketPrices,
+      activeEffects: this.activeEffects,
+      decisionCooldown: this.decisionCooldown,
+      milkContractDays: this.milkContractDays,
     };
   }
 
   loadFromJSON(data) {
     Object.keys(data).forEach(k => { if (k in this) this[k] = data[k]; });
+    this.activeEffects = data.activeEffects || [];
+    this.decisionCooldown = data.decisionCooldown || 0;
+    this.milkContractDays = data.milkContractDays || 0;
   }
 
   save() {

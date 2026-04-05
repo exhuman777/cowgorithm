@@ -81,7 +81,7 @@ export class WeatherSystem {
         eventBus.emit(Events.MONEY_CHANGED, { money: gameState.money });
         break;
       case 'Tech Grant':
-        gameState.techDiscount = 0.25; // 25% off next tech
+        gameState.techDiscount = 0.5; // 50% off next tech
         break;
       case 'Festival':
         for (const animal of gameState.animals) {

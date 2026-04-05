@@ -19,6 +19,32 @@ export const COLORS = {
   UNOWNED: 0x3a3a3a,
 };
 
+export const SEASON_NAMES = ['Spring', 'Summer', 'Fall', 'Winter'];
+export const SEASON_DURATION = 30; // game-days per season
+
+export const SEASON_COLORS = {
+  spring: { grass: [0.29, 0.55, 0.18], sky: 0x8ecae6, sunset: 0xff9eb5 },
+  summer: { grass: [0.48, 0.60, 0.23], sky: 0x87ceeb, sunset: 0xff7b54 },
+  fall:   { grass: [0.54, 0.42, 0.17], sky: 0x7ba7bc, sunset: 0xc44536 },
+  winter: { grass: [0.55, 0.55, 0.50], sky: 0xb0c4d8, sunset: 0x8a7fa0 },
+};
+
+export const SEASON_EFFECTS = {
+  spring: { prodMod: 1.2, feedMod: 1.0, priceMod: 1.0, breedMod: 2.0 },
+  summer: { prodMod: 1.0, feedMod: 1.0, priceMod: 1.0, breedMod: 1.0 },
+  fall:   { prodMod: 1.0, feedMod: 1.0, priceMod: 1.3, breedMod: 1.0 },
+  winter: { prodMod: 0.7, feedMod: 1.5, priceMod: 1.0, breedMod: 0.0 },
+};
+
+export function getSeason(day) {
+  const idx = Math.floor(((day - 1) % (SEASON_DURATION * 4)) / SEASON_DURATION);
+  return ['spring', 'summer', 'fall', 'winter'][idx];
+}
+
+export function getSeasonProgress(day) {
+  return ((day - 1) % SEASON_DURATION) / SEASON_DURATION;
+}
+
 export const BUILDING_DEFS = {
   farmhouse: { name: 'Farmhouse', cost: 0, color: 0x8b4513, desc: 'Your home base' },
   pasture:   { name: 'Pasture', cost: 200, color: 0x2d6b11, desc: 'Managed grassland, faster regrowth' },
@@ -30,14 +56,14 @@ export const BUILDING_DEFS = {
   solar:     { name: 'Solar Array', cost: 10000, color: 0x1e3a5f, range: 8, energyGen: 15, desc: '+15 energy/day' },
   drone:     { name: 'Drone Station', cost: 15000, color: 0x4a4a5a, range: 12, desc: 'Pasture monitoring' },
   vet:       { name: 'Vet Lab', cost: 12000, color: 0xc8e6c9, range: 6, desc: '-30% disease chance nearby' },
-  ai_center: { name: 'AI Command Center', cost: 25000, color: 0x6d28d9, desc: 'Enables Tier 3+ tech' },
+  ai_center: { name: 'AI Command Center', cost: 25000, color: 0x1a5a8a, desc: 'Enables Tier 3+ tech' },
 };
 
 export const ANIMAL_DEFS = {
   cow:     { name: 'Dairy Cow', cost: 1500, product: 'milk', prodAmt: 1, prodValue: 15, feedCost: 3, housing: 'barn', sellValue: 800, color: 0xffffff },
   beef:    { name: 'Beef Cattle', cost: 1200, product: 'meat', prodAmt: 0, prodValue: 0, feedCost: 2.5, housing: 'barn', maturityDays: 60, matureValue: 3000, sellValue: 600, color: 0x8b4513 },
-  sheep:   { name: 'Sheep', cost: 300, product: 'wool', prodAmt: 1, prodValue: 5, feedCost: 1, housing: 'barn', sellValue: 150, color: 0xf5f5f5 },
-  goat:    { name: 'Goat', cost: 250, product: 'milk', prodAmt: 1, prodValue: 4, feedCost: 1, housing: 'barn', sellValue: 120, color: 0xd2b48c },
+  sheep:   { name: 'Sheep', cost: 300, product: 'wool', prodAmt: 1, prodValue: 7, feedCost: 1, housing: 'barn', sellValue: 150, color: 0xf5f5f5 },
+  goat:    { name: 'Goat', cost: 250, product: 'milk', prodAmt: 1, prodValue: 5, feedCost: 1, housing: 'barn', sellValue: 120, color: 0xd2b48c },
   chicken: { name: 'Chicken', cost: 20, product: 'eggs', prodAmt: 1, prodValue: 2, feedCost: 0.2, housing: 'coop', sellValue: 5, color: 0xffd700 },
 };
 
@@ -61,7 +87,7 @@ export const TECH_DEFS = [
   { id: 'auto_robots', name: 'Farm Robots', tier: 3, cost: 35000, desc: 'Autonomous feeding. -50% feed costs.', effect: { feedSave: 0.5 }, requires: ['drone_scout'], needsAI: true },
   { id: 'cowgorithm_v2', name: 'CowGorithm v2', tier: 4, cost: 75000, desc: 'Full herd AI. +50% all production.', effect: { prodBonus: 0.5 }, requires: ['cowgorithm_v1', 'pred_vet'], needsAI: true },
   { id: 'vertical_farm', name: 'Vertical Feed Farm', tier: 4, cost: 75000, desc: 'Indoor AI farming. Feed cost = zero.', effect: { feedSave: 1 }, requires: ['auto_robots', 'pred_vet'], needsAI: true },
-  { id: 'carbon', name: 'Carbon Credits', tier: 4, cost: 75000, desc: 'Sustainability cert. +$500/day.', effect: { dailyBonus: 500 }, requires: ['cowgorithm_v2', 'vertical_farm'], needsAI: true },
+  { id: 'carbon', name: 'Carbon Credits', tier: 4, cost: 75000, desc: 'Sustainability cert. +$750/day.', effect: { dailyBonus: 750 }, requires: ['cowgorithm_v2', 'vertical_farm'], needsAI: true },
 ];
 
 export const QUESTS = [
@@ -91,16 +117,33 @@ export const MILESTONES = [
 ];
 
 export const WEATHER_EVENTS = [
-  { name: 'Sunny Day', prob: 0.07, msg: 'Perfect weather! Grass grows 2x today.' },
-  { name: 'Rain Storm', prob: 0.05, msg: 'Heavy rain. Grass 3x, production -20%.' },
-  { name: 'Market Boom', prob: 0.05, msg: 'Prices up! +30% sell prices today.' },
-  { name: 'Disease', prob: 0.035, msg: 'Disease outbreak!' },
-  { name: 'Premium Buyer', prob: 0.04, msg: 'Buyer offers +50% premium!' },
-  { name: 'Drought', prob: 0.025, msg: 'Drought. Grass regrowth halved.' },
-  { name: 'Gov Subsidy', prob: 0.03, msg: 'Government farming subsidy! +$3,000.' },
-  { name: 'Tech Grant', prob: 0.025, msg: 'AI research grant! Next tech 25% off.' },
-  { name: 'Festival', prob: 0.04, msg: 'Local farm festival! Animal happiness +20.' },
-  { name: 'Predator Alert', prob: 0.03, msg: 'Predator spotted! Chickens stressed.' },
+  { name: 'Sunny Day', prob: 0.07, seasonBoost: { summer: 2 }, msg: 'Perfect weather! Grass grows 2x today.' },
+  { name: 'Rain Storm', prob: 0.05, seasonBoost: { spring: 2 }, msg: 'Heavy rain. Grass 3x, production -20%.' },
+  { name: 'Market Boom', prob: 0.05, seasonBoost: { fall: 2 }, msg: 'Prices up! +30% sell prices today.' },
+  { name: 'Disease', prob: 0.035, seasonBoost: { winter: 2 }, msg: 'Disease outbreak!' },
+  { name: 'Premium Buyer', prob: 0.04, seasonBoost: {}, msg: 'Buyer offers +50% premium!' },
+  { name: 'Drought', prob: 0.025, seasonBoost: { summer: 3 }, msg: 'Drought. Grass regrowth halved.' },
+  { name: 'Gov Subsidy', prob: 0.03, seasonBoost: {}, msg: 'Government farming subsidy! +$3,000.' },
+  { name: 'Tech Grant', prob: 0.025, seasonBoost: {}, msg: 'AI research grant! Next tech 50% off.' },
+  { name: 'Festival', prob: 0.04, seasonBoost: { fall: 3 }, msg: 'Local farm festival! Animal happiness +20.' },
+  { name: 'Predator Alert', prob: 0.03, seasonBoost: {}, msg: 'Predator spotted! Chickens stressed.' },
+  { name: 'Pest Infestation', prob: 0.03, seasonBoost: { summer: 2 }, msg: 'Pests! Chickens stop producing for 3 days.', duration: 3, effect: 'pestBlock' },
+  { name: 'Equipment Failure', prob: 0.02, seasonBoost: {}, msg: 'Equipment malfunction! A building is disabled for 2 days.', duration: 2, effect: 'buildingDisable' },
+  { name: 'Market Crash', prob: 0.02, seasonBoost: {}, msg: 'Market crash! One product -50% for 5 days.', duration: 5, effect: 'marketCrash' },
+  { name: 'Frost', prob: 0.03, seasonBoost: { winter: 10 }, seasonOnly: 'winter', msg: 'Frost! Grass stops growing for 3 days.', duration: 3, effect: 'frostBlock' },
+  { name: 'Stampede', prob: 0.02, seasonBoost: { spring: 2 }, msg: 'Stampede! Some chickens were lost.' },
+  { name: 'Traveling Merchant', prob: 0.03, seasonBoost: {}, msg: 'A traveling merchant offers animals at 50% off today!', duration: 1, effect: 'merchantDiscount' },
+  { name: 'Celebrity Endorsement', prob: 0.02, seasonBoost: {}, msg: 'Celebrity endorsement! One product sells at 3x for 2 days.', duration: 2, effect: 'celebrityBoost' },
+  { name: 'Perfect Weather', prob: 0.02, seasonBoost: { spring: 2 }, msg: 'Perfect weather streak! +50% production for 3 days.', duration: 3, effect: 'perfectWeather' },
+  { name: 'Golden Calf', prob: 0.005, seasonBoost: {}, msg: 'A golden calf was born on your farm! 2x production permanently.' },
+];
+
+export const DECISION_EVENTS = [
+  { id: 'neighbor_sale', title: 'Neighbor Selling Livestock', desc: '5 sheep at 40% off. Total: $900.', options: [{ label: 'Buy ($900)', cost: 900, reward: 'sheep5' }, { label: 'Decline' }] },
+  { id: 'storm_warning', title: 'Storm Warning', desc: 'Reinforce your barn for $2,000 or risk building damage.', options: [{ label: 'Reinforce ($2,000)', cost: 2000, reward: 'stormProtect' }, { label: 'Risk It' }] },
+  { id: 'investor_offer', title: 'Investor Offer', desc: 'Sell all milk at fixed $12/unit for 30 days.', options: [{ label: 'Accept Contract', reward: 'milkContract' }, { label: 'Decline' }] },
+  { id: 'land_auction', title: 'Land Auction', desc: 'Prime 4x4 plot for $3,000.', options: [{ label: 'Buy ($3,000)', cost: 3000, reward: 'landPlot' }, { label: 'Pass' }] },
+  { id: 'research_deal', title: 'Research Partnership', desc: 'Share data for $5,000 or keep for +10% tech speed.', options: [{ label: 'Sell Data ($5,000)', reward: 'dataSell' }, { label: 'Keep (+10% tech)', reward: 'techSpeed' }] },
 ];
 
 export const TUTORIAL_STEPS = [
