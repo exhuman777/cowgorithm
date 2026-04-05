@@ -26,7 +26,7 @@ export class TechModal {
       const tierTechs = TECH_DEFS.filter(t => t.tier === tier);
 
       const tierHeader = document.createElement('div');
-      tierHeader.style.cssText = 'grid-column:1/-1;color:rgba(15,15,15,0.5);font-size:11px;margin-top:8px;padding:4px 0;border-bottom:1px solid rgba(15,15,15,0.1);font-family:var(--mono);letter-spacing:2px';
+      tierHeader.style.cssText = 'grid-column:1/-1;color:var(--ink);opacity:0.5;font-size:11px;margin-top:8px;padding:4px 0;border-bottom:1px solid var(--grid-line);font-family:var(--mono);letter-spacing:2px';
       tierHeader.textContent = `TIER ${tier}`;
       this.grid.appendChild(tierHeader);
 
@@ -36,7 +36,7 @@ export class TechModal {
         const card = document.createElement('div');
         card.className = 'tech-card';
 
-        let borderColor = 'rgba(15,15,15,0.15)';
+        let borderColor = 'var(--grid-line)';
         let opacity = '0.5';
         let cursor = 'default';
         if (status === 'unlocked') { borderColor = 'var(--emerald)'; opacity = '1'; }
@@ -53,7 +53,7 @@ export class TechModal {
             const t = TECH_DEFS.find(td => td.id === r);
             return t ? t.name : r;
           });
-          prereqText = `<div style="font-size:10px;color:rgba(15,15,15,0.5);margin-top:4px">Requires: ${names.join(', ')}</div>`;
+          prereqText = `<div class="stat-muted" style="font-size:10px;margin-top:4px">Requires: ${names.join(', ')}</div>`;
         }
         if (tech.needsAI) {
           prereqText += `<div style="font-size:10px;color:var(--accent);margin-top:2px">Needs AI Center</div>`;
@@ -65,9 +65,9 @@ export class TechModal {
 
         card.innerHTML = `
           <div style="font-size:13px;font-weight:700;color:${status === 'unlocked' ? 'var(--emerald)' : 'var(--ink)'};margin-bottom:4px">${tech.name}</div>
-          <div style="font-size:11px;color:rgba(15,15,15,0.6);margin-bottom:6px">${tech.desc}</div>
+          <div style="font-size:11px;color:var(--ink);opacity:0.6;margin-bottom:6px">${tech.desc}</div>
           ${prereqText}
-          <div style="font-size:12px;font-weight:700;margin-top:6px;color:${status === 'unlocked' ? 'var(--emerald)' : status === 'available' ? 'var(--accent)' : 'rgba(15,15,15,0.4)'}">
+          <div style="font-size:12px;font-weight:700;margin-top:6px;color:${status === 'unlocked' ? 'var(--emerald)' : status === 'available' ? 'var(--accent)' : 'var(--ink)'};${status !== 'unlocked' && status !== 'available' ? 'opacity:0.4' : ''}">
             ${costText}
           </div>
         `;

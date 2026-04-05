@@ -268,28 +268,28 @@ export class UIManager {
           ${animal.golden ? '<span style="color:var(--amber);font-size:.6rem;font-weight:700">GOLDEN</span>' : ''}
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;font-family:var(--mono);font-size:.6rem;margin-bottom:6px">
-          <span style="color:rgba(15,15,15,0.5)">Age</span><span style="text-align:right">${animal.age || 0}d</span>
-          <span style="color:rgba(15,15,15,0.5)">Prod/day</span><span style="text-align:right;color:var(--emerald)">+${dailyProd.toFixed(1)} ${def.product}</span>
-          <span style="color:rgba(15,15,15,0.5)">Feed/day</span><span style="text-align:right;color:var(--red)">-$${def.feedCost}</span>
-          <span style="color:rgba(15,15,15,0.5)">Net/day</span><span style="text-align:right;font-weight:700;color:${parseFloat(netDaily) >= 0 ? 'var(--emerald)' : 'var(--red)'}">$${netDaily}</span>
-          <span style="color:rgba(15,15,15,0.5)">Efficiency</span><span style="text-align:right">${efficiency}%</span>
-          <span style="color:rgba(15,15,15,0.5)">Lifetime</span><span style="text-align:right">$${Math.floor(animal.lifetimeEarnings || 0)}</span>
+          <span class="stat-muted">Age</span><span style="text-align:right">${animal.age || 0}d</span>
+          <span class="stat-muted">Prod/day</span><span style="text-align:right;color:var(--emerald)">+${dailyProd.toFixed(1)} ${def.product}</span>
+          <span class="stat-muted">Feed/day</span><span style="text-align:right;color:var(--red)">-$${def.feedCost}</span>
+          <span class="stat-muted">Net/day</span><span style="text-align:right;font-weight:700;color:${parseFloat(netDaily) >= 0 ? 'var(--emerald)' : 'var(--red)'}">$${netDaily}</span>
+          <span class="stat-muted">Efficiency</span><span style="text-align:right">${efficiency}%</span>
+          <span class="stat-muted">Lifetime</span><span style="text-align:right">$${Math.floor(animal.lifetimeEarnings || 0)}</span>
         </div>
         <div style="margin-bottom:4px">
           <div style="display:flex;justify-content:space-between;font-size:.58rem;margin-bottom:2px;font-family:var(--mono)">
-            <span style="color:rgba(15,15,15,0.5)">Health</span>
+            <span class="stat-muted">Health</span>
             <span>${Math.floor(healthPct)}%</span>
           </div>
-          <div style="height:3px;background:rgba(15,15,15,0.08);overflow:hidden">
+          <div style="height:3px;background:var(--grid-line);overflow:hidden">
             <div style="height:100%;width:${healthPct}%;background:${healthPct > 50 ? 'var(--emerald)' : healthPct > 25 ? 'var(--amber)' : 'var(--red)'};transition:width .3s"></div>
           </div>
         </div>
         <div style="margin-bottom:6px">
           <div style="display:flex;justify-content:space-between;font-size:.58rem;margin-bottom:2px;font-family:var(--mono)">
-            <span style="color:rgba(15,15,15,0.5)">Happiness</span>
+            <span class="stat-muted">Happiness</span>
             <span>${Math.floor(happyPct)}%</span>
           </div>
-          <div style="height:3px;background:rgba(15,15,15,0.08);overflow:hidden">
+          <div style="height:3px;background:var(--grid-line);overflow:hidden">
             <div style="height:100%;width:${happyPct}%;background:var(--emerald);transition:width .3s"></div>
           </div>
         </div>
@@ -312,10 +312,10 @@ export class UIManager {
       return Math.sqrt(dx * dx + dy * dy) <= def.range;
     }).length : 0;
 
-    let infoHtml = `<div style="font-family:var(--sans);font-size:.7rem;color:rgba(15,15,15,0.7);margin-bottom:6px">${def.desc}</div>`;
+    let infoHtml = `<div style="font-family:var(--sans);font-size:.7rem;color:var(--ink);opacity:0.7;margin-bottom:6px">${def.desc}</div>`;
     infoHtml += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;font-family:var(--mono);font-size:.6rem;margin-bottom:6px">`;
-    if (def.range) infoHtml += `<span style="color:rgba(15,15,15,0.5)">Range</span><span style="text-align:right">${def.range} tiles</span>`;
-    if (def.range) infoHtml += `<span style="color:rgba(15,15,15,0.5)">Animals</span><span style="text-align:right">${animalsInRange} in range</span>`;
+    if (def.range) infoHtml += `<span class="stat-muted">Range</span><span style="text-align:right">${def.range} tiles</span>`;
+    if (def.range) infoHtml += `<span class="stat-muted">Animals</span><span style="text-align:right">${animalsInRange} in range</span>`;
     if (def.capacity) {
       const used = gameState.animals.filter(a => {
         if (def.animalType && a.type !== def.animalType) return false;
@@ -323,10 +323,10 @@ export class UIManager {
         const dy = Math.abs(a.y - building.row);
         return Math.sqrt(dx * dx + dy * dy) <= 3;
       }).length;
-      infoHtml += `<span style="color:rgba(15,15,15,0.5)">Capacity</span><span style="text-align:right">${used}/${def.capacity}</span>`;
+      infoHtml += `<span class="stat-muted">Capacity</span><span style="text-align:right">${used}/${def.capacity}</span>`;
     }
-    if (def.energyGen) infoHtml += `<span style="color:rgba(15,15,15,0.5)">Energy</span><span style="text-align:right;color:var(--amber)">+${def.energyGen}/day</span>`;
-    if (def.bonusAmt) infoHtml += `<span style="color:rgba(15,15,15,0.5)">Bonus</span><span style="text-align:right;color:var(--emerald)">+${def.bonusAmt * 100}% ${def.bonus}</span>`;
+    if (def.energyGen) infoHtml += `<span class="stat-muted">Energy</span><span style="text-align:right;color:var(--amber)">+${def.energyGen}/day</span>`;
+    if (def.bonusAmt) infoHtml += `<span class="stat-muted">Bonus</span><span style="text-align:right;color:var(--emerald)">+${def.bonusAmt * 100}% ${def.bonus}</span>`;
     infoHtml += `</div>`;
 
     if (building.type !== 'farmhouse') {
