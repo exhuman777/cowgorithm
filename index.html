@@ -19,6 +19,82 @@
   --red:#ef4444;--cyan:#06b6d4;
   --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
 }
+[data-theme="dark"]{
+  --bg-base:#0a0f1a;--ink:#c0d0e0;
+  --accent:#e6993a;--accent-dim:rgba(230,153,58,0.12);
+  --box-bg:rgba(20,30,46,0.6);
+  --grid-line:rgba(192,208,224,0.04);
+  --emerald:#88e0b0;--emerald-light:#88e0b0;
+  --amber:#f0c060;--amber-light:#f0c060;
+  --red:#e06060;--cyan:#88c8e0;
+  --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
+}
+[data-theme="dark"] .build-btn{background:rgba(20,30,46,0.5);border-color:rgba(192,208,224,0.1);color:var(--ink)}
+[data-theme="dark"] .build-btn:hover{border-color:var(--ink);background:rgba(192,208,224,0.05)}
+[data-theme="dark"] .build-btn.active{background:var(--ink);color:var(--bg-base)}
+[data-theme="dark"] .build-btn.active .bname,[data-theme="dark"] .build-btn.active .cost,[data-theme="dark"] .build-btn.active .hotkey{color:var(--bg-base)}
+[data-theme="dark"] .build-btn .bname{color:var(--ink)}
+[data-theme="dark"] .build-btn .hotkey{color:rgba(192,208,224,0.4)}
+[data-theme="dark"] .panel-title{background:rgba(10,15,26,0.95);color:#f0b0c0}
+[data-theme="dark"] .panel-title::before{background:#f0b0c0}
+[data-theme="dark"] .panel-title svg{stroke:#f0b0c0}
+[data-theme="dark"] .info-title{color:#f0b0c0}
+[data-theme="dark"] .info-title::before{background:#f0b0c0}
+[data-theme="dark"] .info-section{border-color:rgba(192,208,224,0.08);background:var(--box-bg)}
+[data-theme="dark"] .info-section .label{color:rgba(192,208,224,0.5)}
+[data-theme="dark"] .stat-row .lbl{color:rgba(192,208,224,0.5)}
+[data-theme="dark"] .milestone{border-color:rgba(192,208,224,0.1);border-left-color:var(--accent);background:var(--box-bg)}
+[data-theme="dark"] .milestone .m-title{color:#f0b0c0}
+[data-theme="dark"] .milestone .m-desc{color:rgba(192,208,224,0.5)}
+[data-theme="dark"] .milestone .m-bar{background:rgba(192,208,224,0.08)}
+[data-theme="dark"] .milestone.done{border-left-color:var(--emerald)}
+[data-theme="dark"] .milestone.done .m-title{color:var(--emerald)}
+[data-theme="dark"] .market-row .flat{color:rgba(192,208,224,0.5)}
+[data-theme="dark"] .action-btn{border-color:var(--ink);color:var(--ink)}
+[data-theme="dark"] .action-btn:hover{background:rgba(192,208,224,0.05)}
+[data-theme="dark"] .action-btn.sell-btn{background:var(--ink);color:var(--bg-base)}
+[data-theme="dark"] .action-btn.sell-btn:hover{background:var(--accent);border-color:var(--accent)}
+[data-theme="dark"] .action-btn.tech{border-color:var(--accent);color:var(--accent)}
+[data-theme="dark"] .action-btn.tech:hover{background:var(--accent);color:var(--bg-base)}
+[data-theme="dark"] .action-btn.danger{border-color:var(--red);color:var(--red)}
+[data-theme="dark"] .notif{color:rgba(192,208,224,0.6)}
+[data-theme="dark"] .speed-btn{color:rgba(192,208,224,0.4)}
+[data-theme="dark"] .speed-btn.active{background:var(--ink);color:var(--bg-base)}
+[data-theme="dark"] .speed-btn:hover{color:var(--ink)}
+[data-theme="dark"] .sel-btn{border-color:var(--ink);color:var(--ink)}
+[data-theme="dark"] .sel-btn:hover{background:var(--ink);color:var(--bg-base)}
+[data-theme="dark"] .sel-btn.heal{border-color:var(--emerald);color:var(--emerald)}
+[data-theme="dark"] .sel-btn.sell{border-color:var(--amber);color:var(--amber)}
+[data-theme="dark"] .sel-btn.demolish{border-color:var(--red);color:var(--red)}
+[data-theme="dark"] .top-toggle{border-color:var(--ink);color:rgba(192,208,224,0.5)}
+[data-theme="dark"] .top-toggle.on{background:var(--ink);color:var(--bg-base)}
+[data-theme="dark"] .modal-overlay{background:rgba(10,15,26,.92)}
+[data-theme="dark"] .modal{background:var(--bg-base);border-color:rgba(192,208,224,0.15)}
+[data-theme="dark"] .modal h2{color:var(--ink)}
+[data-theme="dark"] .modal-close{color:rgba(192,208,224,0.4)}
+[data-theme="dark"] .modal-close:hover{color:var(--accent)}
+[data-theme="dark"] .modal-desc{color:rgba(192,208,224,0.5)}
+[data-theme="dark"] .tech-card{border-color:rgba(192,208,224,0.1);background:var(--box-bg)}
+[data-theme="dark"] .tech-card:hover{border-color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+[data-theme="dark"] .toast{background:var(--bg-base);border-color:var(--ink);color:var(--ink)}
+[data-theme="dark"] .res-tooltip{background:var(--bg-base);border-color:var(--ink);color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+[data-theme="dark"] .build-tooltip{background:var(--bg-base);border-color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+[data-theme="dark"] .log-cursor{color:var(--accent)}
+[data-theme="dark"] ::-webkit-scrollbar-track{background:var(--bg-base)}
+[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(192,208,224,0.15)}
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+[data-theme="dark"] #title-screen{background:var(--bg-base);background-image:linear-gradient(to right,var(--grid-line) 1px,transparent 1px),linear-gradient(to bottom,var(--grid-line) 1px,transparent 1px);background-size:5vw 5vh}
+[data-theme="dark"] .title-logo{color:var(--ink);text-shadow:0 0 40px rgba(230,153,58,0.3)}
+[data-theme="dark"] .title-sub{color:var(--accent)}
+[data-theme="dark"] .title-tagline{color:rgba(192,208,224,0.6)}
+[data-theme="dark"] .title-feat{border-color:rgba(192,208,224,0.15)}
+[data-theme="dark"] .title-feat .fe{color:#f0b0c0}
+[data-theme="dark"] .title-feat .fl{color:rgba(192,208,224,0.5)}
+[data-theme="dark"] .title-btn{border-color:var(--ink);color:var(--ink)}
+[data-theme="dark"] .title-btn.primary{background:var(--ink);color:var(--bg-base)}
+[data-theme="dark"] .title-btn.primary:hover{background:var(--accent);border-color:var(--accent)}
+[data-theme="dark"] .title-btn.secondary:hover{border-color:var(--accent);color:var(--accent)}
+[data-theme="dark"] .title-credits{color:rgba(192,208,224,0.3)}
 body{background:var(--bg-base);color:var(--ink);font-family:var(--sans);overflow:hidden;height:100vh;user-select:none}
 
 /* TITLE SCREEN */
@@ -240,6 +316,7 @@ body{background:var(--bg-base);color:var(--ink);font-family:var(--sans);overflow
     <button class="title-btn primary" onclick="window.startNewGame()">New Farm</button>
     <button class="title-btn secondary" id="continue-btn" style="display:none" onclick="window.loadAndStart()">Continue</button>
   </div>
+  <button class="title-btn secondary" style="padding:8px 20px;font-size:.7rem;position:absolute;top:20px;right:20px" id="title-theme-btn" onclick="document.documentElement.dataset.theme=document.documentElement.dataset.theme==='dark'?'':'dark';localStorage.setItem('cowgorithm_theme',document.documentElement.dataset.theme||'light');const b=document.getElementById('title-theme-btn');if(b)b.textContent=document.documentElement.dataset.theme==='dark'?'Light Mode':'Dark Mode'">Dark Mode</button>
   <div class="title-credits">COWGORITHM v3D | Three.js powered | AI Farm Tycoon</div>
 </div>
 
@@ -269,7 +346,7 @@ body{background:var(--bg-base);color:var(--ink);font-family:var(--sans);overflow
       <div class="res-tooltip">Wool units stored</div>
     </div>
     <div class="resource">
-      <span class="icon" style="color:#ffe8c4;font-family:var(--mono);font-size:.78rem">EGG</span>
+      <span class="icon" style="color:#ffd080;font-family:var(--mono);font-size:.78rem">EGG</span>
       <span class="val" id="r-eggs">0</span>
       <div class="res-tooltip">Egg units stored</div>
     </div>
@@ -290,6 +367,7 @@ body{background:var(--bg-base);color:var(--ink);font-family:var(--sans);overflow
     <div class="day-display" id="day-counter">Day 1</div>
     <button class="top-toggle" id="auto-sell-btn" onclick="window.game?.toggleAutoSell()" title="Auto-sell products daily">Auto-sell</button>
     <button class="top-toggle" id="sound-btn" onclick="window.game?.toggleSound()" title="Toggle sound">Sound</button>
+    <button class="top-toggle" id="theme-btn" onclick="window.game?.toggleTheme()" title="Toggle dark mode">Light</button>
     <div class="speed-controls">
       <button class="speed-btn" onclick="window.game?.setSpeed(0)">||</button>
       <button class="speed-btn active" onclick="window.game?.setSpeed(1)">1x</button>
@@ -514,7 +592,7 @@ body{background:var(--bg-base);color:var(--ink);font-family:var(--sans);overflow
           <span class="flat" id="market-wool">$5.0 <span class="trend">--</span></span>
         </div>
         <div class="market-row">
-          <span style="color:#ffe8c4;font-size:.72rem">Eggs</span>
+          <span style="color:#ffd080;font-size:.72rem">Eggs</span>
           <span class="flat" id="market-eggs">$2.0 <span class="trend">--</span></span>
         </div>
       </div>
@@ -578,6 +656,9 @@ body{background:var(--bg-base);color:var(--ink);font-family:var(--sans);overflow
 <!-- TOAST CONTAINER -->
 <div id="toast-container"></div>
 
+<script>
+(function(){var t=localStorage.getItem('cowgorithm_theme');if(t==='dark')document.documentElement.dataset.theme='dark';})();
+</script>
 <script type="module" src="/src/main.js"></script>
 </body>
 </html>
