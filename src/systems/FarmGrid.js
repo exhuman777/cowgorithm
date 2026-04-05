@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { GRID, COLORS, SEASON_COLORS } from '../core/Constants.js';
 import { gameState } from '../core/GameState.js';
 import { createTree, createSakuraTree, updateTreeSeason } from '../entities/TreeFactory.js';
+import { eventBus, Events } from '../core/EventBus.js';
 
 export class FarmGrid {
   constructor(scene) {
@@ -11,6 +12,11 @@ export class FarmGrid {
     this.colorUpdateCounter = 0;
     this.currentSeason = 'spring';
     this.swayTime = 0;
+    this.revealTiles = []; // { col, row, progress }
+
+    eventBus.on(Events.LAND_EXPANDED, ({ col, row }) => {
+      this.revealTiles.push({ col, row, progress: 0 });
+    });
   }
 
   setSeason(season) {
@@ -89,10 +95,37 @@ export class FarmGrid {
           r += sway;
           g += sway;
           b += sway * 0.5;
+
+          // Border glow: owned tile adjacent to unowned gets a brightness boost
+          if (tile.type === 'grass') {
+            const neighbors = [
+              gameState.map[row-1]?.[col],
+              gameState.map[row+1]?.[col],
+              gameState.map[row]?.[col-1],
+              gameState.map[row]?.[col+1],
+            ];
+            const isEdge = neighbors.some(n => n && !n.owned && n.type !== 'water');
+            if (isEdge) {
+              r += 0.04;
+              g += 0.06;
+              b += 0.08;
+            }
+          }
+
+          // Check for reveal animation
+          const reveal = this.revealTiles.find(rt => rt.col === col && rt.row === row);
+          if (reveal) {
+            const flash = (1 - reveal.progress) * 0.15;
+            r += flash;
+            g += flash;
+            b += flash;
+          }
         } else {
-          r = 0.2; g = 0.25; b = 0.15;
-          if (this.currentSeason === 'winter') { r = 0.35; g = 0.35; b = 0.33; }
-          else if (this.currentSeason === 'fall') { r = 0.3; g = 0.25; b = 0.15; }
+          // Unowned: same season grass but desaturated and dimmed
+          const sc = SEASON_COLORS[this.currentSeason]?.grass || [0.29, 0.49, 0.18];
+          r = sc[0] * 0.4;
+          g = sc[1] * 0.4;
+          b = sc[2] * 0.4;
         }
       }
 
@@ -180,6 +213,15 @@ export class FarmGrid {
   maybeUpdateColors() {
     this.colorUpdateCounter++;
     this.swayTime += 0.016; // ~60fps
+
+    // Update reveal animations
+    for (let i = this.revealTiles.length - 1; i >= 0; i--) {
+      this.revealTiles[i].progress += 0.05;
+      if (this.revealTiles[i].progress >= 1) {
+        this.revealTiles.splice(i, 1);
+      }
+    }
+
     if (this.colorUpdateCounter >= 30) { // Every 30 frames
       this.colorUpdateCounter = 0;
       this.updateTerrainColors();
