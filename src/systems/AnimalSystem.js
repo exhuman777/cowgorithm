@@ -317,10 +317,10 @@ export class AnimalSystem {
 
     if (def.product === 'milk') {
       const dairyBonus = this.buildingSystem.getBuildingBonusAt('dairy', animalCol, animalRow);
-      amount *= (1 + dairyBonus);
+      amount *= (1 + (gameState.energyDeficit ? 0 : dairyBonus));
     } else if (def.product === 'wool') {
       const woolBonus = this.buildingSystem.getBuildingBonusAt('wool', animalCol, animalRow);
-      amount *= (1 + woolBonus);
+      amount *= (1 + (gameState.energyDeficit ? 0 : woolBonus));
     }
 
     // Grass level scaling
@@ -332,6 +332,9 @@ export class AnimalSystem {
 
     // Happiness scaling
     amount *= Math.max(0.3, animal.happiness / 100);
+
+    // Energy deficit penalty: power failure halves all production
+    if (gameState.energyDeficit) amount *= 0.5;
 
     // Round to 1 decimal
     amount = Math.round(amount * 10) / 10;

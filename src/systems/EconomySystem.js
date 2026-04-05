@@ -39,13 +39,49 @@ export class EconomySystem {
     // 3. Feed costs: handled per-animal in AnimalSystem._deductFeedCost()
     //    (includes silo proximity bonus + tech savings, so no duplicate here)
 
-    // 4. Energy: solar arrays generate energy
+    // 4. Energy: solar generation vs building + animal drain
     const solarCount = this.buildingSystem.countBuildings('solar');
-    const solarEnergy = solarCount * BUILDING_DEFS.solar.energyGen;
+    const solarSeasonMod = { spring: 1.0, summer: 1.2, fall: 0.85, winter: 0.67 };
+    const solarBase = solarCount * BUILDING_DEFS.solar.energyGen;
+    const solarOutput = solarBase * (solarSeasonMod[season] || 1.0);
+
+    // Building energy drain
+    const smartGridSave = this.getTechEffect('buildingEnergySave');
+    let buildingDrain = 0;
+    for (let row = 0; row < 20; row++) {
+      for (let col = 0; col < 32; col++) {
+        const tile = gameState.map[row]?.[col];
+        if (tile && tile.building) {
+          const def = BUILDING_DEFS[tile.building.type];
+          if (def && def.energyCost) {
+            buildingDrain += def.energyCost;
+          }
+        }
+      }
+    }
+    buildingDrain *= (1 - smartGridSave);
+
+    // Animal drain
+    const animalDrain = gameState.animals.length * 0.5;
     const energySave = this.getTechEffect('energySave');
-    const energyCost = Math.max(0, gameState.animals.length * 0.5 * (1 - energySave));
-    gameState.energy += solarEnergy + gameState.energyBonus - energyCost;
-    gameState.energy = Math.max(0, gameState.energy);
+    const totalDrain = buildingDrain + animalDrain * (1 - energySave);
+    const netEnergy = solarOutput + gameState.energyBonus - totalDrain;
+
+    gameState.energy += netEnergy;
+    gameState.energy = Math.max(-20, gameState.energy); // Hard floor at -20
+
+    // Energy deficit state
+    const wasDeficit = gameState.energyDeficit;
+    gameState.energyDeficit = gameState.energy <= 0;
+
+    // Warnings
+    const maxEnergy = 50 + solarCount * 15; // rough capacity estimate
+    const energyPct = gameState.energy / maxEnergy;
+    if (energyPct <= 0 && !wasDeficit) {
+      eventBus.emit(Events.TOAST, { text: 'POWER FAILURE. Buildings offline.', color: '#e06060', duration: 4000 });
+    } else if (energyPct <= 0.2 && energyPct > 0) {
+      eventBus.emit(Events.TOAST, { text: 'Energy reserves low. Build more Solar Arrays.', color: '#f0c060', duration: 3000 });
+    }
 
     // 5. Carbon credits daily bonus
     const carbonBonus = this.getTechEffect('dailyBonus');
