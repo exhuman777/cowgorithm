@@ -110,7 +110,7 @@ export const QUESTS = [
   { id: 'q9', text: 'Diversify! Buy Sheep, Goats, or Chickens', reward: 1000, hint: 'Click Sheep ($300) or Chicken ($20). Chickens need a Coop ($3,000)' },
   { id: 'q10', text: 'Build an AI Command Center ($25,000)', reward: 5000, hint: 'Save up $25,000. AI Center unlocks Tier 3+ tech' },
   { id: 'q11', text: 'Unlock CowGorithm v1 for auto-management', reward: 10000, hint: 'Requires Virtual Fencing + Drone Scouting + AI Center' },
-  { id: 'q12', text: 'Reach 20 animals and unlock ALL 12 techs', reward: 50000, hint: 'Build barns/coops, buy animals, unlock remaining techs' },
+  { id: 'q12', text: 'Reach 20 animals and unlock ALL 13 techs', reward: 50000, hint: 'Build barns/coops, buy animals, unlock remaining techs' },
 ];
 
 export const MILESTONES = [
@@ -121,7 +121,7 @@ export const MILESTONES = [
   { id: 'm5', name: '$50K Club', desc: 'Earn $50,000 total', target: 50000, reward: '$10,000', rewardMoney: 10000 },
   { id: 'm6', name: 'Zoo Keeper', desc: 'Own all 5 animal types', target: 5, reward: '$3,000', rewardMoney: 3000 },
   { id: 'm7', name: 'Solar Empire', desc: 'Build 3 solar arrays', target: 3, reward: '+20 energy/day', rewardEnergy: 20 },
-  { id: 'm8', name: 'Full Automation', desc: 'Unlock all 12 techs', target: 12, reward: 'You WIN!', rewardWin: true },
+  { id: 'm8', name: 'Full Automation', desc: 'Unlock all 13 techs', target: 13, reward: 'You WIN!', rewardWin: true },
 ];
 
 export const WEATHER_EVENTS = [

@@ -46,7 +46,7 @@ export class QuestSystem {
       case 'q9': completed = gameState.animals.some(a => ['sheep', 'chicken', 'goat'].includes(a.type)); break;
       case 'q10': completed = this.buildingSystem.countBuildings('ai_center') >= 1; break;
       case 'q11': completed = gameState.techs.includes('cowgorithm_v1'); break;
-      case 'q12': completed = gameState.techs.length >= 12 && gameState.animals.length >= 20; break;
+      case 'q12': completed = gameState.techs.length >= 13 && gameState.animals.length >= 20; break;
     }
 
     if (completed) {

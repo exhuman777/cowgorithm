@@ -21,7 +21,7 @@ export class MilestoneSystem {
         case 'm5': achieved = gameState.totalEarnings >= 50000; break;
         case 'm6': achieved = new Set(gameState.animals.map(a => a.type)).size >= 5; break;
         case 'm7': achieved = this.buildingSystem.countBuildings('solar') >= 3; break;
-        case 'm8': achieved = gameState.techs.length >= 12; break;
+        case 'm8': achieved = gameState.techs.length >= 13; break;
       }
 
       if (achieved) {

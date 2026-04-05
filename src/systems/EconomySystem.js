@@ -1,5 +1,5 @@
 import { gameState } from '../core/GameState.js';
-import { BUILDING_DEFS, TECH_DEFS, getSeason, SEASON_EFFECTS } from '../core/Constants.js';
+import { BUILDING_DEFS, TECH_DEFS, getSeason, SEASON_EFFECTS, SOLAR_SEASON_MOD } from '../core/Constants.js';
 import { eventBus, Events } from '../core/EventBus.js';
 
 export class EconomySystem {
@@ -41,9 +41,8 @@ export class EconomySystem {
 
     // 4. Energy: solar generation vs building + animal drain
     const solarCount = this.buildingSystem.countBuildings('solar');
-    const solarSeasonMod = { spring: 1.0, summer: 1.2, fall: 0.85, winter: 0.67 };
     const solarBase = solarCount * BUILDING_DEFS.solar.energyGen;
-    const solarOutput = solarBase * (solarSeasonMod[season] || 1.0);
+    const solarOutput = solarBase * (SOLAR_SEASON_MOD[season] || 1.0);
 
     // Building energy drain
     const smartGridSave = this.getTechEffect('buildingEnergySave');
