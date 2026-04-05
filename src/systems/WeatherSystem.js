@@ -13,30 +13,37 @@ export class WeatherSystem {
     // Tick down active effects
     this._tickActiveEffects();
 
-    // Cooldown check
+    // Cooldown check for regular weather events
     if (gameState.eventCooldown > 0) {
       gameState.eventCooldown--;
-      return;
+    } else {
+      const season = getSeason(gameState.day);
+
+      for (const event of WEATHER_EVENTS) {
+        // Skip season-only events outside their season
+        if (event.seasonOnly && event.seasonOnly !== season) continue;
+
+        let prob = event.prob;
+        // Apply season boost
+        if (event.seasonBoost && event.seasonBoost[season]) {
+          prob *= event.seasonBoost[season];
+        }
+
+        if (Math.random() < prob) {
+          this.triggerEvent(event, season);
+          gameState.eventCooldown = 3;
+          break;
+        }
+      }
     }
 
-    const season = getSeason(gameState.day);
-
-    for (const event of WEATHER_EVENTS) {
-      // Skip season-only events outside their season
-      if (event.seasonOnly && event.seasonOnly !== season) continue;
-
-      let prob = event.prob;
-      // Apply season boost
-      if (event.seasonBoost && event.seasonBoost[season]) {
-        prob *= event.seasonBoost[season];
-      }
-
-      if (Math.random() < prob) {
-        this.triggerEvent(event, season);
-        gameState.eventCooldown = 3;
-        return;
-      }
+    // Decision events (after day 10, separate cooldown)
+    if (gameState.day > 10 && gameState.decisionCooldown <= 0 && Math.random() < 0.03) {
+      const event = DECISION_EVENTS[Math.floor(Math.random() * DECISION_EVENTS.length)];
+      gameState.decisionCooldown = 10;
+      eventBus.emit('decision:offer', { event });
     }
+    if (gameState.decisionCooldown > 0) gameState.decisionCooldown--;
   }
 
   triggerEvent(event, season) {

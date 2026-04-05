@@ -27,6 +27,7 @@ import { UIManager } from './ui/UIManager.js';
 import { TitleScreen } from './ui/TitleScreen.js';
 import { Tutorial } from './ui/Tutorial.js';
 import { TechModal } from './ui/TechModal.js';
+import { DecisionModal } from './ui/DecisionModal.js';
 
 // Audio
 import { AudioManager } from './audio/AudioManager.js';
@@ -96,6 +97,14 @@ class Game {
     this.titleScreen = new TitleScreen();
     this.tutorial = new Tutorial();
     this.techModal = new TechModal(this.techSystem);
+    this.decisionModal = new DecisionModal();
+
+    eventBus.on('decision:offer', ({ event }) => {
+      this.decisionModal.show(event, (opt, idx) => {
+        this._handleDecision(event, opt, idx);
+      });
+    });
+
     this.uiManager = new UIManager(this);
 
     // Game tick accumulator
@@ -307,6 +316,41 @@ class Game {
     }
     animal.autoManage = !animal.autoManage;
     eventBus.emit(Events.NOTIFICATION, { text: `${animal.name} auto-manage: ${animal.autoManage ? 'ON' : 'OFF'}`, type: 'info' });
+  }
+
+  _handleDecision(event, opt, idx) {
+    if (opt.cost && gameState.money < opt.cost) {
+      eventBus.emit(Events.NOTIFICATION, { msg: 'Not enough money!' });
+      return;
+    }
+    if (opt.cost) {
+      gameState.money -= opt.cost;
+      gameState.totalSpent += opt.cost;
+    }
+    switch (opt.reward) {
+      case 'sheep5':
+        for (let i = 0; i < 5; i++) this.animalSystem.buyAnimal('sheep');
+        break;
+      case 'stormProtect':
+        gameState.stormProtected = true;
+        break;
+      case 'milkContract':
+        gameState.milkContractDays = 30;
+        break;
+      case 'landPlot':
+        for (let r = 3; r < 7; r++) for (let c = 8; c < 12; c++) {
+          if (gameState.map[r]?.[c] && !gameState.map[r][c].owned) gameState.map[r][c].owned = true;
+        }
+        break;
+      case 'dataSell':
+        gameState.money += 5000;
+        gameState.totalEarnings += 5000;
+        break;
+      case 'techSpeed':
+        gameState.techDiscount = Math.min(gameState.techDiscount + 0.1, 0.5);
+        break;
+    }
+    eventBus.emit(Events.NOTIFICATION, { msg: `Decision: ${opt.label}` });
   }
 
   // Demolish the currently selected building
