@@ -218,6 +218,20 @@ export class AnimalSystem {
         // Target stays the same (positions[3..5] set on creation)
         line.geometry.attributes.position.needsUpdate = true;
       }
+
+      // Dust particles when moving
+      if (this.particles && animal.targetX != null && animal.targetY != null) {
+        const dx = Math.abs(animal.x - animal.targetX);
+        const dy = Math.abs(animal.y - animal.targetY);
+        if (dx > 0.05 || dy > 0.05) {
+          if (Math.random() < 0.05) { // ~5% chance per frame per moving animal
+            this.particles.spawnDust(
+              animal.x * GRID.TILE_SIZE,
+              animal.y * GRID.TILE_SIZE
+            );
+          }
+        }
+      }
     }
   }
 

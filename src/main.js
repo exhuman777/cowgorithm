@@ -91,6 +91,7 @@ class Game {
     this.weatherSystem = new WeatherSystem(this.buildingSystem);
     this.dayNightSystem = new DayNightSystem(this.scene, this.dirLight, this.ambientLight);
     this.particles = new ParticleSystem(this.scene);
+    this.animalSystem.particles = this.particles;
     this.inputSystem = new InputSystem(this.camera, this.renderer.domElement, this.farmGrid);
 
     // UI
@@ -187,7 +188,16 @@ class Game {
     this.farmGrid.updateWater(this.clock.elapsedTime);
     this.farmGrid.maybeUpdateColors();
     this.dayNightSystem.update(gameState.visualDayProgress);
-    this.particles.update(delta);
+    this.particles.update(delta, this.clock.elapsedTime);
+
+    // Fireflies at night
+    const isNight = gameState.visualDayProgress > 0.5 && gameState.visualDayProgress < 0.9;
+    if (isNight && !this.particles.firefliesActive) {
+      this.particles.startFireflies();
+    } else if (!isNight && this.particles.firefliesActive) {
+      this.particles.stopFireflies();
+    }
+
     this.uiManager.update();
 
     this.renderer.render(this.scene, this.camera);
@@ -217,6 +227,14 @@ class Game {
       this.particles.startSnow();
     } else {
       this.particles.stopSnow();
+    }
+
+    // Sakura petals in spring
+    if (season === 'spring') {
+      this.particles.setSakuraPositions(this.farmGrid.getSakuraPositions());
+      this.particles.startPetals();
+    } else {
+      this.particles.stopPetals();
     }
 
     this.economySystem.newDay();
