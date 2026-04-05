@@ -15,7 +15,7 @@ export class Tutorial {
   start() {
     this.step = gameState.tutorialStep || 0;
     this.showStep();
-    if (this.overlay) this.overlay.classList.add('active');
+    if (this.overlay) this.overlay.style.display = 'block';
   }
 
   showStep() {
@@ -126,7 +126,7 @@ export class Tutorial {
     this._clearHighlights();
     for (const l of this._listeners) eventBus.off(l.event, l.fn);
     this._listeners = [];
-    if (this.overlay) this.overlay.classList.remove('active');
+    if (this.overlay) this.overlay.style.display = 'none';
     gameState.tutorialDone = true;
   }
 }

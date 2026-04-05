@@ -246,9 +246,6 @@ body{background:var(--bg-base);color:var(--ink);font-family:var(--sans);overflow
 .tech-card.available{border-color:var(--accent)}
 .tech-card.locked{opacity:.4;cursor:not-allowed}
 .tech-card.locked:hover{transform:none;border-color:rgba(15,15,15,0.15)}
-#tutorial-overlay{position:fixed;inset:0;background:rgba(226,226,223,.92);display:none;align-items:center;justify-content:center;z-index:200;flex-direction:column;backdrop-filter:blur(8px)}
-#tutorial-overlay.active{display:flex}
-#tut-card{background:var(--bg-base);border:1px solid var(--ink);padding:28px;max-width:480px;width:90%;text-align:center}
 #tut-card h3{font-size:1.2rem;margin-bottom:10px;color:var(--ink);font-family:var(--mono);text-transform:uppercase;letter-spacing:2px}
 #tut-card p{color:rgba(15,15,15,0.7);line-height:1.7;margin-bottom:8px;font-size:.85rem}
 #tut-card .tut-step{font-size:.6rem;color:var(--accent);margin-bottom:14px;font-family:var(--mono);text-transform:uppercase;letter-spacing:2px}
@@ -321,11 +318,6 @@ body{background:var(--bg-base);color:var(--ink);font-family:var(--sans);overflow
   </div>
   <button class="title-btn secondary" style="padding:8px 20px;font-size:.7rem;position:absolute;top:20px;right:20px" id="title-theme-btn" onclick="document.documentElement.dataset.theme=document.documentElement.dataset.theme==='dark'?'':'dark';localStorage.setItem('cowgorithm_theme',document.documentElement.dataset.theme||'light');const b=document.getElementById('title-theme-btn');if(b)b.textContent=document.documentElement.dataset.theme==='dark'?'Light Mode':'Dark Mode'">Dark Mode</button>
   <div class="title-credits">COWGORITHM v3D | Three.js powered | AI Farm Tycoon</div>
-</div>
-
-<!-- TUTORIAL OVERLAY -->
-<div id="tutorial-overlay">
-  <div id="tut-card"></div>
 </div>
 
 <!-- GAME CONTAINER -->
@@ -553,6 +545,10 @@ body{background:var(--bg-base);color:var(--ink);font-family:var(--sans);overflow
           <p id="decision-desc" style="font-size:.75rem;color:rgba(128,128,128,0.8);margin-bottom:12px;font-family:var(--sans)"></p>
           <div id="decision-options" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"></div>
         </div>
+      </div>
+      <!-- VIEWPORT TUTORIAL -->
+      <div id="tutorial-overlay" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.35);z-index:20;pointer-events:auto">
+        <div id="tut-card" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);max-width:400px;width:90%;background:var(--bg-base);border:1px solid var(--accent);padding:24px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.3)"></div>
       </div>
     </div>
 
