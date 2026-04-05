@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { GRID, COLORS } from '../core/Constants.js';
+import { GRID, COLORS, SEASON_COLORS } from '../core/Constants.js';
 import { gameState } from '../core/GameState.js';
 import { createTree } from '../entities/TreeFactory.js';
 
@@ -9,6 +9,14 @@ export class FarmGrid {
     this.terrainMesh = null;
     this.trees = [];
     this.colorUpdateCounter = 0;
+    this.currentSeason = 'spring';
+  }
+
+  setSeason(season) {
+    if (this.currentSeason !== season) {
+      this.currentSeason = season;
+      this.updateTreeColors();
+    }
   }
 
   rebuild() {
@@ -60,21 +68,23 @@ export class FarmGrid {
       } else if (tile.type === 'forest') {
         r = 0.11; g = 0.37; b = 0.13;
       } else {
-        // Grass - shade by grassLevel and ownership
+        // Grass - shade by grassLevel and ownership, season-aware
         const gl = (tile.grassLevel || 50) / 100;
+        const sc = SEASON_COLORS[this.currentSeason]?.grass || [0.29, 0.49, 0.18];
         if (tile.owned) {
           if (tile.isPasture) {
-            r = 0.2 * (1 - gl) + 0.3 * gl;
-            g = 0.4 * (1 - gl) + 0.7 * gl;
-            b = 0.1 * (1 - gl) + 0.15 * gl;
+            r = (sc[0] - 0.05) * (1 - gl) + (sc[0] + 0.05) * gl;
+            g = (sc[1] - 0.15) * (1 - gl) + (sc[1] + 0.1) * gl;
+            b = (sc[2] - 0.05) * (1 - gl) + (sc[2] + 0.02) * gl;
           } else {
-            r = 0.25 * (1 - gl) + 0.29 * gl;
-            g = 0.35 * (1 - gl) + 0.49 * gl;
-            b = 0.1 * (1 - gl) + 0.18 * gl;
+            r = (sc[0] - 0.04) * (1 - gl) + sc[0] * gl;
+            g = (sc[1] - 0.14) * (1 - gl) + sc[1] * gl;
+            b = (sc[2] - 0.04) * (1 - gl) + sc[2] * gl;
           }
         } else {
-          // Unowned: darker/desaturated
           r = 0.2; g = 0.25; b = 0.15;
+          if (this.currentSeason === 'winter') { r = 0.35; g = 0.35; b = 0.33; }
+          else if (this.currentSeason === 'fall') { r = 0.3; g = 0.25; b = 0.15; }
         }
       }
 
@@ -96,6 +106,22 @@ export class FarmGrid {
           this.scene.add(tree);
           this.trees.push(tree);
         }
+      }
+    }
+  }
+
+  updateTreeColors() {
+    const foliageColors = {
+      spring: 0x2d6a1e,
+      summer: 0x3a7a28,
+      fall:   0xc47a1a,
+      winter: 0x6a6a60,
+    };
+    const color = foliageColors[this.currentSeason] || 0x2d6a1e;
+    for (const tree of this.trees) {
+      // children[1] is foliage cone (children[0] is trunk)
+      if (tree.children[1]) {
+        tree.children[1].material.color.setHex(color);
       }
     }
   }

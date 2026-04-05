@@ -201,6 +201,12 @@ class Game {
     this.dayNightSystem.setSeason(season);
     if (this.farmGrid.setSeason) this.farmGrid.setSeason(season);
 
+    if (season === 'winter') {
+      this.particles.startSnow();
+    } else {
+      this.particles.stopSnow();
+    }
+
     this.economySystem.newDay();
     this.weatherSystem.checkWeatherEvent();
 

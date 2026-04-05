@@ -13,6 +13,8 @@ export class ParticleSystem {
   constructor(scene) {
     this.scene = scene;
     this.particles = []; // { mesh, velocity, lifetime, age }
+    this.snowing = false;
+    this.snowParticles = [];
   }
 
   spawn(worldX, worldY, worldZ, color, count = 3) {
@@ -47,6 +49,59 @@ export class ParticleSystem {
         p.mesh.material.dispose();
         this.particles.splice(i, 1);
       }
+    }
+    this.updateSnow(delta);
+  }
+
+  startSnow() {
+    if (this.snowing) return;
+    this.snowing = true;
+    this.snowParticles = [];
+  }
+
+  stopSnow() {
+    this.snowing = false;
+    for (const sp of this.snowParticles || []) {
+      this.scene.remove(sp.mesh);
+      sp.mesh.geometry.dispose();
+      sp.mesh.material.dispose();
+    }
+    this.snowParticles = [];
+  }
+
+  updateSnow(delta) {
+    if (!this.snowing) return;
+    // Spawn new snowflakes
+    if (Math.random() < 0.3) {
+      const geo = new THREE.SphereGeometry(0.05, 3, 3);
+      const mat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(
+        Math.random() * 64,
+        25 + Math.random() * 5,
+        Math.random() * 40
+      );
+      this.scene.add(mesh);
+      this.snowParticles.push({ mesh, speed: 1.5 + Math.random() * 1.5, drift: (Math.random() - 0.5) * 0.5 });
+    }
+    // Update positions
+    for (let i = this.snowParticles.length - 1; i >= 0; i--) {
+      const sp = this.snowParticles[i];
+      sp.mesh.position.y -= sp.speed * delta;
+      sp.mesh.position.x += sp.drift * delta;
+      if (sp.mesh.position.y < 0) {
+        this.scene.remove(sp.mesh);
+        sp.mesh.geometry.dispose();
+        sp.mesh.material.dispose();
+        this.snowParticles.splice(i, 1);
+      }
+    }
+    // Cap at 80 snowflakes
+    while (this.snowParticles.length > 80) {
+      const sp = this.snowParticles.shift();
+      this.scene.remove(sp.mesh);
+      sp.mesh.geometry.dispose();
+      sp.mesh.material.dispose();
     }
   }
 }
