@@ -36,6 +36,13 @@ export const SEASON_EFFECTS = {
   winter: { prodMod: 0.7, feedMod: 1.5, priceMod: 1.0, breedMod: 0.0 },
 };
 
+export const SOLAR_SEASON_MOD = {
+  spring: 1.0,
+  summer: 1.2,
+  fall: 0.85,
+  winter: 0.67,
+};
+
 export function getSeason(day) {
   const idx = Math.floor(((day - 1) % (SEASON_DURATION * 4)) / SEASON_DURATION);
   return ['spring', 'summer', 'fall', 'winter'][idx];
@@ -46,17 +53,17 @@ export function getSeasonProgress(day) {
 }
 
 export const BUILDING_DEFS = {
-  farmhouse: { name: 'Farmhouse', cost: 0, color: 0x8b4513, desc: 'Your home base' },
-  pasture:   { name: 'Pasture', cost: 200, color: 0x2d6b11, desc: 'Managed grassland, faster regrowth' },
-  barn:      { name: 'Barn', cost: 5000, color: 0x8b6914, capacity: 10, desc: 'Houses up to 10 large animals' },
-  milking:   { name: 'Milking Station', cost: 8000, color: 0xe0e0e0, range: 5, bonus: 'dairy', bonusAmt: 0.5, desc: '+50% milk in range' },
-  shearing:  { name: 'Shearing Shed', cost: 6000, color: 0xd4a574, range: 5, bonus: 'wool', bonusAmt: 0.5, desc: '+50% wool in range' },
-  coop:      { name: 'Chicken Coop', cost: 3000, color: 0xc4a35a, capacity: 20, animalType: 'chicken', desc: 'Houses up to 20 chickens' },
-  silo:      { name: 'Feed Silo', cost: 4000, color: 0x708090, range: 8, bonus: 'feed', bonusAmt: 0.3, desc: '-30% feed cost in range' },
-  solar:     { name: 'Solar Array', cost: 10000, color: 0x1e3a5f, range: 8, energyGen: 15, desc: '+15 energy/day' },
-  drone:     { name: 'Drone Station', cost: 15000, color: 0x4a4a5a, range: 12, desc: 'Pasture monitoring' },
-  vet:       { name: 'Vet Lab', cost: 12000, color: 0xc8e6c9, range: 6, desc: '-30% disease chance nearby' },
-  ai_center: { name: 'AI Command Center', cost: 25000, color: 0x1a5a8a, desc: 'Enables Tier 3+ tech' },
+  farmhouse: { name: 'Farmhouse', cost: 0, color: 0x8b4513, desc: 'Your home base', energyCost: 0 },
+  pasture:   { name: 'Pasture', cost: 200, color: 0x2d6b11, desc: 'Managed grassland, faster regrowth', energyCost: 0 },
+  barn:      { name: 'Barn', cost: 5000, color: 0x8b6914, capacity: 10, desc: 'Houses up to 10 large animals', energyCost: 2 },
+  milking:   { name: 'Milking Station', cost: 8000, color: 0xe0e0e0, range: 5, bonus: 'dairy', bonusAmt: 0.5, desc: '+50% milk in range', energyCost: 3 },
+  shearing:  { name: 'Shearing Shed', cost: 6000, color: 0xd4a574, range: 5, bonus: 'wool', bonusAmt: 0.5, desc: '+50% wool in range', energyCost: 2 },
+  coop:      { name: 'Chicken Coop', cost: 3000, color: 0xc4a35a, capacity: 20, animalType: 'chicken', desc: 'Houses up to 20 chickens', energyCost: 1 },
+  silo:      { name: 'Feed Silo', cost: 4000, color: 0x708090, range: 8, bonus: 'feed', bonusAmt: 0.3, desc: '-30% feed cost in range', energyCost: 1 },
+  solar:     { name: 'Solar Array', cost: 10000, color: 0x1e3a5f, range: 8, energyGen: 15, desc: '+15 energy/day', energyCost: 0 },
+  drone:     { name: 'Drone Station', cost: 15000, color: 0x4a4a5a, range: 12, desc: 'Pasture monitoring', energyCost: 5 },
+  vet:       { name: 'Vet Lab', cost: 12000, color: 0xc8e6c9, range: 6, desc: '-30% disease chance nearby', energyCost: 3 },
+  ai_center: { name: 'AI Command Center', cost: 25000, color: 0x1a5a8a, desc: 'Enables Tier 3+ tech', energyCost: 8 },
 };
 
 export const ANIMAL_DEFS = {
@@ -82,6 +89,7 @@ export const TECH_DEFS = [
   { id: 'virtual_fence', name: 'Virtual Fencing', tier: 2, cost: 15000, desc: 'AI-guided boundaries. +15% pasture efficiency.', effect: { grassBonus: 0.15 }, requires: ['gps', 'health_mon'] },
   { id: 'fertility_ai', name: 'Fertility AI', tier: 2, cost: 15000, desc: 'Breed optimization. New animals every 30 days.', effect: { breeding: true }, requires: ['health_mon'] },
   { id: 'drone_scout', name: 'Drone Scouting', tier: 2, cost: 15000, desc: 'Aerial monitoring. +20% grass regrowth.', effect: { grassRegrow: 0.2 }, requires: ['gps', 'solar_collar'] },
+  { id: 'smart_grid', name: 'Smart Grid', tier: 2, cost: 12000, desc: 'Intelligent power distribution. Buildings use 25% less energy.', effect: { buildingEnergySave: 0.25 }, requires: ['solar_collar'] },
   { id: 'cowgorithm_v1', name: 'CowGorithm v1', tier: 3, cost: 35000, desc: 'Herd route optimization. +25% all production.', effect: { prodBonus: 0.25 }, requires: ['virtual_fence', 'drone_scout'], needsAI: true },
   { id: 'pred_vet', name: 'Predictive Vet AI', tier: 3, cost: 35000, desc: 'ML disease prediction. -60% disease, auto-treat.', effect: { diseaseReduce: 0.6, autoHeal: 1 }, requires: ['virtual_fence', 'fertility_ai'], needsAI: true },
   { id: 'auto_robots', name: 'Farm Robots', tier: 3, cost: 35000, desc: 'Autonomous feeding. -50% feed costs.', effect: { feedSave: 0.5 }, requires: ['drone_scout'], needsAI: true },
@@ -152,7 +160,11 @@ export const TUTORIAL_STEPS = [
   { title: 'Meet Your Cows', text: 'Click on one of your cows in the 3D view to see its stats.\n\nEach animal has health, happiness, and production rate.', type: 'action', waitFor: 'animalSelected' },
   { title: 'Build a Milking Station', text: 'Click "Milking Station" in the left panel, then click a green tile near your cows.\n\nThis boosts milk production +50% for nearby cows.', type: 'action', waitFor: 'buildingPlaced', highlightBtn: '[data-build="milking"]' },
   { title: 'Watch Production', text: 'Your cows are now producing milk faster.\nWatch the floating numbers above them.\n\nLet a few days pass to accumulate milk.', type: 'overlay' },
+  { title: 'Power Your Farm', text: 'Every building consumes energy. Watch the PWR bar in the top bar.\n\nBuild Solar Arrays to generate power. If energy hits zero, buildings go offline.', type: 'overlay' },
   { title: 'Sell Products', text: 'Press S or click "Sell Products" to convert your milk into cash.\n\nMarket prices change daily. Sell when prices are high.', type: 'action', waitFor: 'productsSold', highlightBtn: '.action-btn.sell-btn' },
+  { title: 'Watch the Market', text: 'Prices change daily. The /\\ and \\/ arrows show trends.\n\nSell when prices are rising. Fall season gives +30% sell prices.', type: 'overlay' },
   { title: 'Tech Tree', text: 'Press T to open the Technology Tree.\n\nThis is your path from basic farming to full AI automation.\nStart with Tier 1: GPS Tracking, Health Monitor.', type: 'action', waitFor: 'techOpened' },
+  { title: 'The Seasons', text: 'Every 30 game-days, the season changes.\n\nSpring boosts breeding. Summer is stable. Fall boosts prices. Winter is harsh - less production, higher feed, less solar power. Plan ahead.', type: 'overlay' },
   { title: 'Your Journey Begins', text: 'Follow the quest bar at the top for guidance.\n\nSpring > Summer > Fall > Winter\nEach season brings new challenges and opportunities.\n\nGood luck, farmer.', type: 'overlay' },
+  { title: 'Expect the Unexpected', text: 'Events appear in the viewport. Neighbors sell livestock, storms threaten, investors make offers.\n\nChoose wisely - every decision costs or saves days.', type: 'overlay' },
 ];

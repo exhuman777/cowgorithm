@@ -11,7 +11,7 @@ class GameState {
     this.wool = 0;
     this.eggs = 0;
     this.meat = 0;
-    this.energy = 100;
+    this.energy = 50;
     this.data = 0;
     this.animals = [];
     this.techs = [];
@@ -52,6 +52,8 @@ class GameState {
     this.stormProtected = false;
     this.disabledBuilding = null;
     this.visualDayProgress = 0;
+    this.energyDeficit = false; // true when energy <= 0
+    this.completionDay = 0;     // day when all techs unlocked (0 = not yet)
   }
 
   createMap() {
@@ -103,6 +105,8 @@ class GameState {
       activeEffects: this.activeEffects,
       decisionCooldown: this.decisionCooldown,
       milkContractDays: this.milkContractDays,
+      energyDeficit: this.energyDeficit,
+      completionDay: this.completionDay,
     };
   }
 
