@@ -10,6 +10,7 @@ export class FarmGrid {
     this.trees = [];
     this.colorUpdateCounter = 0;
     this.currentSeason = 'spring';
+    this.swayTime = 0;
   }
 
   setSeason(season) {
@@ -81,6 +82,13 @@ export class FarmGrid {
             g = (sc[1] - 0.14) * (1 - gl) + sc[1] * gl;
             b = (sc[2] - 0.04) * (1 - gl) + sc[2] * gl;
           }
+
+          // Grass sway: subtle brightness wave
+          const swayPhase = col * 0.5 + row * 0.7;
+          const sway = Math.sin(this.swayTime * 1.5 + swayPhase) * 0.025;
+          r += sway;
+          g += sway;
+          b += sway * 0.5;
         } else {
           r = 0.2; g = 0.25; b = 0.15;
           if (this.currentSeason === 'winter') { r = 0.35; g = 0.35; b = 0.33; }
@@ -142,9 +150,9 @@ export class FarmGrid {
   }
 
   updateWater(elapsedTime) {
-    // Animate water tile vertices with subtle Y wave
     const geo = this.terrainMesh.geometry;
     const posAttr = geo.attributes.position;
+    const colorAttr = geo.attributes.color;
 
     for (let i = 0; i < posAttr.count; i++) {
       const wx = posAttr.getX(i);
@@ -154,15 +162,24 @@ export class FarmGrid {
       const tile = gameState.map[row]?.[col];
 
       if (tile && tile.type === 'water') {
+        // Y wave
         posAttr.setY(i, Math.sin(elapsedTime * 2 + wx + wz) * 0.08);
+        // Color shimmer between two blues
+        const shimmer = Math.sin(elapsedTime * 1.5 + wx * 0.5 + wz * 0.3) * 0.5 + 0.5;
+        const r = 0.08 + shimmer * 0.05;
+        const g = 0.50 + shimmer * 0.09;
+        const b = 0.85 + shimmer * 0.1;
+        colorAttr.setXYZ(i, r, g, b);
       }
     }
     posAttr.needsUpdate = true;
+    colorAttr.needsUpdate = true;
   }
 
   // Throttled color update (call every N frames, not every frame)
   maybeUpdateColors() {
     this.colorUpdateCounter++;
+    this.swayTime += 0.016; // ~60fps
     if (this.colorUpdateCounter >= 30) { // Every 30 frames
       this.colorUpdateCounter = 0;
       this.updateTerrainColors();
