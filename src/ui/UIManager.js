@@ -40,6 +40,8 @@ export class UIManager {
       selectedPanel: document.getElementById('selected-panel'),
       selectedPanelTitle: document.getElementById('selected-panel-title'),
       selectedPanelBody: document.getElementById('selected-panel-body'),
+      activeEffects: document.getElementById('active-effects'),
+      effectsList: document.getElementById('effects-list'),
       logFeed: document.getElementById('log-feed'),
       floatTexts: document.getElementById('float-texts'),
       toastContainer: document.getElementById('toast-container'),
@@ -65,6 +67,7 @@ export class UIManager {
     this.updateMilestones();
     this.updateStationStats();
     this.updateSelectedPanel();
+    this.updateActiveEffects();
     this.updateSpeedButtons();
     this.updateToggleButtons();
     this.updateCanvasCursor();
@@ -323,6 +326,28 @@ export class UIManager {
     }
 
     if (d.selectedPanelBody) d.selectedPanelBody.innerHTML = infoHtml;
+  }
+
+  // --- Active Effects ---
+
+  updateActiveEffects() {
+    const d = this.dom;
+    if (!d.activeEffects || !d.effectsList) return;
+    if (gameState.activeEffects.length === 0) {
+      d.activeEffects.style.display = 'none';
+      return;
+    }
+    d.activeEffects.style.display = 'block';
+    let html = '';
+    for (const effect of gameState.activeEffects) {
+      const isBad = ['pestBlock', 'buildingDisable', 'marketCrash', 'frostBlock'].includes(effect.name);
+      const color = isBad ? 'var(--red)' : 'var(--emerald)';
+      html += `<div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.6rem;padding:2px 0;border-bottom:1px solid var(--grid-line)">
+        <span style="color:${color}">${effect.name}</span>
+        <span>${effect.daysLeft}d</span>
+      </div>`;
+    }
+    d.effectsList.innerHTML = html;
   }
 
   // --- Speed Buttons ---
