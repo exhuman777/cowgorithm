@@ -5,228 +5,202 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>COWGORITHM | AI Farm Tycoon 3D</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#020617;--panel:#030812;--panel2:#050e1d;--panel3:#071120;--panel4:#08152b;--panel5:#0a182b;
-  --border:#083344;--border2:#164e63;
-  --cyan:#06b6d4;--cyan-light:#22d3ee;--cyan-pale:#67e8f9;--cyan-dim:rgba(6,182,212,0.15);
+  --bg-base:#e2e2df;--ink:#0f0f0f;
+  --accent:#ea4e24;--accent-dim:rgba(234,78,36,0.15);
+  --box-bg:rgba(248,248,248,0.5);
+  --grid-line:rgba(15,15,15,0.06);
+  --draft-line:rgba(220,167,158,0.7);
   --emerald:#10b981;--emerald-light:#34d399;
   --amber:#f59e0b;--amber-light:#fbbf24;
-  --red:#ef4444;--purple:#a855f7;
-  --text:#cffafe;--text2:#0891b2;--text3:#155e75;
+  --red:#ef4444;--cyan:#06b6d4;
+  --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
 }
-body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;overflow:hidden;height:100vh;user-select:none}
+body{background:var(--bg-base);color:var(--ink);font-family:var(--sans);overflow:hidden;height:100vh;user-select:none}
 
 /* TITLE SCREEN */
-#title-screen{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 40%,#050e1d 0%,#020617 60%,#010308 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;transition:opacity .6s}
+#title-screen{position:fixed;inset:0;background:var(--bg-base);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;transition:opacity .6s;background-image:linear-gradient(to right,var(--grid-line) 1px,transparent 1px),linear-gradient(to bottom,var(--grid-line) 1px,transparent 1px);background-size:5vw 5vh}
 #title-screen.hidden{opacity:0;pointer-events:none}
-#title-particles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
-.particle{position:absolute;border-radius:50%;opacity:.2;animation:drift linear infinite}
-@keyframes drift{0%{transform:translateY(100vh) rotate(0deg)}100%{transform:translateY(-20px) rotate(360deg)}}
-.title-logo{font-size:4.5rem;font-weight:700;letter-spacing:4px;font-family:'Rajdhani',sans-serif;background:linear-gradient(135deg,var(--cyan),var(--cyan-pale),var(--emerald));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.25rem;position:relative;z-index:1;filter:drop-shadow(0 0 30px rgba(6,182,212,0.3))}
-.title-sub{font-size:1rem;color:var(--text2);margin-bottom:1.5rem;letter-spacing:8px;text-transform:uppercase;z-index:1;font-family:'Share Tech Mono',monospace}
-.title-tagline{color:#6ea8c9;margin-bottom:2rem;max-width:480px;text-align:center;line-height:1.7;z-index:1;font-size:.95rem}
+#title-particles{display:none}
+.title-logo{font-size:4rem;font-weight:700;letter-spacing:4px;font-family:var(--mono);color:var(--ink);margin-bottom:.25rem;position:relative;z-index:1}
+.title-sub{font-size:.85rem;color:var(--accent);margin-bottom:1.5rem;letter-spacing:8px;text-transform:uppercase;z-index:1;font-family:var(--mono)}
+.title-tagline{color:rgba(15,15,15,0.7);margin-bottom:2rem;max-width:480px;text-align:center;line-height:1.7;z-index:1;font-size:.9rem}
 .title-features{display:flex;gap:16px;margin-bottom:2rem;z-index:1;flex-wrap:wrap;justify-content:center}
-.title-feat{text-align:center;max-width:110px;background:var(--panel3);border:1px solid var(--border);border-radius:8px;padding:10px 8px}
-.title-feat .fe{font-size:1.1rem;margin-bottom:4px;color:var(--cyan-light);font-family:'Share Tech Mono',monospace;font-weight:700;letter-spacing:1px}
-.title-feat .fl{font-size:.7rem;color:#6ea8c9;line-height:1.3;font-family:'Share Tech Mono',monospace}
-.title-btn{padding:14px 48px;font-size:1rem;font-weight:700;border:none;border-radius:4px;cursor:pointer;transition:all .2s;margin:6px;z-index:1;font-family:'Rajdhani',sans-serif;letter-spacing:2px;text-transform:uppercase}
-.title-btn.primary{background:linear-gradient(135deg,var(--cyan),var(--emerald));color:#020617}
-.title-btn.primary:hover{transform:translateY(-2px);box-shadow:0 0 30px rgba(6,182,212,.4)}
-.title-btn.secondary{background:var(--panel3);color:var(--text);border:1px solid var(--border2)}
-.title-btn.secondary:hover{border-color:var(--cyan);box-shadow:0 0 15px rgba(6,182,212,.2)}
-.title-credits{position:absolute;bottom:20px;color:#6ea8c9;font-size:.7rem;z-index:1;font-family:'Share Tech Mono',monospace}
+.title-feat{text-align:center;max-width:110px;border:1px solid var(--ink);padding:10px 8px}
+.title-feat .fe{font-size:1rem;margin-bottom:4px;color:var(--accent);font-family:var(--mono);font-weight:700;letter-spacing:1px}
+.title-feat .fl{font-size:.68rem;color:rgba(15,15,15,0.6);line-height:1.3;font-family:var(--mono)}
+.title-btn{padding:14px 48px;font-size:.9rem;font-weight:700;border:1px solid var(--ink);cursor:pointer;transition:all .2s;margin:6px;z-index:1;font-family:var(--mono);letter-spacing:2px;text-transform:uppercase;background:transparent;color:var(--ink)}
+.title-btn.primary{background:var(--ink);color:var(--bg-base)}
+.title-btn.primary:hover{background:var(--accent);border-color:var(--accent)}
+.title-btn.secondary{background:transparent;color:var(--ink)}
+.title-btn.secondary:hover{border-color:var(--accent);color:var(--accent)}
+.title-credits{position:absolute;bottom:20px;color:rgba(15,15,15,0.4);font-size:.68rem;z-index:1;font-family:var(--mono)}
 
 /* GAME CONTAINER */
 #game-container{display:none;height:100vh;flex-direction:column}
 #game-container.active{display:flex}
-
-/* TOP BAR */
-#top-bar{height:52px;background:#040b16;border-bottom:1px solid transparent;background-image:linear-gradient(#040b16,#040b16),linear-gradient(90deg,transparent,rgba(6,182,212,0.3),transparent);background-origin:border-box;background-clip:padding-box,border-box;display:flex;align-items:center;padding:0 10px;gap:5px;flex-shrink:0}
-.resource{display:flex;align-items:center;gap:4px;padding:4px 8px;background:var(--panel4);border:1px solid rgba(8,51,68,0.6);border-radius:4px;font-size:.78rem;font-weight:600;white-space:nowrap;position:relative;font-family:'Share Tech Mono',monospace}
-.resource .icon{font-size:.9rem;color:var(--cyan-light)}
-.resource .val{color:var(--emerald-light);min-width:34px;text-shadow:0 0 8px rgba(16,185,129,0.4)}
-.resource .rate{color:#6ea8c9;font-size:.62rem;font-weight:400;margin-left:2px}
+#top-bar{height:48px;background:var(--bg-base);border-bottom:1px solid var(--ink);display:flex;align-items:center;padding:0 10px;gap:5px;flex-shrink:0}
+.resource{display:flex;align-items:center;gap:4px;padding:4px 8px;border:1px solid var(--ink);font-size:.75rem;font-weight:400;white-space:nowrap;position:relative;font-family:var(--mono)}
+.resource .icon{font-size:.75rem;color:var(--accent)}
+.resource .val{color:var(--ink);min-width:34px;font-weight:700}
+.resource .rate{color:rgba(15,15,15,0.5);font-size:.6rem;font-weight:400;margin-left:2px}
 .resource:hover .res-tooltip{display:block}
-.res-tooltip{display:none;position:absolute;top:100%;left:50%;transform:translateX(-50%);background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-size:.7rem;white-space:nowrap;z-index:10;margin-top:4px;box-shadow:0 4px 20px rgba(0,0,0,.6);color:var(--text)}
+.res-tooltip{display:none;position:absolute;top:100%;left:50%;transform:translateX(-50%);background:var(--bg-base);border:1px solid var(--ink);padding:6px 10px;font-size:.68rem;white-space:nowrap;z-index:10;margin-top:4px;box-shadow:0 2px 8px rgba(0,0,0,.1);color:var(--ink)}
 .spacer{flex:1}
-.day-display{font-size:.9rem;color:var(--amber);font-weight:700;padding:0 10px;font-family:'Share Tech Mono',monospace;text-shadow:0 0 8px rgba(245,158,11,0.5)}
-.net-income{font-size:.72rem;padding:4px 10px;border-radius:4px;font-weight:700;font-family:'Share Tech Mono',monospace}
-.net-income.pos{color:var(--emerald-light);background:rgba(16,185,129,.1);text-shadow:0 0 6px rgba(16,185,129,0.4)}
-.net-income.neg{color:var(--red);background:rgba(239,68,68,.1);text-shadow:0 0 6px rgba(239,68,68,0.4)}
-.speed-controls{display:flex;gap:2px;background:var(--panel4);border-radius:4px;padding:2px;border:1px solid rgba(8,51,68,0.4)}
-.speed-btn{width:32px;height:24px;border:none;background:transparent;color:#6ea8c9;border-radius:2px;cursor:pointer;font-size:.72rem;font-weight:700;transition:all .15s;font-family:'Share Tech Mono',monospace}
-.speed-btn.active{background:var(--cyan);color:#020617;box-shadow:0 0 10px rgba(6,182,212,.3)}
-.speed-btn:hover{color:var(--cyan-light)}
-.top-toggle{height:24px;padding:0 8px;border:1px solid var(--border);background:var(--panel4);color:#6ea8c9;border-radius:4px;cursor:pointer;font-size:.68rem;font-weight:600;transition:all .15s;font-family:'Rajdhani',sans-serif;letter-spacing:1px;text-transform:uppercase}
-.top-toggle.on{background:var(--cyan);color:#020617;border-color:var(--cyan);box-shadow:0 0 10px rgba(6,182,212,.3)}
-.top-label{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;color:var(--cyan);letter-spacing:3px;text-shadow:0 0 10px rgba(6,182,212,0.4);text-transform:uppercase}
+.day-display{font-size:.85rem;color:var(--accent);font-weight:700;padding:0 10px;font-family:var(--mono)}
+.net-income{font-size:.7rem;padding:4px 10px;font-weight:700;font-family:var(--mono)}
+.net-income.pos{color:var(--emerald)}
+.net-income.neg{color:var(--red)}
+.speed-controls{display:flex;gap:2px;border:1px solid var(--ink);padding:2px}
+.speed-btn{width:32px;height:24px;border:none;background:transparent;color:rgba(15,15,15,0.5);cursor:pointer;font-size:.7rem;font-weight:700;transition:all .15s;font-family:var(--mono)}
+.speed-btn.active{background:var(--ink);color:var(--bg-base)}
+.speed-btn:hover{color:var(--ink)}
+.top-toggle{height:24px;padding:0 8px;border:1px solid var(--ink);background:transparent;color:rgba(15,15,15,0.6);cursor:pointer;font-size:.65rem;font-weight:600;transition:all .15s;font-family:var(--mono);letter-spacing:1px;text-transform:uppercase}
+.top-toggle.on{background:var(--ink);color:var(--bg-base)}
+.top-label{font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--ink);letter-spacing:3px;text-transform:uppercase}
 
 /* QUEST BAR */
-#quest-bar{height:34px;background:linear-gradient(90deg,rgba(6,182,212,.08),rgba(16,185,129,.08));border-bottom:1px solid rgba(6,182,212,.2);display:flex;align-items:center;padding:0 14px;gap:10px;flex-shrink:0;font-family:'Share Tech Mono',monospace}
-#quest-phase{font-size:.58rem;letter-spacing:2px;color:var(--cyan);background:rgba(6,182,212,.12);padding:2px 7px;border-radius:3px;border:1px solid rgba(6,182,212,.25);text-transform:uppercase;font-weight:700}
-#quest-icon{font-size:.9rem;color:var(--amber)}
-#quest-text{flex:1;font-size:.78rem;color:var(--amber-light);font-weight:600;text-shadow:0 0 8px rgba(251,191,36,.3);letter-spacing:.5px}
-#quest-hint-btn{width:20px;height:20px;border-radius:50%;background:var(--panel3);border:1px solid var(--border2);color:var(--cyan);font-size:.72rem;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Share Tech Mono',monospace;transition:all .2s}
-#quest-hint-btn:hover{background:var(--cyan);color:#020617;border-color:var(--cyan)}
-#quest-progress{font-size:.62rem;color:#6ea8c9;letter-spacing:1px}
-#quest-hint{background:rgba(6,182,212,.08);border-bottom:1px solid rgba(6,182,212,.15);padding:5px 14px;font-size:.73rem;color:var(--cyan-light);font-family:'Share Tech Mono',monospace;flex-shrink:0;display:none}
+#quest-bar{height:32px;background:var(--accent-dim);border-bottom:1px solid rgba(234,78,36,0.2);display:flex;align-items:center;padding:0 14px;gap:10px;flex-shrink:0;font-family:var(--mono)}
+#quest-phase{font-size:.56rem;letter-spacing:2px;color:var(--accent);border:1px solid var(--accent);padding:2px 7px;text-transform:uppercase;font-weight:700}
+#quest-icon{font-size:.8rem;color:var(--accent);font-family:var(--mono)}
+#quest-text{flex:1;font-size:.75rem;color:var(--ink);font-weight:600;letter-spacing:.5px}
+#quest-hint-btn{width:20px;height:20px;background:transparent;border:1px solid var(--ink);color:var(--ink);font-size:.7rem;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:var(--mono);transition:all .2s}
+#quest-hint-btn:hover{background:var(--ink);color:var(--bg-base)}
+#quest-progress{font-size:.6rem;color:rgba(15,15,15,0.5);letter-spacing:1px}
+#quest-hint{background:var(--accent-dim);border-bottom:1px solid rgba(234,78,36,0.15);padding:5px 14px;font-size:.7rem;color:var(--accent);font-family:var(--mono);flex-shrink:0;display:none}
 .quest-complete-flash{animation:questFlash 1.5s ease-out}
-@keyframes questFlash{0%{background:rgba(16,185,129,.25)}100%{background:transparent}}
+@keyframes questFlash{0%{background:rgba(16,185,129,.15)}100%{background:transparent}}
 
 /* MAIN AREA */
 #main-area{flex:1;display:flex;overflow:hidden}
-
-/* LEFT PANEL */
-#left-panel{width:180px;background:var(--panel);border-right:1px solid transparent;background-image:linear-gradient(var(--panel),var(--panel)),linear-gradient(180deg,transparent,rgba(6,182,212,0.15),transparent);background-origin:border-box;background-clip:padding-box,border-box;overflow-y:auto;flex-shrink:0;padding:6px}
+#left-panel{width:180px;background:var(--bg-base);border-right:1px solid var(--ink);overflow-y:auto;flex-shrink:0;padding:6px;background-image:linear-gradient(to right,var(--grid-line) 1px,transparent 1px),linear-gradient(to bottom,var(--grid-line) 1px,transparent 1px);background-size:40px 40px}
 .panel-section{margin-bottom:8px}
-.panel-title{font-size:.6rem;text-transform:uppercase;letter-spacing:2px;color:#6ea8c9;padding:5px 6px;font-weight:700;display:flex;align-items:center;gap:5px;position:sticky;top:0;background:rgba(3,8,18,0.9);backdrop-filter:blur(8px);z-index:2;border-bottom:1px solid rgba(8,51,68,0.3)}
-.panel-title svg{width:12px;height:12px;stroke:#6ea8c9;fill:none;stroke-width:2;flex-shrink:0}
-.build-btn{width:100%;padding:6px;background:var(--panel3);border:1px solid rgba(8,51,68,0.3);border-radius:4px;color:var(--text);cursor:pointer;display:flex;align-items:center;gap:6px;font-size:.76rem;margin-bottom:2px;transition:all .2s;text-align:left;font-family:'Rajdhani',sans-serif}
-.build-btn:hover{border-color:var(--cyan);background:var(--panel4)}
-.build-btn.active{border-color:var(--cyan);background:rgba(6,182,212,.08);box-shadow:0 0 10px rgba(6,182,212,.12)}
+.panel-title{font-size:.58rem;text-transform:uppercase;letter-spacing:2px;color:var(--accent);padding:5px 6px;font-weight:700;display:flex;align-items:center;gap:5px;position:sticky;top:0;background:rgba(226,226,223,0.95);backdrop-filter:blur(8px);z-index:2;border-bottom:1px solid var(--grid-line);font-family:var(--mono)}
+.panel-title::before{content:'';display:inline-block;width:4px;height:4px;background:var(--accent);flex-shrink:0}
+.panel-title svg{width:12px;height:12px;stroke:var(--accent);fill:none;stroke-width:2;flex-shrink:0}
+.build-btn{width:100%;padding:6px;background:var(--box-bg);border:1px solid rgba(15,15,15,0.12);color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:6px;font-size:.74rem;margin-bottom:2px;transition:all .2s;text-align:left;font-family:var(--sans)}
+.build-btn:hover{border-color:var(--ink);background:rgba(15,15,15,0.04)}
+.build-btn.active{border-color:var(--ink);background:var(--ink);color:var(--bg-base)}
+.build-btn.active .bname,.build-btn.active .cost,.build-btn.active .hotkey{color:var(--bg-base)}
 .build-btn.disabled{opacity:.3;cursor:not-allowed;pointer-events:none}
-.emoji-box{width:30px;height:30px;display:flex;align-items:center;justify-content:center;background:var(--panel5);border:1px solid var(--border);border-radius:4px;font-size:1rem;flex-shrink:0;transition:border-color .2s}
-.build-btn:hover .emoji-box{border-color:var(--cyan)}
+.emoji-box{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(15,15,15,0.15);font-size:.95rem;flex-shrink:0;transition:border-color .2s;font-family:var(--mono);font-size:.6rem;font-weight:700}
+.build-btn:hover .emoji-box{border-color:var(--ink)}
+.build-btn.active .emoji-box{border-color:var(--bg-base);color:var(--bg-base)}
 .build-btn .info{flex:1;min-width:0}
-.build-btn .bname{font-weight:600;font-size:.74rem;display:block;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.build-btn .cost{color:var(--emerald-light);font-size:.64rem;font-family:'Share Tech Mono',monospace;display:block}
-.build-btn .hotkey{color:#6ea8c9;font-size:.52rem;font-family:'Share Tech Mono',monospace}
-.action-btn{width:100%;padding:8px;border:none;border-radius:4px;color:#020617;cursor:pointer;font-size:.78rem;font-weight:700;margin-bottom:2px;transition:all .15s;font-family:'Rajdhani',sans-serif;letter-spacing:1px;text-transform:uppercase}
-.action-btn:hover{filter:brightness(1.15);transform:translateY(-1px)}
-.action-btn.sell-btn{background:linear-gradient(135deg,#059669,var(--emerald))}
-.action-btn.tech{background:linear-gradient(135deg,#6d28d9,var(--purple))}
-.action-btn.auto{background:linear-gradient(135deg,#0e7490,var(--cyan))}
-.action-btn.danger{background:linear-gradient(135deg,#991b1b,var(--red))}
+.build-btn .bname{font-weight:500;font-size:.72rem;display:block;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.build-btn .cost{color:var(--accent);font-size:.62rem;font-family:var(--mono);display:block}
+.build-btn .hotkey{color:rgba(15,15,15,0.4);font-size:.5rem;font-family:var(--mono)}
+.action-btn{width:100%;padding:8px;border:1px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer;font-size:.75rem;font-weight:700;margin-bottom:2px;transition:all .15s;font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;position:relative}
+.action-btn::before{content:'[ ';position:absolute;left:8px;opacity:0;color:var(--accent)}
+.action-btn::after{content:' ]';position:absolute;right:8px;opacity:0;color:var(--accent)}
+.action-btn:hover::before,.action-btn:hover::after{opacity:1}
+.action-btn:hover{background:rgba(15,15,15,0.04)}
+.action-btn.sell-btn{background:var(--ink);color:var(--bg-base);border-color:var(--ink)}
+.action-btn.sell-btn:hover{background:var(--accent);border-color:var(--accent)}
+.action-btn.sell-btn::before,.action-btn.sell-btn::after{color:var(--bg-base)}
+.action-btn.tech{border-color:var(--accent);color:var(--accent)}
+.action-btn.tech:hover{background:var(--accent);color:var(--bg-base)}
+.action-btn.auto{border-color:var(--ink)}
+.action-btn.danger{border-color:var(--red);color:var(--red)}
+.action-btn.danger:hover{background:var(--red);color:var(--bg-base)}
 
-/* CANVAS WRAP - Three.js will inject canvas here */
-#canvas-wrap{flex:1;position:relative;overflow:hidden;background:#010308;min-height:400px}
+/* CANVAS WRAP */
+#canvas-wrap{flex:1;position:relative;overflow:hidden;background:#010308;min-height:400px;border:1px solid var(--ink)}
 #canvas-wrap canvas{display:block;width:100%;height:100%}
-
-/* RIGHT PANEL */
-#right-panel{width:200px;background:var(--panel);border-left:1px solid transparent;background-image:linear-gradient(var(--panel),var(--panel)),linear-gradient(180deg,transparent,rgba(6,182,212,0.15),transparent);background-origin:border-box;background-clip:padding-box,border-box;overflow-y:auto;flex-shrink:0;padding:8px}
-.info-title{font-size:.65rem;font-weight:700;margin-bottom:5px;color:var(--cyan);text-transform:uppercase;letter-spacing:2px;display:flex;align-items:center;gap:5px;text-shadow:0 0 8px rgba(6,182,212,0.4)}
-.info-section{background:var(--panel2);border:1px solid rgba(8,51,68,0.3);border-radius:4px;padding:8px;margin-bottom:7px;font-size:.78rem;line-height:1.6}
-.info-section .label{color:#6ea8c9;font-size:.62rem;text-transform:uppercase;letter-spacing:1.5px;font-family:'Share Tech Mono',monospace}
-.info-section .value{color:var(--text);font-weight:600;font-family:'Share Tech Mono',monospace}
+#right-panel{width:200px;background:var(--bg-base);border-left:1px solid var(--ink);overflow-y:auto;flex-shrink:0;padding:8px;background-image:linear-gradient(to right,var(--grid-line) 1px,transparent 1px),linear-gradient(to bottom,var(--grid-line) 1px,transparent 1px);background-size:40px 40px}
+.info-title{font-size:.6rem;font-weight:700;margin-bottom:5px;color:var(--accent);text-transform:uppercase;letter-spacing:2px;display:flex;align-items:center;gap:5px;font-family:var(--mono)}
+.info-title::before{content:'';display:inline-block;width:4px;height:4px;background:var(--accent)}
+.info-section{border:1px solid var(--ink);padding:8px;margin-bottom:7px;font-size:.76rem;line-height:1.6;background:var(--box-bg)}
+.info-section .label{color:rgba(15,15,15,0.5);font-size:.6rem;text-transform:uppercase;letter-spacing:1.5px;font-family:var(--mono)}
+.info-section .value{color:var(--ink);font-weight:600;font-family:var(--mono)}
 .stat-row{display:flex;justify-content:space-between;align-items:center;padding:1px 0}
-.stat-row .lbl{color:#6ea8c9;font-size:.7rem}
-.stat-row .val{color:var(--emerald-light);font-weight:600;font-family:'Share Tech Mono',monospace;font-size:.72rem;text-shadow:0 0 6px rgba(16,185,129,0.3)}
-.milestone{background:var(--panel2);border:1px solid rgba(8,51,68,0.2);border-radius:4px;padding:7px 8px;margin-bottom:4px;border-left:2px solid var(--amber);position:relative;overflow:hidden}
-.milestone::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;box-shadow:0 0 8px rgba(245,158,11,0.6)}
+.stat-row .lbl{color:rgba(15,15,15,0.6);font-size:.68rem;font-family:var(--mono)}
+.stat-row .val{color:var(--ink);font-weight:700;font-family:var(--mono);font-size:.7rem}
+.milestone{border:1px solid rgba(15,15,15,0.15);padding:7px 8px;margin-bottom:4px;border-left:2px solid var(--accent);position:relative;overflow:hidden;background:var(--box-bg)}
 .milestone.done{border-left-color:var(--emerald);opacity:.6}
-.milestone.done::before{box-shadow:0 0 8px rgba(16,185,129,0.6)}
-.milestone .m-title{font-size:.68rem;font-weight:700;color:var(--amber);font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:1px}
+.milestone .m-title{font-size:.66rem;font-weight:700;color:var(--accent);font-family:var(--mono);text-transform:uppercase;letter-spacing:1px}
 .milestone.done .m-title{color:var(--emerald)}
-.milestone .m-desc{font-size:.62rem;color:#6ea8c9;margin-top:2px;font-family:'Share Tech Mono',monospace}
-.milestone .m-bar{height:3px;background:rgba(8,51,68,0.5);border-radius:2px;margin-top:4px}
-.milestone .m-fill{height:100%;background:var(--amber);border-radius:2px;transition:width .3s;box-shadow:0 0 6px rgba(245,158,11,0.5)}
-.milestone.done .m-fill{background:var(--emerald);box-shadow:0 0 6px rgba(16,185,129,0.5)}
-.market-row{display:flex;justify-content:space-between;font-size:.74rem;padding:3px 0;font-family:'Share Tech Mono',monospace;align-items:center}
-.market-row .trend{font-size:.65rem;margin-left:4px}
-.market-row .up{color:var(--emerald-light);text-shadow:0 0 4px rgba(16,185,129,0.3)}
-.market-row .down{color:var(--red);text-shadow:0 0 4px rgba(239,68,68,0.3)}
-.market-row .flat{color:#6ea8c9}
-.sel-btn{padding:4px 8px;border:none;border-radius:4px;cursor:pointer;font-size:.68rem;font-weight:700;margin-top:5px;margin-right:3px;transition:all .15s;font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:1px}
-.sel-btn.heal{background:var(--emerald);color:#020617}
-.sel-btn.sell{background:var(--amber);color:#020617}
-.sel-btn.demolish{background:var(--red);color:#fff}
-.sel-btn:hover{filter:brightness(1.15)}
+.milestone .m-desc{font-size:.6rem;color:rgba(15,15,15,0.6);margin-top:2px;font-family:var(--mono)}
+.milestone .m-bar{height:3px;background:rgba(15,15,15,0.08);margin-top:4px}
+.milestone .m-fill{height:100%;background:var(--accent);transition:width .3s}
+.milestone.done .m-fill{background:var(--emerald)}
+.market-row{display:flex;justify-content:space-between;font-size:.72rem;padding:3px 0;font-family:var(--mono);align-items:center}
+.market-row .trend{font-size:.62rem;margin-left:4px}
+.market-row .up{color:var(--emerald)}
+.market-row .down{color:var(--red)}
+.market-row .flat{color:rgba(15,15,15,0.5)}
+.sel-btn{padding:4px 8px;border:1px solid var(--ink);background:transparent;cursor:pointer;font-size:.66rem;font-weight:700;margin-top:5px;margin-right:3px;transition:all .15s;font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;color:var(--ink)}
+.sel-btn:hover{background:var(--ink);color:var(--bg-base)}
+.sel-btn.heal{border-color:var(--emerald);color:var(--emerald)}
+.sel-btn.heal:hover{background:var(--emerald);color:var(--bg-base)}
+.sel-btn.sell{border-color:var(--amber);color:var(--amber)}
+.sel-btn.sell:hover{background:var(--amber);color:var(--bg-base)}
+.sel-btn.demolish{border-color:var(--red);color:var(--red)}
+.sel-btn.demolish:hover{background:var(--red);color:var(--bg-base)}
 
 /* BOTTOM BAR */
-#bottom-bar{height:130px;background:var(--panel);border-top:1px solid transparent;background-image:linear-gradient(var(--panel),var(--panel)),linear-gradient(90deg,transparent,rgba(6,182,212,0.15),transparent);background-origin:border-box;background-clip:padding-box,border-box;overflow-y:auto;font-size:.73rem;display:flex;flex-direction:column;flex-shrink:0}
-.log-header{display:flex;align-items:center;gap:7px;padding:5px 12px;font-size:.58rem;text-transform:uppercase;letter-spacing:3px;color:#6ea8c9;font-family:'Share Tech Mono',monospace;flex-shrink:0;border-bottom:1px solid rgba(8,51,68,0.3);background:rgba(3,8,18,0.6)}
-.log-dot{width:5px;height:5px;border-radius:50%;background:var(--emerald);box-shadow:0 0 6px rgba(16,185,129,0.6);animation:dotPulse 2s ease-in-out infinite;flex-shrink:0}
+#bottom-bar{height:130px;background:var(--bg-base);border-top:1px solid var(--ink);overflow-y:auto;font-size:.7rem;display:flex;flex-direction:column;flex-shrink:0}
+.log-header{display:flex;align-items:center;gap:7px;padding:5px 12px;font-size:.56rem;text-transform:uppercase;letter-spacing:3px;color:var(--accent);font-family:var(--mono);flex-shrink:0;border-bottom:1px solid var(--grid-line)}
+.log-header::before{content:'';display:inline-block;width:4px;height:4px;background:var(--accent)}
+.log-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:dotPulse 2s ease-in-out infinite;flex-shrink:0}
 @keyframes dotPulse{0%,100%{opacity:1}50%{opacity:.4}}
 #log-feed{flex:1;overflow-y:auto;padding:3px 12px}
-.notif{padding:2px 0;color:#6ea8c9;border-bottom:1px solid rgba(8,51,68,.12);font-family:'Share Tech Mono',monospace;font-size:.68rem}
-.notif .time{color:#6ea8c9;opacity:.6;margin-right:5px;font-size:.6rem}
+.notif{padding:2px 0;color:rgba(15,15,15,0.7);border-bottom:1px solid var(--grid-line);font-family:var(--mono);font-size:.66rem}
+.notif .time{color:var(--accent);opacity:.7;margin-right:5px;font-size:.58rem}
 .notif.event{color:var(--amber)}
 .notif.alert{color:var(--red)}
-.notif.success{color:var(--emerald-light)}
-.log-cursor{padding:2px 12px;font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--cyan);flex-shrink:0}
+.notif.success{color:var(--emerald)}
+.log-cursor{padding:2px 12px;font-family:var(--mono);font-size:.66rem;color:var(--accent);flex-shrink:0}
 .log-cursor::after{content:'_';animation:blink 1s step-end infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-
-/* MODALS */
-.modal-overlay{position:fixed;inset:0;background:rgba(1,3,8,.85);display:none;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(6px)}
+.modal-overlay{position:fixed;inset:0;background:rgba(226,226,223,.9);display:none;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(6px)}
 .modal-overlay.active{display:flex}
-.modal{background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:20px;max-width:720px;width:92%;max-height:82vh;overflow-y:auto;position:relative;box-shadow:0 0 60px rgba(6,182,212,.1)}
-.modal h2{font-size:1.2rem;margin-bottom:14px;display:flex;align-items:center;gap:8px;color:var(--cyan);text-shadow:0 0 8px rgba(6,182,212,0.4);font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:2px}
-.modal-close{position:absolute;top:12px;right:16px;background:none;border:none;color:#6ea8c9;font-size:1.4rem;cursor:pointer;line-height:1}
-.modal-close:hover{color:var(--cyan-light)}
-.modal-desc{font-size:.72rem;color:#6ea8c9;margin-bottom:12px;font-family:'Share Tech Mono',monospace}
+.modal{background:var(--bg-base);border:1px solid var(--ink);padding:20px;max-width:720px;width:92%;max-height:82vh;overflow-y:auto;position:relative;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.modal h2{font-size:1.1rem;margin-bottom:14px;display:flex;align-items:center;gap:8px;color:var(--ink);font-family:var(--mono);text-transform:uppercase;letter-spacing:2px}
+.modal-close{position:absolute;top:12px;right:16px;background:none;border:none;color:rgba(15,15,15,0.5);font-size:1.4rem;cursor:pointer;line-height:1}
+.modal-close:hover{color:var(--accent)}
+.modal-desc{font-size:.7rem;color:rgba(15,15,15,0.6);margin-bottom:12px;font-family:var(--mono)}
 #tech-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
-.tech-card{background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:10px;cursor:pointer;transition:all .2s;position:relative}
-.tech-card:hover{border-color:var(--cyan);transform:translateY(-2px);box-shadow:0 0 20px rgba(6,182,212,.15)}
-.tech-card.unlocked{border-color:var(--emerald);background:rgba(16,185,129,.06)}
-.tech-card.available{border-color:var(--amber);box-shadow:0 0 12px rgba(245,158,11,.12)}
+.tech-card{border:1px solid rgba(15,15,15,0.15);padding:10px;cursor:pointer;transition:all .2s;position:relative;background:var(--box-bg)}
+.tech-card:hover{border-color:var(--ink);transform:translateY(-2px);box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.tech-card.unlocked{border-color:var(--emerald)}
+.tech-card.available{border-color:var(--accent)}
 .tech-card.locked{opacity:.4;cursor:not-allowed}
-.tech-card.locked:hover{transform:none;border-color:var(--border)}
-.tech-card .tier{font-size:.52rem;text-transform:uppercase;letter-spacing:2px;color:#6ea8c9;margin-bottom:3px;font-family:'Share Tech Mono',monospace}
-.tech-card .t-name{font-weight:700;font-size:.84rem;margin-bottom:2px;color:var(--text)}
-.tech-card .t-desc{font-size:.68rem;color:#6ea8c9;line-height:1.4;margin-bottom:5px}
-.tech-card .t-cost{color:var(--amber);font-size:.74rem;font-weight:600;font-family:'Share Tech Mono',monospace}
-.tech-card .t-status{position:absolute;top:8px;right:10px;font-size:.9rem}
-
-/* TUTORIAL OVERLAY */
-#tutorial-overlay{position:fixed;inset:0;background:rgba(1,3,8,.9);display:none;align-items:center;justify-content:center;z-index:200;flex-direction:column;backdrop-filter:blur(8px)}
+.tech-card.locked:hover{transform:none;border-color:rgba(15,15,15,0.15)}
+#tutorial-overlay{position:fixed;inset:0;background:rgba(226,226,223,.92);display:none;align-items:center;justify-content:center;z-index:200;flex-direction:column;backdrop-filter:blur(8px)}
 #tutorial-overlay.active{display:flex}
-#tut-card{background:var(--panel);border:1px solid var(--cyan);border-radius:8px;padding:28px;max-width:480px;width:90%;text-align:center;box-shadow:0 0 40px rgba(6,182,212,.15)}
-#tut-card h3{font-size:1.3rem;margin-bottom:10px;color:var(--cyan);text-shadow:0 0 10px rgba(6,182,212,.4);font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:2px}
-#tut-card p{color:#6ea8c9;line-height:1.7;margin-bottom:8px;font-size:.88rem}
-#tut-card .tut-step{font-size:.62rem;color:#6ea8c9;margin-bottom:14px;font-family:'Share Tech Mono',monospace;text-transform:uppercase;letter-spacing:2px}
-#tut-card .keys{display:inline-flex;gap:5px;margin:7px 0;flex-wrap:wrap;justify-content:center}
-#tut-card .key{background:var(--panel3);border:1px solid var(--border2);border-radius:4px;padding:2px 7px;font-size:.72rem;font-family:'Share Tech Mono',monospace;color:var(--cyan-pale)}
+#tut-card{background:var(--bg-base);border:1px solid var(--ink);padding:28px;max-width:480px;width:90%;text-align:center}
+#tut-card h3{font-size:1.2rem;margin-bottom:10px;color:var(--ink);font-family:var(--mono);text-transform:uppercase;letter-spacing:2px}
+#tut-card p{color:rgba(15,15,15,0.7);line-height:1.7;margin-bottom:8px;font-size:.85rem}
+#tut-card .tut-step{font-size:.6rem;color:var(--accent);margin-bottom:14px;font-family:var(--mono);text-transform:uppercase;letter-spacing:2px}
 #tut-card .tut-btns{display:flex;gap:8px;justify-content:center;margin-top:16px}
-#tut-card .tut-btn{padding:8px 24px;border:none;border-radius:4px;cursor:pointer;font-size:.84rem;font-weight:700;font-family:'Rajdhani',sans-serif;letter-spacing:1px;text-transform:uppercase;transition:all .15s}
-#tut-card .tut-btn.next{background:linear-gradient(135deg,var(--cyan),var(--emerald));color:#020617}
-#tut-card .tut-btn.skip{background:var(--panel3);border:1px solid var(--border2);color:#6ea8c9}
-#tut-card .tut-btn:hover{filter:brightness(1.15)}
-
-/* FLOATING TEXT */
+#tut-card .tut-btn{padding:8px 24px;border:1px solid var(--ink);cursor:pointer;font-size:.8rem;font-weight:700;font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;transition:all .15s;background:transparent;color:var(--ink)}
+#tut-card .tut-btn.next{background:var(--ink);color:var(--bg-base)}
+#tut-card .tut-btn.next:hover{background:var(--accent);border-color:var(--accent)}
+#tut-card .tut-btn.skip{background:transparent;color:rgba(15,15,15,0.5)}
+#tut-card .tut-btn.skip:hover{color:var(--ink);border-color:var(--ink)}
 #float-texts{position:fixed;inset:0;pointer-events:none;z-index:50}
-.float-text{position:absolute;font-weight:800;font-size:.82rem;animation:floatUp 1.4s ease-out forwards;pointer-events:none;text-shadow:0 0 8px currentColor;font-family:'Share Tech Mono',monospace}
+.float-text{position:absolute;font-weight:800;font-size:.8rem;animation:floatUp 1.4s ease-out forwards;pointer-events:none;font-family:var(--mono)}
 @keyframes floatUp{0%{opacity:1;transform:translateY(0) scale(1)}50%{opacity:.9;transform:translateY(-20px) scale(1.1)}100%{opacity:0;transform:translateY(-45px) scale(.8)}}
-
-/* TOAST */
 #toast-container{position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:300;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none}
-.toast{background:var(--panel);border:1px solid var(--cyan);border-radius:6px;padding:10px 22px;font-size:.88rem;font-weight:700;color:var(--cyan);animation:toastIn .4s ease-out;box-shadow:0 0 30px rgba(6,182,212,.2);text-shadow:0 0 8px rgba(6,182,212,.4);font-family:'Rajdhani',sans-serif;text-transform:uppercase;letter-spacing:1px}
+.toast{background:var(--bg-base);border:1px solid var(--ink);padding:10px 22px;font-size:.85rem;font-weight:700;color:var(--ink);animation:toastIn .4s ease-out;box-shadow:0 2px 8px rgba(0,0,0,.08);font-family:var(--mono);text-transform:uppercase;letter-spacing:1px}
 @keyframes toastIn{0%{opacity:0;transform:translateY(-16px)}100%{opacity:1;transform:translateY(0)}}
-
-/* CANVAS CURSOR MODES */
 #canvas-wrap.cursor-build{cursor:crosshair}
 #canvas-wrap.cursor-demolish{cursor:not-allowed}
 #canvas-wrap.cursor-expand{cursor:cell}
 #canvas-wrap.cursor-program{cursor:pointer}
-
-/* TOAST FADE-OUT */
 .toast.toast-out{animation:toastOut .35s ease-in forwards}
 @keyframes toastOut{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-10px)}}
-
-/* SCROLLBAR */
 ::-webkit-scrollbar{width:3px}
-::-webkit-scrollbar-track{background:var(--panel)}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
-::-webkit-scrollbar-thumb:hover{background:var(--cyan)}
-
-/* RESPONSIVE */
-@media(max-width:1100px){
-  #left-panel{width:160px}
-  #right-panel{width:180px}
-  .resource{padding:3px 6px;font-size:.72rem}
-}
-@media(max-width:900px){
-  #right-panel{display:none}
-  #left-panel{width:150px}
-}
-@media(max-width:640px){
-  #left-panel{width:120px}
-  .build-btn .bname{font-size:.68rem}
-  .emoji-box{width:26px;height:26px;font-size:.85rem}
-}
+::-webkit-scrollbar-track{background:var(--bg-base)}
+::-webkit-scrollbar-thumb{background:rgba(15,15,15,0.2)}
+::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+@media(max-width:1100px){#left-panel{width:160px}#right-panel{width:180px}.resource{padding:3px 6px;font-size:.7rem}}
+@media(max-width:900px){#right-panel{display:none}#left-panel{width:150px}}
+@media(max-width:640px){#left-panel{width:120px}.build-btn .bname{font-size:.66rem}.emoji-box{width:24px;height:24px;font-size:.55rem}}
 </style>
 </head>
 <body>
@@ -277,33 +251,33 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;ov
   <!-- TOP BAR -->
   <div id="top-bar">
     <div class="resource">
-      <span class="icon" style="color:var(--emerald-light);font-family:'Share Tech Mono',monospace;font-size:.8rem">$</span>
+      <span class="icon" style="color:var(--emerald-light);font-family:'JetBrains Mono',monospace;font-size:.8rem">$</span>
       <span class="val" id="r-money">15000</span>
       <div class="res-tooltip">Cash on hand</div>
     </div>
     <div class="resource">
-      <span class="icon" style="color:#c4e8ff;font-family:'Share Tech Mono',monospace;font-size:.78rem">MLK</span>
+      <span class="icon" style="color:#c4e8ff;font-family:'JetBrains Mono',monospace;font-size:.78rem">MLK</span>
       <span class="val" id="r-milk">0</span>
       <div class="res-tooltip">Milk units stored</div>
     </div>
     <div class="resource">
-      <span class="icon" style="color:#e8d5c4;font-family:'Share Tech Mono',monospace;font-size:.78rem">WOL</span>
+      <span class="icon" style="color:#e8d5c4;font-family:'JetBrains Mono',monospace;font-size:.78rem">WOL</span>
       <span class="val" id="r-wool">0</span>
       <div class="res-tooltip">Wool units stored</div>
     </div>
     <div class="resource">
-      <span class="icon" style="color:#ffe8c4;font-family:'Share Tech Mono',monospace;font-size:.78rem">EGG</span>
+      <span class="icon" style="color:#ffe8c4;font-family:'JetBrains Mono',monospace;font-size:.78rem">EGG</span>
       <span class="val" id="r-eggs">0</span>
       <div class="res-tooltip">Egg units stored</div>
     </div>
     <div class="resource">
-      <span class="icon" style="color:var(--amber);font-family:'Share Tech Mono',monospace;font-size:.78rem">PWR</span>
+      <span class="icon" style="color:var(--amber);font-family:'JetBrains Mono',monospace;font-size:.78rem">PWR</span>
       <span class="val" id="r-energy" style="color:var(--amber-light)">100</span>
       <div class="res-tooltip">Farm energy capacity</div>
     </div>
     <div class="resource">
-      <span class="icon" style="color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:.78rem">DAT</span>
-      <span class="val" id="r-data" style="color:var(--cyan-light)">0</span>
+      <span class="icon" style="color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:.78rem">DAT</span>
+      <span class="val" id="r-data" style="color:var(--cyan)">0</span>
       <div class="res-tooltip">AI data points collected</div>
     </div>
     <div class="spacer"></div>
@@ -325,7 +299,7 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;ov
   <!-- QUEST BAR -->
   <div id="quest-bar">
     <div id="quest-phase">PHASE 1</div>
-    <div id="quest-icon" style="color:var(--amber);font-family:'Share Tech Mono',monospace;font-size:.8rem">[*]</div>
+    <div id="quest-icon" style="color:var(--amber);font-family:'JetBrains Mono',monospace;font-size:.8rem">[*]</div>
     <div id="quest-text">Initializing farm...</div>
     <div id="quest-hint-btn" onclick="window.game?.toggleQuestHint()" title="Show hint">?</div>
     <div id="quest-progress">1/12</div>
@@ -345,70 +319,70 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;ov
           Infrastructure
         </div>
         <button class="build-btn" data-build="pasture" onclick="window.game?.selectBuild('pasture')">
-          <span class="emoji-box" style="color:var(--emerald-light);font-family:'Share Tech Mono',monospace;font-size:.65rem">PST</span>
+          <span class="emoji-box" style="color:var(--emerald-light);font-family:'JetBrains Mono',monospace;font-size:.65rem">PST</span>
           <span class="info">
             <span class="bname">Pasture <span class="hotkey">[P]</span></span>
             <span class="cost">$200</span>
           </span>
         </button>
         <button class="build-btn" data-build="barn" onclick="window.game?.selectBuild('barn')">
-          <span class="emoji-box" style="color:var(--amber);font-family:'Share Tech Mono',monospace;font-size:.65rem">BRN</span>
+          <span class="emoji-box" style="color:var(--amber);font-family:'JetBrains Mono',monospace;font-size:.65rem">BRN</span>
           <span class="info">
             <span class="bname">Barn <span class="hotkey">[B]</span></span>
             <span class="cost">$5,000</span>
           </span>
         </button>
         <button class="build-btn" data-build="milking" onclick="window.game?.selectBuild('milking')">
-          <span class="emoji-box" style="color:#c4e8ff;font-family:'Share Tech Mono',monospace;font-size:.65rem">MLK</span>
+          <span class="emoji-box" style="color:#c4e8ff;font-family:'JetBrains Mono',monospace;font-size:.65rem">MLK</span>
           <span class="info">
             <span class="bname">Milking Station</span>
             <span class="cost">$8,000</span>
           </span>
         </button>
         <button class="build-btn" data-build="shearing" onclick="window.game?.selectBuild('shearing')">
-          <span class="emoji-box" style="color:#e8d5c4;font-family:'Share Tech Mono',monospace;font-size:.65rem">SHR</span>
+          <span class="emoji-box" style="color:#e8d5c4;font-family:'JetBrains Mono',monospace;font-size:.65rem">SHR</span>
           <span class="info">
             <span class="bname">Shearing Shed</span>
             <span class="cost">$6,000</span>
           </span>
         </button>
         <button class="build-btn" data-build="coop" onclick="window.game?.selectBuild('coop')">
-          <span class="emoji-box" style="color:#ffe8c4;font-family:'Share Tech Mono',monospace;font-size:.65rem">COP</span>
+          <span class="emoji-box" style="color:#ffe8c4;font-family:'JetBrains Mono',monospace;font-size:.65rem">COP</span>
           <span class="info">
             <span class="bname">Chicken Coop</span>
             <span class="cost">$3,000</span>
           </span>
         </button>
         <button class="build-btn" data-build="silo" onclick="window.game?.selectBuild('silo')">
-          <span class="emoji-box" style="color:#b0c4de;font-family:'Share Tech Mono',monospace;font-size:.65rem">SLO</span>
+          <span class="emoji-box" style="color:#b0c4de;font-family:'JetBrains Mono',monospace;font-size:.65rem">SLO</span>
           <span class="info">
             <span class="bname">Feed Silo</span>
             <span class="cost">$4,000</span>
           </span>
         </button>
         <button class="build-btn" data-build="solar" onclick="window.game?.selectBuild('solar')">
-          <span class="emoji-box" style="color:var(--amber-light);font-family:'Share Tech Mono',monospace;font-size:.65rem">SOL</span>
+          <span class="emoji-box" style="color:var(--amber-light);font-family:'JetBrains Mono',monospace;font-size:.65rem">SOL</span>
           <span class="info">
             <span class="bname">Solar Array</span>
             <span class="cost">$10,000</span>
           </span>
         </button>
         <button class="build-btn" data-build="drone" onclick="window.game?.selectBuild('drone')">
-          <span class="emoji-box" style="color:var(--cyan-light);font-family:'Share Tech Mono',monospace;font-size:.65rem">DRN</span>
+          <span class="emoji-box" style="color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:.65rem">DRN</span>
           <span class="info">
             <span class="bname">Drone Station</span>
             <span class="cost">$15,000</span>
           </span>
         </button>
         <button class="build-btn" data-build="vet" onclick="window.game?.selectBuild('vet')">
-          <span class="emoji-box" style="color:var(--emerald-light);font-family:'Share Tech Mono',monospace;font-size:.65rem">VET</span>
+          <span class="emoji-box" style="color:var(--emerald-light);font-family:'JetBrains Mono',monospace;font-size:.65rem">VET</span>
           <span class="info">
             <span class="bname">Vet Lab</span>
             <span class="cost">$12,000</span>
           </span>
         </button>
         <button class="build-btn" data-build="ai_center" onclick="window.game?.selectBuild('ai_center')">
-          <span class="emoji-box" style="color:var(--purple);font-family:'Share Tech Mono',monospace;font-size:.65rem">AIC</span>
+          <span class="emoji-box" style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:.65rem">AIC</span>
           <span class="info">
             <span class="bname">AI Center</span>
             <span class="cost">$25,000</span>
@@ -423,35 +397,35 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;ov
           Livestock
         </div>
         <button class="build-btn" onclick="window.game?.buyAnimal('cow')">
-          <span class="emoji-box" style="color:#c4e8ff;font-family:'Share Tech Mono',monospace;font-size:.65rem">COW</span>
+          <span class="emoji-box" style="color:#c4e8ff;font-family:'JetBrains Mono',monospace;font-size:.65rem">COW</span>
           <span class="info">
             <span class="bname">Dairy Cow</span>
             <span class="cost">$1,500</span>
           </span>
         </button>
         <button class="build-btn" onclick="window.game?.buyAnimal('beef')">
-          <span class="emoji-box" style="color:#e8c4a0;font-family:'Share Tech Mono',monospace;font-size:.65rem">BEF</span>
+          <span class="emoji-box" style="color:#e8c4a0;font-family:'JetBrains Mono',monospace;font-size:.65rem">BEF</span>
           <span class="info">
             <span class="bname">Beef Cattle</span>
             <span class="cost">$1,200</span>
           </span>
         </button>
         <button class="build-btn" onclick="window.game?.buyAnimal('sheep')">
-          <span class="emoji-box" style="color:#e8e8e8;font-family:'Share Tech Mono',monospace;font-size:.65rem">SHP</span>
+          <span class="emoji-box" style="color:#e8e8e8;font-family:'JetBrains Mono',monospace;font-size:.65rem">SHP</span>
           <span class="info">
             <span class="bname">Sheep</span>
             <span class="cost">$300</span>
           </span>
         </button>
         <button class="build-btn" onclick="window.game?.buyAnimal('goat')">
-          <span class="emoji-box" style="color:#d4c4a0;font-family:'Share Tech Mono',monospace;font-size:.65rem">GOT</span>
+          <span class="emoji-box" style="color:#d4c4a0;font-family:'JetBrains Mono',monospace;font-size:.65rem">GOT</span>
           <span class="info">
             <span class="bname">Goat</span>
             <span class="cost">$250</span>
           </span>
         </button>
         <button class="build-btn" onclick="window.game?.buyAnimal('chicken')">
-          <span class="emoji-box" style="color:#ffe8a0;font-family:'Share Tech Mono',monospace;font-size:.65rem">CHK</span>
+          <span class="emoji-box" style="color:#ffe8a0;font-family:'JetBrains Mono',monospace;font-size:.65rem">CHK</span>
           <span class="info">
             <span class="bname">Chicken</span>
             <span class="cost">$20</span>
@@ -465,17 +439,17 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;ov
           <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
           Actions
         </div>
-        <button class="action-btn tech" onclick="window.game?.openTechTree()">Tech Tree <span style="color:rgba(255,255,255,.5);font-size:.62rem">[T]</span></button>
-        <button class="action-btn sell-btn" onclick="window.game?.sellProducts()">Sell Products <span style="color:rgba(255,255,255,.5);font-size:.62rem">[S]</span></button>
+        <button class="action-btn tech" onclick="window.game?.openTechTree()">Tech Tree <span style="font-size:.62rem;opacity:.6">[T]</span></button>
+        <button class="action-btn sell-btn" onclick="window.game?.sellProducts()">Sell Products <span style="font-size:.62rem;opacity:.6">[S]</span></button>
         <button class="build-btn" data-build="expand" onclick="window.game?.toggleExpand()">
-          <span class="emoji-box" style="color:var(--cyan-light);font-family:'Share Tech Mono',monospace;font-size:.65rem">EXP</span>
+          <span class="emoji-box" style="color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:.65rem">EXP</span>
           <span class="info">
             <span class="bname">Expand Land</span>
             <span class="cost">$2,000/tile</span>
           </span>
         </button>
         <button class="build-btn" data-build="demolish" onclick="window.game?.toggleDemolish()">
-          <span class="emoji-box" style="color:var(--red);font-family:'Share Tech Mono',monospace;font-size:.65rem">DEL</span>
+          <span class="emoji-box" style="color:var(--red);font-family:'JetBrains Mono',monospace;font-size:.65rem">DEL</span>
           <span class="info">
             <span class="bname">Demolish</span>
             <span class="cost">Click to remove</span>

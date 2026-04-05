@@ -265,19 +265,19 @@ export class UIManager {
         </div>
         <div style="margin-bottom:4px">
           <div style="display:flex;justify-content:space-between;font-size:.62rem;margin-bottom:2px">
-            <span style="color:#6ea8c9">Health</span>
+            <span style="color:rgba(15,15,15,0.5)">Health</span>
             <span style="color:var(--emerald-light)">${Math.floor(healthPct)}%</span>
           </div>
-          <div style="height:4px;background:rgba(8,51,68,0.5);border-radius:2px;overflow:hidden">
+          <div style="height:4px;background:rgba(15,15,15,0.08);border-radius:2px;overflow:hidden">
             <div style="height:100%;width:${healthPct}%;background:${healthPct > 50 ? 'var(--emerald)' : healthPct > 25 ? 'var(--amber)' : 'var(--red)'};border-radius:2px;transition:width .3s"></div>
           </div>
         </div>
         <div style="margin-bottom:6px">
           <div style="display:flex;justify-content:space-between;font-size:.62rem;margin-bottom:2px">
-            <span style="color:#6ea8c9">Happiness</span>
-            <span style="color:var(--cyan-light)">${Math.floor(happyPct)}%</span>
+            <span style="color:rgba(15,15,15,0.5)">Happiness</span>
+            <span style="color:var(--accent)">${Math.floor(happyPct)}%</span>
           </div>
-          <div style="height:4px;background:rgba(8,51,68,0.5);border-radius:2px;overflow:hidden">
+          <div style="height:4px;background:rgba(15,15,15,0.08);border-radius:2px;overflow:hidden">
             <div style="height:100%;width:${happyPct}%;background:var(--cyan);border-radius:2px;transition:width .3s"></div>
           </div>
         </div>
@@ -296,10 +296,10 @@ export class UIManager {
 
     let infoHtml = `<div class="label" style="margin-bottom:4px">${def.desc}</div>`;
     if (def.range) {
-      infoHtml += `<div style="font-size:.62rem;color:#6ea8c9;margin-top:4px">Range: ${def.range} tiles</div>`;
+      infoHtml += `<div style="font-size:.62rem;color:rgba(15,15,15,0.5);margin-top:4px">Range: ${def.range} tiles</div>`;
     }
     if (def.capacity) {
-      infoHtml += `<div style="font-size:.62rem;color:#6ea8c9;margin-top:2px">Capacity: ${def.capacity}</div>`;
+      infoHtml += `<div style="font-size:.62rem;color:rgba(15,15,15,0.5);margin-top:2px">Capacity: ${def.capacity}</div>`;
     }
     if (def.energyGen) {
       infoHtml += `<div style="font-size:.62rem;color:var(--amber);margin-top:2px">+${def.energyGen} energy/day</div>`;
