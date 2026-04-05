@@ -147,8 +147,12 @@ export const DECISION_EVENTS = [
 ];
 
 export const TUTORIAL_STEPS = [
-  { title: 'Welcome, Farmer', text: 'You inherited a small farm with 3 dairy cows and $15,000.\n\nYour mission: transform this patch of land into the world\'s most advanced AI-powered farm.\n\nFollow the quest tracker to learn step by step.' },
-  { title: 'The Goal', text: 'PHASE 1: Build infrastructure, grow your herd\nPHASE 2: Unlock AI technologies (GPS, health monitors)\nPHASE 3: Program AI collars on animals\nPHASE 4: Deploy CowGorithm AI for full farm automation\n\nWin condition: unlock all 12 technologies.' },
-  { title: 'How It Works', text: '1. Your cows produce MILK every day\n2. Press S or click "Sell Products" to convert milk to cash\n3. Spend cash on buildings, animals, and AI tech\n4. Buildings near animals boost production\n5. Unlock GPS to program AI collars\n6. AI collars let you route animals to stations' },
-  { title: 'Your First Quest', text: 'The quest bar at the top will guide you.\n\nQuest 1: "Place a Milking Station"\nClick Milking Station in the left panel, then click a green tile near your cows.\n\nThis boosts milk production +50% for nearby cows!' },
+  { title: 'Welcome, Farmer', text: 'You inherited a small farm with 3 dairy cows and $15,000.\n\nYour goal: build the world\'s most advanced AI-powered farm.\n\nFollow this walkthrough to learn the basics.', type: 'overlay' },
+  { title: 'Your Resources', text: 'The top bar shows your resources:\n$ = Cash | MLK = Milk | WOL = Wool | EGG = Eggs\nPWR = Energy | DAT = AI Data\n\nEverything runs on cash. Produce goods, sell them, invest.', type: 'overlay', highlight: '#top-bar' },
+  { title: 'Meet Your Cows', text: 'Click on one of your cows in the 3D view to see its stats.\n\nEach animal has health, happiness, and production rate.', type: 'action', waitFor: 'animalSelected' },
+  { title: 'Build a Milking Station', text: 'Click "Milking Station" in the left panel, then click a green tile near your cows.\n\nThis boosts milk production +50% for nearby cows.', type: 'action', waitFor: 'buildingPlaced', highlightBtn: '[data-build="milking"]' },
+  { title: 'Watch Production', text: 'Your cows are now producing milk faster.\nWatch the floating numbers above them.\n\nLet a few days pass to accumulate milk.', type: 'overlay' },
+  { title: 'Sell Products', text: 'Press S or click "Sell Products" to convert your milk into cash.\n\nMarket prices change daily. Sell when prices are high.', type: 'action', waitFor: 'productsSold', highlightBtn: '.action-btn.sell-btn' },
+  { title: 'Tech Tree', text: 'Press T to open the Technology Tree.\n\nThis is your path from basic farming to full AI automation.\nStart with Tier 1: GPS Tracking, Health Monitor.', type: 'action', waitFor: 'techOpened' },
+  { title: 'Your Journey Begins', text: 'Follow the quest bar at the top for guidance.\n\nSpring > Summer > Fall > Winter\nEach season brings new challenges and opportunities.\n\nGood luck, farmer.', type: 'overlay' },
 ];
