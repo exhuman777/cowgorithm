@@ -59,16 +59,20 @@ export class TechModal {
           prereqText += `<div style="font-size:10px;color:var(--accent);margin-top:2px">Needs AI Center</div>`;
         }
 
+        const costText = status === 'unlocked' ? 'UNLOCKED'
+          : (status === 'available' && gameState.energyDeficit) ? '<span style="color:var(--red)">LOW POWER</span>'
+          : `$${cost.toLocaleString()}`;
+
         card.innerHTML = `
           <div style="font-size:13px;font-weight:700;color:${status === 'unlocked' ? 'var(--emerald)' : 'var(--ink)'};margin-bottom:4px">${tech.name}</div>
           <div style="font-size:11px;color:rgba(15,15,15,0.6);margin-bottom:6px">${tech.desc}</div>
           ${prereqText}
           <div style="font-size:12px;font-weight:700;margin-top:6px;color:${status === 'unlocked' ? 'var(--emerald)' : status === 'available' ? 'var(--accent)' : 'rgba(15,15,15,0.4)'}">
-            ${status === 'unlocked' ? 'UNLOCKED' : `$${cost.toLocaleString()}`}
+            ${costText}
           </div>
         `;
 
-        if (status === 'available') {
+        if (status === 'available' && !gameState.energyDeficit) {
           card.addEventListener('click', () => {
             this.techSystem.unlock(tech.id);
             this.render();

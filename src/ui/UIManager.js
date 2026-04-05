@@ -82,6 +82,14 @@ export class UIManager {
     if (d.wool) d.wool.textContent = Math.floor(gameState.wool);
     if (d.eggs) d.eggs.textContent = Math.floor(gameState.eggs);
     if (d.energy) d.energy.textContent = Math.floor(gameState.energy);
+    const energyDiv = document.getElementById('res-energy');
+    if (energyDiv) {
+      energyDiv.classList.remove('energy-warn', 'energy-crit');
+      const maxEnergy = 50 + (this.game.buildingSystem?.countBuildings('solar') || 0) * 15;
+      const pct = gameState.energy / maxEnergy;
+      if (pct <= 0.1) energyDiv.classList.add('energy-crit');
+      else if (pct <= 0.3) energyDiv.classList.add('energy-warn');
+    }
     if (d.data) d.data.textContent = Math.floor(gameState.data);
   }
 

@@ -280,6 +280,9 @@ body{background:var(--bg-base);color:var(--ink);font-family:var(--sans);overflow
 .build-tooltip{display:none;position:absolute;left:100%;top:0;background:var(--bg-base);border:1px solid var(--ink);padding:8px;font-size:.62rem;white-space:nowrap;z-index:20;margin-left:4px;font-family:var(--mono);min-width:160px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
 .build-btn{position:relative}
 .build-btn:hover .build-tooltip{display:block}
+.resource.energy-warn .val{color:var(--amber)!important;animation:none}
+.resource.energy-crit .val{color:var(--red)!important;animation:energyPulse 1s ease-in-out infinite}
+@keyframes energyPulse{0%,100%{opacity:1}50%{opacity:.4}}
 </style>
 </head>
 <body>
@@ -350,7 +353,7 @@ body{background:var(--bg-base);color:var(--ink);font-family:var(--sans);overflow
       <span class="val" id="r-eggs">0</span>
       <div class="res-tooltip">Egg units stored</div>
     </div>
-    <div class="resource">
+    <div class="resource" id="res-energy">
       <span class="icon" style="color:var(--amber);font-family:var(--mono);font-size:.78rem">PWR</span>
       <span class="val" id="r-energy" style="color:var(--amber-light)">100</span>
       <div class="res-tooltip">Farm energy capacity</div>
