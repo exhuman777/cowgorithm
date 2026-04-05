@@ -228,63 +228,61 @@ export class UIManager {
     const def = ANIMAL_DEFS[animal.type];
     if (!def) return;
 
-    if (d.selectedPanelTitle) d.selectedPanelTitle.textContent = `${animal.name}`;
+    if (d.selectedPanelTitle) d.selectedPanelTitle.textContent = animal.name;
 
     const healthPct = Math.max(0, Math.min(100, animal.health || 100));
     const happyPct = Math.max(0, Math.min(100, animal.happiness || 100));
     const hasGPS = gameState.techs.includes('gps');
     const isSick = animal.sick || false;
+    const efficiency = ((healthPct / 100) * (happyPct / 100) * 100).toFixed(0);
+    const dailyProd = def.prodAmt * def.prodValue * (healthPct / 100);
+    const netDaily = (dailyProd - def.feedCost).toFixed(1);
 
     let buttonsHtml = '';
-
-    // GPS-dependent actions
     if (hasGPS) {
-      if (def.product === 'milk') {
-        buttonsHtml += `<button class="sel-btn heal" onclick="window.game?.sendAnimalToTask('milk')">Send to Milk</button>`;
-      }
-      if (def.product === 'wool') {
-        buttonsHtml += `<button class="sel-btn heal" onclick="window.game?.sendAnimalToTask('shear')">Send to Shear</button>`;
-      }
+      if (def.product === 'milk') buttonsHtml += `<button class="sel-btn heal" onclick="window.game?.sendAnimalToTask('milk')">Send to Milk</button>`;
+      if (def.product === 'wool') buttonsHtml += `<button class="sel-btn heal" onclick="window.game?.sendAnimalToTask('shear')">Send to Shear</button>`;
     }
-
-    // Heal if sick
-    if (isSick) {
-      buttonsHtml += `<button class="sel-btn heal" onclick="window.game?.healAnimal()">Heal ($200)</button>`;
-    }
-
-    // Sell
+    if (isSick) buttonsHtml += `<button class="sel-btn heal" onclick="window.game?.healAnimal()">Heal ($200)</button>`;
     const sellValue = animal.sellValue || def.sellValue || 0;
     buttonsHtml += `<button class="sel-btn sell" onclick="window.game?.sellAnimal()">Sell ($${sellValue})</button>`;
-
-    // Auto-manage toggle
     const autoLabel = animal.autoManage ? 'Auto: ON' : 'Auto: OFF';
     buttonsHtml += `<button class="sel-btn heal" onclick="window.game?.toggleAnimalAuto()">${autoLabel}</button>`;
 
     if (d.selectedPanelBody) {
       d.selectedPanelBody.innerHTML = `
-        <div style="margin-bottom:6px">
-          <span class="label">${def.name}</span>
-          ${isSick ? '<span style="color:var(--red);font-size:.7rem;margin-left:6px;font-weight:700">SICK</span>' : ''}
+        <div style="margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-family:var(--mono);font-size:.68rem;font-weight:700">${def.name}</span>
+          ${isSick ? '<span style="color:var(--red);font-size:.6rem;font-weight:700">SICK</span>' : ''}
+          ${animal.golden ? '<span style="color:var(--amber);font-size:.6rem;font-weight:700">GOLDEN</span>' : ''}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;font-family:var(--mono);font-size:.6rem;margin-bottom:6px">
+          <span style="color:rgba(15,15,15,0.5)">Age</span><span style="text-align:right">${animal.age || 0}d</span>
+          <span style="color:rgba(15,15,15,0.5)">Prod/day</span><span style="text-align:right;color:var(--emerald)">+${dailyProd.toFixed(1)} ${def.product}</span>
+          <span style="color:rgba(15,15,15,0.5)">Feed/day</span><span style="text-align:right;color:var(--red)">-$${def.feedCost}</span>
+          <span style="color:rgba(15,15,15,0.5)">Net/day</span><span style="text-align:right;font-weight:700;color:${parseFloat(netDaily) >= 0 ? 'var(--emerald)' : 'var(--red)'}">$${netDaily}</span>
+          <span style="color:rgba(15,15,15,0.5)">Efficiency</span><span style="text-align:right">${efficiency}%</span>
+          <span style="color:rgba(15,15,15,0.5)">Lifetime</span><span style="text-align:right">$${Math.floor(animal.lifetimeEarnings || 0)}</span>
         </div>
         <div style="margin-bottom:4px">
-          <div style="display:flex;justify-content:space-between;font-size:.62rem;margin-bottom:2px">
+          <div style="display:flex;justify-content:space-between;font-size:.58rem;margin-bottom:2px;font-family:var(--mono)">
             <span style="color:rgba(15,15,15,0.5)">Health</span>
-            <span style="color:var(--emerald-light)">${Math.floor(healthPct)}%</span>
+            <span>${Math.floor(healthPct)}%</span>
           </div>
-          <div style="height:4px;background:rgba(15,15,15,0.08);border-radius:2px;overflow:hidden">
-            <div style="height:100%;width:${healthPct}%;background:${healthPct > 50 ? 'var(--emerald)' : healthPct > 25 ? 'var(--amber)' : 'var(--red)'};border-radius:2px;transition:width .3s"></div>
+          <div style="height:3px;background:rgba(15,15,15,0.08);overflow:hidden">
+            <div style="height:100%;width:${healthPct}%;background:${healthPct > 50 ? 'var(--emerald)' : healthPct > 25 ? 'var(--amber)' : 'var(--red)'};transition:width .3s"></div>
           </div>
         </div>
         <div style="margin-bottom:6px">
-          <div style="display:flex;justify-content:space-between;font-size:.62rem;margin-bottom:2px">
+          <div style="display:flex;justify-content:space-between;font-size:.58rem;margin-bottom:2px;font-family:var(--mono)">
             <span style="color:rgba(15,15,15,0.5)">Happiness</span>
-            <span style="color:var(--accent)">${Math.floor(happyPct)}%</span>
+            <span>${Math.floor(happyPct)}%</span>
           </div>
-          <div style="height:4px;background:rgba(15,15,15,0.08);border-radius:2px;overflow:hidden">
-            <div style="height:100%;width:${happyPct}%;background:var(--cyan);border-radius:2px;transition:width .3s"></div>
+          <div style="height:3px;background:rgba(15,15,15,0.08);overflow:hidden">
+            <div style="height:100%;width:${happyPct}%;background:var(--emerald);transition:width .3s"></div>
           </div>
         </div>
-        ${animal.task ? `<div style="font-size:.62rem;color:var(--amber);margin-bottom:4px">Task: ${animal.task.type}</div>` : ''}
+        ${animal.task ? `<div style="font-size:.58rem;color:var(--accent);margin-bottom:4px;font-family:var(--mono)">Task: ${animal.task.type}</div>` : ''}
         <div style="margin-top:4px">${buttonsHtml}</div>
       `;
     }
@@ -297,19 +295,31 @@ export class UIManager {
 
     if (d.selectedPanelTitle) d.selectedPanelTitle.textContent = def.name;
 
-    let infoHtml = `<div class="label" style="margin-bottom:4px">${def.desc}</div>`;
-    if (def.range) {
-      infoHtml += `<div style="font-size:.62rem;color:rgba(15,15,15,0.5);margin-top:4px">Range: ${def.range} tiles</div>`;
-    }
+    const animalsInRange = def.range ? gameState.animals.filter(a => {
+      const dx = Math.abs(a.x - building.col);
+      const dy = Math.abs(a.y - building.row);
+      return Math.sqrt(dx * dx + dy * dy) <= def.range;
+    }).length : 0;
+
+    let infoHtml = `<div style="font-family:var(--sans);font-size:.7rem;color:rgba(15,15,15,0.7);margin-bottom:6px">${def.desc}</div>`;
+    infoHtml += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;font-family:var(--mono);font-size:.6rem;margin-bottom:6px">`;
+    if (def.range) infoHtml += `<span style="color:rgba(15,15,15,0.5)">Range</span><span style="text-align:right">${def.range} tiles</span>`;
+    if (def.range) infoHtml += `<span style="color:rgba(15,15,15,0.5)">Animals</span><span style="text-align:right">${animalsInRange} in range</span>`;
     if (def.capacity) {
-      infoHtml += `<div style="font-size:.62rem;color:rgba(15,15,15,0.5);margin-top:2px">Capacity: ${def.capacity}</div>`;
+      const used = gameState.animals.filter(a => {
+        if (def.animalType && a.type !== def.animalType) return false;
+        const dx = Math.abs(a.x - building.col);
+        const dy = Math.abs(a.y - building.row);
+        return Math.sqrt(dx * dx + dy * dy) <= 3;
+      }).length;
+      infoHtml += `<span style="color:rgba(15,15,15,0.5)">Capacity</span><span style="text-align:right">${used}/${def.capacity}</span>`;
     }
-    if (def.energyGen) {
-      infoHtml += `<div style="font-size:.62rem;color:var(--amber);margin-top:2px">+${def.energyGen} energy/day</div>`;
-    }
+    if (def.energyGen) infoHtml += `<span style="color:rgba(15,15,15,0.5)">Energy</span><span style="text-align:right;color:var(--amber)">+${def.energyGen}/day</span>`;
+    if (def.bonusAmt) infoHtml += `<span style="color:rgba(15,15,15,0.5)">Bonus</span><span style="text-align:right;color:var(--emerald)">+${def.bonusAmt * 100}% ${def.bonus}</span>`;
+    infoHtml += `</div>`;
 
     if (building.type !== 'farmhouse') {
-      infoHtml += `<button class="sel-btn demolish" style="margin-top:8px" onclick="window.game?.demolishSelected()">Demolish</button>`;
+      infoHtml += `<button class="sel-btn demolish" style="margin-top:4px" onclick="window.game?.demolishSelected()">Demolish</button>`;
     }
 
     if (d.selectedPanelBody) d.selectedPanelBody.innerHTML = infoHtml;

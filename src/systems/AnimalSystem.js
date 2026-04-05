@@ -71,6 +71,7 @@ export class AnimalSystem {
       happiness: 80,
       sick: false,
       age: 0,
+      lifetimeEarnings: 0,
       prodTimer: 0,
       name: this._randomName(type),
       task: null,
@@ -338,9 +339,13 @@ export class AnimalSystem {
 
     // Add to game state
     const product = def.product;
+    const valueProduced = amount * def.prodValue;
     if (product === 'milk') gameState.milk += amount;
     else if (product === 'wool') gameState.wool += amount;
     else if (product === 'eggs') gameState.eggs += amount;
+
+    // Track per-animal lifetime earnings
+    animal.lifetimeEarnings = (animal.lifetimeEarnings || 0) + valueProduced;
 
     // Emit events
     eventBus.emit(Events.ANIMAL_PRODUCE, { animal, product, amount });
@@ -369,6 +374,7 @@ export class AnimalSystem {
 
     gameState.money += value;
     gameState.totalEarnings += value;
+    animal.lifetimeEarnings = (animal.lifetimeEarnings || 0) + value;
 
     const worldX = animal.x * GRID.TILE_SIZE;
     const worldZ = animal.y * GRID.TILE_SIZE;
@@ -510,6 +516,7 @@ export class AnimalSystem {
         if (def && def.product === 'milk') {
           const bonus = Math.max(1, def.prodAmt * 0.5);
           gameState.milk += bonus;
+          animal.lifetimeEarnings = (animal.lifetimeEarnings || 0) + bonus * def.prodValue;
           eventBus.emit(Events.FLOAT_TEXT, {
             text: `+${bonus} milk (station)`,
             x: animal.x * GRID.TILE_SIZE,
@@ -525,6 +532,7 @@ export class AnimalSystem {
         if (def && def.product === 'wool') {
           const bonus = Math.max(1, def.prodAmt * 0.5);
           gameState.wool += bonus;
+          animal.lifetimeEarnings = (animal.lifetimeEarnings || 0) + bonus * def.prodValue;
           eventBus.emit(Events.FLOAT_TEXT, {
             text: `+${bonus} wool (station)`,
             x: animal.x * GRID.TILE_SIZE,
