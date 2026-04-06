@@ -34,6 +34,11 @@ export class EconomySystem {
       );
       // Round to 2 decimal places
       gameState.marketPrices[product] = Math.round(gameState.marketPrices[product] * 100) / 100;
+
+      // Track price history (last 7 entries)
+      if (!gameState.priceHistory[product]) gameState.priceHistory[product] = [];
+      gameState.priceHistory[product].push(gameState.marketPrices[product]);
+      if (gameState.priceHistory[product].length > 7) gameState.priceHistory[product].shift();
     }
 
     // 3. Feed costs: handled per-animal in AnimalSystem._deductFeedCost()
@@ -44,13 +49,16 @@ export class EconomySystem {
     const solarBase = solarCount * BUILDING_DEFS.solar.energyGen;
     const solarOutput = solarBase * (SOLAR_SEASON_MOD[season] || 1.0);
 
-    // Building energy drain
+    // Building energy drain (skip disabled building)
     const smartGridSave = this.getTechEffect('buildingEnergySave');
     let buildingDrain = 0;
-    for (let row = 0; row < 20; row++) {
-      for (let col = 0; col < 32; col++) {
+    const disabled = gameState.disabledBuilding;
+    for (let row = 0; row < GRID.ROWS; row++) {
+      for (let col = 0; col < GRID.COLS; col++) {
         const tile = gameState.map[row]?.[col];
         if (tile && tile.building) {
+          // Skip disabled building entirely (no energy gen or bonuses either)
+          if (disabled && disabled.col === col && disabled.row === row) continue;
           const def = BUILDING_DEFS[tile.building.type];
           if (def && def.energyCost) {
             buildingDrain += def.energyCost;
@@ -63,7 +71,9 @@ export class EconomySystem {
     // Animal drain
     const animalDrain = gameState.animals.length * 0.5;
     const energySave = this.getTechEffect('energySave');
-    const totalDrain = buildingDrain + animalDrain * (1 - energySave);
+    let totalDrain = buildingDrain + animalDrain * (1 - energySave);
+    // Blizzard: 2x energy drain
+    if (gameState.activeEffects.some(e => e.name === 'blizzard')) totalDrain *= 2;
     const netEnergy = solarOutput + gameState.energyBonus - totalDrain;
 
     gameState.energy += netEnergy;
@@ -97,12 +107,16 @@ export class EconomySystem {
 
     // 6b. Koi pond fish production
     const seasonFishMod = { spring: 1.5, summer: 1.0, fall: 1.0, winter: 0.5 }[season] || 1.0;
+    const heatWaveBonus = gameState.activeEffects.some(e => e.name === 'heatWave') ? 1.5 : 1.0;
+    const harvestMoonBonus = gameState.activeEffects.some(e => e.name === 'harvestMoon') ? 1.3 : 1.0;
     let fishProduced = 0;
     for (let row = 0; row < GRID.ROWS; row++) {
       for (let col = 0; col < GRID.COLS; col++) {
         const tile = gameState.map[row]?.[col];
         if (tile && tile.building && tile.building.type === 'koi_pond') {
-          const amount = 2 * seasonFishMod;
+          // Skip disabled building
+          if (disabled && disabled.col === col && disabled.row === row) continue;
+          const amount = 2 * seasonFishMod * heatWaveBonus * harvestMoonBonus;
           gameState.fish += amount;
           fishProduced += amount;
           const worldX = col * GRID.TILE_SIZE + GRID.TILE_SIZE / 2;
@@ -137,6 +151,41 @@ export class EconomySystem {
       gameState.milkContractDays--;
       if (gameState.milkContractDays === 0) {
         eventBus.emit(Events.NOTIFICATION, { text: 'Milk contract expired. Back to market prices.', type: 'info' });
+      }
+    }
+
+    // 8b. Tick decision effect countdowns
+    if (gameState.apprenticeDays > 0) {
+      gameState.apprenticeDays--;
+      // Auto-heal sick animals during apprentice
+      for (const animal of gameState.animals) {
+        if (animal.sick) {
+          animal.sick = false;
+          animal.health = 100;
+        }
+      }
+      if (gameState.apprenticeDays === 0) {
+        eventBus.emit(Events.NOTIFICATION, { text: 'Apprentice contract ended.', type: 'info' });
+      }
+    }
+    if (gameState.cropRotationDays > 0) {
+      gameState.cropRotationDays--;
+      if (gameState.cropRotationDays === 0) {
+        eventBus.emit(Events.NOTIFICATION, { text: 'Crop rotation bonus ended.', type: 'info' });
+      }
+    }
+    if (gameState.sellPriceModDays > 0) {
+      gameState.sellPriceModDays--;
+      if (gameState.sellPriceModDays === 0) {
+        gameState.sellPriceMod = 0;
+        eventBus.emit(Events.NOTIFICATION, { text: 'Sell price modifier expired.', type: 'info' });
+      }
+    }
+    if (gameState.prodModDays > 0) {
+      gameState.prodModDays--;
+      if (gameState.prodModDays === 0) {
+        gameState.prodMod = 0;
+        eventBus.emit(Events.NOTIFICATION, { text: 'Production modifier expired.', type: 'info' });
       }
     }
 
@@ -179,6 +228,27 @@ export class EconomySystem {
         if (celebrityBoost && celebrityBoost.data === product) {
           price *= 3;
         }
+
+        // Reputation modifier from decisions
+        if (gameState.reputationMod !== 0) {
+          price *= (1 + gameState.reputationMod);
+        }
+
+        // Sell price modifier from rival_farm compete etc.
+        if (gameState.sellPriceMod > 0 && gameState.sellPriceModDays > 0) {
+          price *= (1 + gameState.sellPriceMod);
+        }
+
+        // Bulk sell bonus: +10% for 50+ units of one product
+        if (amount >= 50) {
+          price *= 1.1;
+        }
+      }
+
+      // Track fish sold
+      if (product === 'fish') {
+        gameState.fishSold = true;
+        gameState.totalFishSold += amount;
       }
 
       total += amount * price;
@@ -247,6 +317,7 @@ export class EconomySystem {
     const interestPaid = Math.ceil(gameState.loanInterest);
     gameState.loan = 0;
     gameState.loanInterest = 0;
+    gameState.loanRepaid = true;
     eventBus.emit(Events.MONEY_CHANGED, { money: gameState.money });
     eventBus.emit(Events.NOTIFICATION, { text: `Loan repaid! $${total.toLocaleString()} ($${interestPaid.toLocaleString()} interest)`, type: 'success' });
     eventBus.emit(Events.SFX_PLAY, { sound: 'sell' });

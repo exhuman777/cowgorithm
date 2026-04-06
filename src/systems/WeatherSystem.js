@@ -1,5 +1,5 @@
 import { gameState } from '../core/GameState.js';
-import { WEATHER_EVENTS, TECH_DEFS, getSeason, DECISION_EVENTS } from '../core/Constants.js';
+import { GRID, WEATHER_EVENTS, TECH_DEFS, getSeason, DECISION_EVENTS } from '../core/Constants.js';
 import { eventBus, Events } from '../core/EventBus.js';
 
 export class WeatherSystem {
@@ -31,6 +31,26 @@ export class WeatherSystem {
         }
 
         if (Math.random() < prob) {
+          // Insurance: nullify next disaster
+          const isDamage = ['Disease', 'Drought', 'Predator Alert', 'Pest Infestation',
+            'Equipment Failure', 'Market Crash', 'Frost', 'Stampede', 'Locusts',
+            'Heat Wave', 'Blizzard', 'Animal Escape', 'Tax Audit'].includes(event.name);
+          if (isDamage && gameState.insuranceActive) {
+            gameState.insuranceActive = false;
+            eventBus.emit(Events.TOAST, { text: 'Insurance activated! Disaster nullified.', color: '#10b981' });
+            eventBus.emit(Events.NOTIFICATION, { text: 'Your farm insurance covered the disaster!', type: 'success' });
+            gameState.eventCooldown = 3;
+            break;
+          }
+          // Storm protection from decision event
+          const isStorm = ['Rain Storm', 'Frost', 'Blizzard'].includes(event.name);
+          if (isStorm && gameState.stormProtected) {
+            gameState.stormProtected = false;
+            eventBus.emit(Events.TOAST, { text: 'Storm reinforcements held! No damage.', color: '#10b981' });
+            eventBus.emit(Events.NOTIFICATION, { text: 'Your barn reinforcements protected the farm!', type: 'success' });
+            gameState.eventCooldown = 3;
+            break;
+          }
           this.triggerEvent(event, season);
           gameState.eventCooldown = 3;
           break;
@@ -109,9 +129,24 @@ export class WeatherSystem {
       case 'Pest Infestation':
         gameState.activeEffects.push({ name: 'pestBlock', daysLeft: 3 });
         break;
-      case 'Equipment Failure':
-        gameState.activeEffects.push({ name: 'buildingDisable', daysLeft: 2 });
+      case 'Equipment Failure': {
+        // Pick a random building to disable
+        const buildings = [];
+        for (let r = 0; r < GRID.ROWS; r++) {
+          for (let c = 0; c < GRID.COLS; c++) {
+            const tile = gameState.map[r]?.[c];
+            if (tile && tile.building && tile.building.type !== 'farmhouse') {
+              buildings.push({ col: c, row: r, type: tile.building.type });
+            }
+          }
+        }
+        if (buildings.length > 0) {
+          const target = buildings[Math.floor(Math.random() * buildings.length)];
+          gameState.disabledBuilding = { col: target.col, row: target.row };
+          gameState.activeEffects.push({ name: 'buildingDisable', daysLeft: 2, data: target });
+        }
         break;
+      }
       case 'Market Crash': {
         const products = ['milk', 'wool', 'eggs'];
         const target = products[Math.floor(Math.random() * products.length)];
@@ -158,6 +193,49 @@ export class WeatherSystem {
         }
         break;
       }
+      case 'Meteor Shower':
+        gameState.money += 5000;
+        gameState.totalEarnings += 5000;
+        eventBus.emit(Events.MONEY_CHANGED, { money: gameState.money });
+        break;
+      case 'Locusts':
+        gameState.activeEffects.push({ name: 'locusts', daysLeft: 3 });
+        break;
+      case 'Rainbow':
+        for (const animal of gameState.animals) {
+          animal.happiness = Math.min(100, animal.happiness + 15);
+        }
+        break;
+      case 'Heat Wave':
+        gameState.activeEffects.push({ name: 'heatWave', daysLeft: 2 });
+        for (const animal of gameState.animals) {
+          animal.happiness = Math.max(0, animal.happiness - 10);
+        }
+        break;
+      case 'Blizzard':
+        gameState.activeEffects.push({ name: 'blizzard', daysLeft: 3 });
+        for (const animal of gameState.animals) {
+          animal.happiness = Math.max(0, animal.happiness - 15);
+        }
+        break;
+      case 'Harvest Moon':
+        gameState.activeEffects.push({ name: 'harvestMoon', daysLeft: 2 });
+        break;
+      case 'Animal Escape': {
+        if (!this.animalSystem || gameState.animals.length === 0) break;
+        const escapee = gameState.animals[Math.floor(Math.random() * gameState.animals.length)];
+        eventBus.emit(Events.NOTIFICATION, { text: `${escapee.name} escaped the farm!`, type: 'error' });
+        this.animalSystem.removeAnimal(escapee);
+        break;
+      }
+      case 'Tax Audit': {
+        const tax = Math.floor(gameState.money * 0.05);
+        gameState.money -= tax;
+        gameState.totalSpent += tax;
+        eventBus.emit(Events.MONEY_CHANGED, { money: gameState.money });
+        eventBus.emit(Events.NOTIFICATION, { text: `Tax audit: -$${tax.toLocaleString()}`, type: 'error' });
+        break;
+      }
     }
 
     eventBus.emit(Events.WEATHER_EVENT, { event });
@@ -171,6 +249,7 @@ export class WeatherSystem {
       if (gameState.activeEffects[i].daysLeft <= 0) {
         const ended = gameState.activeEffects[i];
         if (ended.name === 'merchantDiscount') gameState.merchantDiscount = false;
+        if (ended.name === 'buildingDisable') gameState.disabledBuilding = null;
         gameState.activeEffects.splice(i, 1);
       }
     }

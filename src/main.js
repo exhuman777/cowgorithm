@@ -121,6 +121,11 @@ class Game {
       });
     });
 
+    // Weather event -> visual effects
+    eventBus.on(Events.WEATHER_EVENT, ({ event }) => {
+      this._triggerWeatherVisual(event);
+    });
+
     this.uiManager = new UIManager(this);
 
     // Koi visual sync on building placed/demolished
@@ -242,7 +247,7 @@ class Game {
     this.uiManager.update();
 
     // Post-processing (replaces renderer.render)
-    this.postProcessing.update(gameState.visualDayProgress);
+    this.postProcessing.update(gameState.visualDayProgress, this.clock.elapsedTime);
     this.postProcessing.render();
   }
 
@@ -297,12 +302,20 @@ class Game {
     this.economySystem.newDay();
     this.weatherSystem.checkWeatherEvent();
 
+    // Sync weather visual effects to active effects
+    this._syncWeatherVisuals();
+
     // Grass regrowth with tech bonuses (frost blocks all growth)
     const hasFrost = gameState.activeEffects.some(e => e.name === 'frostBlock');
     if (!hasFrost) {
-      const techGrassRegrow = this.economySystem.getTechEffect('grassRegrow');
-      const techGrassBonus = this.economySystem.getTechEffect('grassBonus');
-      this.farmGrid.growGrass(gameState.weatherBonus, techGrassRegrow, techGrassBonus);
+      let techGrassRegrow = this.economySystem.getTechEffect('grassRegrow');
+      let techGrassBonus = this.economySystem.getTechEffect('grassBonus');
+      // Crop rotation: +30% grass regrowth
+      if (gameState.cropRotationDays > 0) techGrassRegrow += 0.3;
+      // Locusts: halve grass regrowth
+      let weatherBonus = gameState.weatherBonus;
+      if (gameState.activeEffects.some(e => e.name === 'locusts')) weatherBonus *= 0.5;
+      this.farmGrid.growGrass(weatherBonus, techGrassRegrow, techGrassBonus);
     }
 
     // Auto-heal from Predictive Vet AI
@@ -478,8 +491,231 @@ class Game {
       case 'techSpeed':
         gameState.techDiscount = Math.min(gameState.techDiscount + 0.1, 0.5);
         break;
+      case 'rivalCompete':
+        // +20% sell prices for 10 days
+        gameState.sellPriceMod = 0.2;
+        gameState.sellPriceModDays = 10;
+        break;
+      case 'rivalCooperate':
+        // +10% production for 15 days
+        gameState.prodMod = 0.1;
+        gameState.prodModDays = 15;
+        break;
+      case 'insurance':
+        gameState.insuranceActive = true;
+        break;
+      case 'geneticLab':
+        gameState.geneticBonus += 0.15;
+        break;
+      case 'waterFull':
+        // Unlock 4 water tiles for koi ponds
+        this._unlockWaterTiles(4);
+        break;
+      case 'waterPartial':
+        // Unlock 2 water tiles for koi ponds
+        this._unlockWaterTiles(2);
+        break;
+      case 'apprentice':
+        gameState.apprenticeDays = 20;
+        break;
+      case 'blackMarketSell':
+        // Sell all products at 2x now
+        this._blackMarketSell();
+        // -10% prices for 30 days via sellPriceMod
+        gameState.sellPriceMod = -0.1;
+        gameState.sellPriceModDays = 30;
+        break;
+      case 'blackMarketReport':
+        gameState.money += 2000;
+        gameState.totalEarnings += 2000;
+        gameState.sellPriceMod = 0.05;
+        gameState.sellPriceModDays = 10;
+        break;
+      case 'cropRotation':
+        gameState.cropRotationDays = 30;
+        break;
+    }
+    // Track completed decisions
+    if (!gameState.completedDecisions.includes(event.id)) {
+      gameState.completedDecisions.push(event.id);
     }
     eventBus.emit(Events.NOTIFICATION, { msg: `Decision: ${opt.label}` });
+    eventBus.emit(Events.MONEY_CHANGED, { money: gameState.money });
+  }
+
+  _unlockWaterTiles(count) {
+    let unlocked = 0;
+    for (let r = 0; r < 20 && unlocked < count; r++) {
+      for (let c = 0; c < 32 && unlocked < count; c++) {
+        const tile = gameState.map[r]?.[c];
+        if (tile && tile.type === 'water' && !tile.owned) {
+          tile.owned = true;
+          unlocked++;
+        }
+      }
+    }
+    if (unlocked > 0) {
+      this.farmGrid.rebuild();
+      eventBus.emit(Events.NOTIFICATION, { text: `${unlocked} water tiles unlocked for building!`, type: 'success' });
+    }
+  }
+
+  _blackMarketSell() {
+    // Sell all products at 2x current price
+    let total = 0;
+    for (const product of ['milk', 'wool', 'eggs', 'fish']) {
+      const amount = gameState[product];
+      if (amount <= 0) continue;
+      const price = gameState.marketPrices[product] * 2;
+      total += amount * price;
+      if (product === 'fish') {
+        gameState.fishSold = true;
+        gameState.totalFishSold += amount;
+      }
+      gameState[product] = 0;
+    }
+    if (total > 0) {
+      total = Math.round(total * 100) / 100;
+      gameState.money += total;
+      gameState.totalEarnings += total;
+      gameState.totalSellIncome += total;
+      eventBus.emit(Events.NOTIFICATION, { msg: `Black market sale: +$${this.economySystem.formatMoney(total)}` });
+      eventBus.emit(Events.MONEY_CHANGED, { money: gameState.money });
+    }
+  }
+
+  // --- Weather Visual Effects ---
+
+  _triggerWeatherVisual(event) {
+    switch (event.name) {
+      case 'Rain Storm':
+        this.particles.startRain();
+        this._weatherVisualTimer('rain', 1);
+        break;
+      case 'Sunny Day':
+        // Boost bloom briefly
+        this.bloomPass_origStrength = this.postProcessing.bloomPass.strength;
+        this.postProcessing.bloomPass.strength = 0.4;
+        this._weatherVisualTimer('sunny', 1);
+        break;
+      case 'Disease':
+        this.particles.startMiasma();
+        this._weatherVisualTimer('miasma', 1);
+        break;
+      case 'Drought':
+        this.particles.startDustStorm();
+        this.postProcessing.setDrought(1.0);
+        this._weatherVisualTimer('drought', 1);
+        break;
+      case 'Meteor Shower':
+        this.particles.startMeteors();
+        this._weatherVisualTimer('meteors', 1);
+        break;
+      case 'Rainbow':
+        this.particles.showRainbow();
+        this._weatherVisualTimer('rainbow', 1);
+        break;
+      case 'Golden Calf':
+      case 'Perfect Weather':
+        this.particles.startGoldenSparkles();
+        // Perfect Weather has duration, Golden Calf is instant but sparkles for 1 day
+        break;
+      case 'Harvest Moon':
+        this.particles.startGoldenSparkles();
+        this.postProcessing.bloomPass.strength = 0.35;
+        break;
+      case 'Locusts':
+        this.particles.startLocusts();
+        break;
+      case 'Heat Wave':
+        this.postProcessing.setHeatWave(1.0);
+        break;
+      case 'Blizzard':
+        this.particles.startSnow();
+        this.particles.setBlizzardMode(true);
+        break;
+      case 'Stampede':
+      case 'Animal Escape':
+        // Burst of dust particles across the farm
+        for (let i = 0; i < 15; i++) {
+          this.particles.spawnDust(
+            10 + Math.random() * 44,
+            4 + Math.random() * 32
+          );
+        }
+        break;
+      case 'Festival':
+        // Colorful celebration particles
+        for (let i = 0; i < 20; i++) {
+          const colors = [0xffd700, 0xff6347, 0x06b6d4, 0x10b981, 0xff69b4];
+          this.particles.spawn(
+            10 + Math.random() * 44,
+            1 + Math.random() * 2,
+            4 + Math.random() * 32,
+            colors[Math.floor(Math.random() * colors.length)],
+            1
+          );
+        }
+        break;
+    }
+  }
+
+  _weatherVisualTimer(key, days) {
+    // Auto-stop visual after N game-days
+    if (!this._weatherTimers) this._weatherTimers = {};
+    this._weatherTimers[key] = days;
+  }
+
+  _syncWeatherVisuals() {
+    // Tick down visual timers and stop effects when expired
+    if (this._weatherTimers) {
+      for (const key of Object.keys(this._weatherTimers)) {
+        this._weatherTimers[key]--;
+        if (this._weatherTimers[key] <= 0) {
+          switch (key) {
+            case 'rain': this.particles.stopRain(); break;
+            case 'sunny':
+              if (this.bloomPass_origStrength !== undefined) {
+                this.postProcessing.bloomPass.strength = this.bloomPass_origStrength;
+              }
+              break;
+            case 'miasma': this.particles.stopMiasma(); break;
+            case 'drought':
+              this.particles.stopDustStorm();
+              this.postProcessing.setDrought(0);
+              break;
+            case 'meteors': this.particles.stopMeteors(); break;
+            case 'rainbow': this.particles.hideRainbow(); break;
+          }
+          delete this._weatherTimers[key];
+        }
+      }
+    }
+
+    // Sync duration-based active effects to visuals
+    const hasLocusts = gameState.activeEffects.some(e => e.name === 'locusts');
+    if (hasLocusts && !this.particles.locustsActive) this.particles.startLocusts();
+    else if (!hasLocusts && this.particles.locustsActive) this.particles.stopLocusts();
+
+    const hasHeatWave = gameState.activeEffects.some(e => e.name === 'heatWave');
+    if (hasHeatWave) this.postProcessing.setHeatWave(1.0);
+    else this.postProcessing.setHeatWave(0);
+
+    const hasBlizzard = gameState.activeEffects.some(e => e.name === 'blizzard');
+    this.particles.setBlizzardMode(hasBlizzard);
+
+    const hasPerfectWeather = gameState.activeEffects.some(e => e.name === 'perfectWeather');
+    const hasHarvestMoon = gameState.activeEffects.some(e => e.name === 'harvestMoon');
+    if ((hasPerfectWeather || hasHarvestMoon) && !this.particles.goldenActive) {
+      this.particles.startGoldenSparkles();
+    } else if (!hasPerfectWeather && !hasHarvestMoon && this.particles.goldenActive) {
+      this.particles.stopGoldenSparkles();
+    }
+
+    // Reset harvest moon bloom when effect ends
+    if (!hasHarvestMoon && this.postProcessing.bloomPass.strength > 0.2) {
+      this.postProcessing.bloomPass.strength = 0.15;
+    }
   }
 
   checkWinCondition() {

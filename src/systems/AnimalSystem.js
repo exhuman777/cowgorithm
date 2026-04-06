@@ -127,8 +127,10 @@ export class AnimalSystem {
     const def = ANIMAL_DEFS[type];
     if (!def) return false;
 
-    if (gameState.money < def.cost) {
-      eventBus.emit(Events.NOTIFICATION, { text: `Not enough money! Need $${def.cost.toLocaleString()}`, type: 'error' });
+    let actualCost = def.cost;
+    if (gameState.merchantDiscount) actualCost = Math.floor(actualCost / 2);
+    if (gameState.money < actualCost) {
+      eventBus.emit(Events.NOTIFICATION, { text: `Not enough money! Need $${actualCost.toLocaleString()}`, type: 'error' });
       return false;
     }
 
@@ -141,8 +143,8 @@ export class AnimalSystem {
       return false;
     }
 
-    gameState.money -= def.cost;
-    gameState.totalSpent += def.cost;
+    gameState.money -= actualCost;
+    gameState.totalSpent += actualCost;
 
     this.spawnAnimal(type);
 
@@ -356,6 +358,11 @@ export class AnimalSystem {
       amount *= 1.5;
     }
 
+    // Harvest moon bonus (+30% production)
+    if (gameState.activeEffects.some(e => e.name === 'harvestMoon')) {
+      amount *= 1.3;
+    }
+
     // Weather penalty
     amount *= (1 - gameState.weatherProdPenalty);
 
@@ -380,6 +387,18 @@ export class AnimalSystem {
 
     // Happiness scaling
     amount *= Math.max(0.3, animal.happiness / 100);
+
+    // Golden calf: 2x production
+    if (animal.golden) amount *= 2;
+
+    // Genetic bonus from decision event
+    if (gameState.geneticBonus > 0) amount *= (1 + gameState.geneticBonus);
+
+    // Apprentice production bonus
+    if (gameState.apprenticeDays > 0) amount *= 1.1;
+
+    // Decision-based production modifier
+    if (gameState.prodMod > 0 && gameState.prodModDays > 0) amount *= (1 + gameState.prodMod);
 
     // Energy deficit penalty: power failure halves all production
     if (gameState.energyDeficit) amount *= 0.5;
@@ -725,6 +744,12 @@ export class AnimalSystem {
 
   tryBreeding() {
     if (!gameState.techs.includes('fertility_ai')) return;
+
+    // Season breedMod: winter = 0 means no breeding
+    const season = getSeason(gameState.day);
+    const breedMod = SEASON_EFFECTS[season].breedMod;
+    if (breedMod <= 0) return;
+
     gameState.breedTimer++;
     if (gameState.breedTimer < 30) return; // Every 30 days
     gameState.breedTimer = 0;
@@ -743,6 +768,7 @@ export class AnimalSystem {
       const current = this.buildingSystem.getHousingCount(housing);
       if (current < capacity) {
         const baby = this.spawnAnimal(type);
+        gameState.animalsBred++;
         eventBus.emit(Events.NOTIFICATION, { text: `Fertility AI: ${baby.name} was born!`, type: 'success' });
         eventBus.emit(Events.TOAST, { text: `New ${def.name} born!`, color: '#10b981' });
         return;

@@ -22,6 +22,11 @@ export class MilestoneSystem {
         case 'm6': achieved = new Set(gameState.animals.map(a => a.type)).size >= 5; break;
         case 'm7': achieved = this.buildingSystem.countBuildings('solar') >= 3; break;
         case 'm8': achieved = gameState.techs.length >= 13; break;
+        case 'm9': achieved = gameState.totalFishSold >= 50; break;
+        case 'm10': achieved = gameState.loanRepaid; break;
+        case 'm11': achieved = gameState.animals.length >= 25; break;
+        case 'm12': achieved = gameState.totalSellIncome >= 100000; break;
+        case 'm13': achieved = gameState.day >= 121; break;
       }
 
       if (achieved) {
@@ -66,6 +71,11 @@ export class MilestoneSystem {
       case 'm6': return new Set(gameState.animals.map(a => a.type)).size;
       case 'm7': return this.buildingSystem.countBuildings('solar');
       case 'm8': return gameState.techs.length;
+      case 'm9': return gameState.totalFishSold;
+      case 'm10': return gameState.loanRepaid ? 1 : 0;
+      case 'm11': return gameState.animals.length;
+      case 'm12': return gameState.totalSellIncome;
+      case 'm13': return gameState.day;
       default: return 0;
     }
   }

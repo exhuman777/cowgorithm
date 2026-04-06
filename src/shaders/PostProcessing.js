@@ -11,6 +11,9 @@ const ColorGradeShader = {
     uDayProgress: { value: 0 },
     uSeasonTint: { value: new THREE.Vector3(1, 1, 1) },
     uVignette: { value: 0.15 },
+    uHeatWave: { value: 0.0 },
+    uTime: { value: 0.0 },
+    uDrought: { value: 0.0 },
   },
   vertexShader: /* glsl */ `
     varying vec2 vUv;
@@ -24,13 +27,36 @@ const ColorGradeShader = {
     uniform float uDayProgress;
     uniform vec3 uSeasonTint;
     uniform float uVignette;
+    uniform float uHeatWave;
+    uniform float uTime;
+    uniform float uDrought;
     varying vec2 vUv;
 
     void main() {
-      vec4 color = texture2D(tDiffuse, vUv);
+      vec2 uv = vUv;
+
+      // Heat wave shimmer distortion
+      if (uHeatWave > 0.0) {
+        float distort = sin(uv.y * 30.0 + uTime * 3.0) * 0.003 * uHeatWave;
+        distort += sin(uv.y * 50.0 + uTime * 5.0) * 0.001 * uHeatWave;
+        uv.x += distort;
+      }
+
+      vec4 color = texture2D(tDiffuse, uv);
 
       // Season tint (subtle overlay)
       color.rgb = mix(color.rgb, color.rgb * uSeasonTint, 0.15);
+
+      // Heat wave warm tint
+      if (uHeatWave > 0.0) {
+        color.rgb = mix(color.rgb, color.rgb * vec3(1.08, 1.02, 0.92), uHeatWave * 0.4);
+      }
+
+      // Drought desaturation + warm push
+      if (uDrought > 0.0) {
+        float grey = dot(color.rgb, vec3(0.299, 0.587, 0.114));
+        color.rgb = mix(color.rgb, vec3(grey) * vec3(1.1, 1.0, 0.85), uDrought * 0.3);
+      }
 
       // Day warmth curve: subtle hue shift only, no brightness reduction
       float dayAngle = uDayProgress * 6.28318;
@@ -42,8 +68,8 @@ const ColorGradeShader = {
       color.rgb = (color.rgb - 0.5) * 1.03 + 0.5;
 
       // Vignette
-      vec2 uv = vUv * 2.0 - 1.0;
-      float vig = 1.0 - dot(uv, uv) * uVignette;
+      vec2 vigUv = vUv * 2.0 - 1.0;
+      float vig = 1.0 - dot(vigUv, vigUv) * uVignette;
       color.rgb *= clamp(vig, 0.0, 1.0);
 
       gl_FragColor = color;
@@ -82,8 +108,17 @@ export class PostProcessing {
     this.colorPass.uniforms.uSeasonTint.value.copy(tint);
   }
 
-  update(dayProgress) {
+  setHeatWave(intensity) {
+    this.colorPass.uniforms.uHeatWave.value = intensity;
+  }
+
+  setDrought(intensity) {
+    this.colorPass.uniforms.uDrought.value = intensity;
+  }
+
+  update(dayProgress, elapsedTime) {
     this.colorPass.uniforms.uDayProgress.value = dayProgress;
+    if (elapsedTime !== undefined) this.colorPass.uniforms.uTime.value = elapsedTime;
   }
 
   render() {

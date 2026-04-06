@@ -57,6 +57,22 @@ class GameState {
     this.visualDayProgress = 0;
     this.energyDeficit = false; // true when energy <= 0
     this.completionDay = 0;     // day when all techs unlocked (0 = not yet)
+    // New tracking fields
+    this.loanRepaid = false;
+    this.animalsBred = 0;
+    this.fishSold = false;
+    this.totalFishSold = 0;
+    this.completedDecisions = [];
+    this.insuranceActive = false;
+    this.apprenticeDays = 0;
+    this.reputationMod = 0;
+    this.geneticBonus = 0;
+    this.cropRotationDays = 0;
+    this.sellPriceMod = 0;       // temporary sell price modifier from decisions
+    this.sellPriceModDays = 0;
+    this.prodMod = 0;            // temporary production modifier from decisions
+    this.prodModDays = 0;
+    this.priceHistory = { milk: [], wool: [], eggs: [], fish: [] };
   }
 
   createMap() {
@@ -112,6 +128,21 @@ class GameState {
       completionDay: this.completionDay,
       loan: this.loan,
       loanInterest: this.loanInterest,
+      loanRepaid: this.loanRepaid,
+      animalsBred: this.animalsBred,
+      fishSold: this.fishSold,
+      totalFishSold: this.totalFishSold,
+      completedDecisions: this.completedDecisions,
+      insuranceActive: this.insuranceActive,
+      apprenticeDays: this.apprenticeDays,
+      reputationMod: this.reputationMod,
+      geneticBonus: this.geneticBonus,
+      cropRotationDays: this.cropRotationDays,
+      sellPriceMod: this.sellPriceMod,
+      sellPriceModDays: this.sellPriceModDays,
+      prodMod: this.prodMod,
+      prodModDays: this.prodModDays,
+      priceHistory: this.priceHistory,
     };
   }
 
@@ -120,6 +151,8 @@ class GameState {
     this.activeEffects = data.activeEffects || [];
     this.decisionCooldown = data.decisionCooldown || 0;
     this.milkContractDays = data.milkContractDays || 0;
+    this.completedDecisions = data.completedDecisions || [];
+    this.priceHistory = data.priceHistory || { milk: [], wool: [], eggs: [], fish: [] };
   }
 
   save() {

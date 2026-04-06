@@ -109,9 +109,17 @@ export const QUESTS = [
   { id: 'q7', text: 'Unlock Health Monitor in Tech Tree', reward: 1500, hint: 'Press T. Health Monitor is $5,000, Tier 1' },
   { id: 'q8', text: 'Unlock Solar Collars in Tech Tree', reward: 1500, hint: 'Press T. Solar Collars is $5,000, Tier 1' },
   { id: 'q9', text: 'Diversify! Buy Sheep, Goats, or Chickens', reward: 1000, hint: 'Click Sheep ($300) or Chicken ($20). Chickens need a Coop ($3,000)' },
-  { id: 'q10', text: 'Build an AI Command Center ($25,000)', reward: 5000, hint: 'Save up $25,000. AI Center unlocks Tier 3+ tech' },
-  { id: 'q11', text: 'Unlock CowGorithm v1 for auto-management', reward: 10000, hint: 'Requires Virtual Fencing + Drone Scouting + AI Center' },
-  { id: 'q12', text: 'Reach 20 animals and unlock ALL 13 techs', reward: 50000, hint: 'Build barns/coops, buy animals, unlock remaining techs' },
+  { id: 'q10', text: 'Build a Koi Pond on water', reward: 2000, hint: 'Click "Koi Pond" ($8,000) and place it on a water tile' },
+  { id: 'q11', text: 'Sell fish at the market', reward: 1500, hint: 'Wait for koi ponds to produce fish, then press S or click "Sell Products"' },
+  { id: 'q12', text: 'Survive your first winter (day 31+)', reward: 3000, hint: 'Keep your farm running through the first full season cycle' },
+  { id: 'q13', text: 'Take and repay a loan', reward: 2500, hint: 'Click "Take Loan" then pay it back when you have enough cash' },
+  { id: 'q14', text: 'Breed your first animal', reward: 2000, hint: 'Unlock Fertility AI in the Tech Tree to enable automatic breeding' },
+  { id: 'q15', text: 'Raise Beef Cattle to maturity', reward: 3000, hint: 'Buy Beef Cattle ($1,200) and wait 60 days for it to mature' },
+  { id: 'q16', text: 'Own 3+ different building types', reward: 1500, hint: 'Build different structures like Barn, Milking Station, Solar Array, etc.' },
+  { id: 'q17', text: 'Earn $25,000 total', reward: 3000, hint: 'Keep selling products and completing quests to grow your earnings' },
+  { id: 'q18', text: 'Build an AI Command Center ($25,000)', reward: 5000, hint: 'Save up $25,000. AI Center unlocks Tier 3+ tech' },
+  { id: 'q19', text: 'Unlock CowGorithm v1 for auto-management', reward: 10000, hint: 'Requires Virtual Fencing + Drone Scouting + AI Center' },
+  { id: 'q20', text: 'Reach 20 animals and unlock ALL 13 techs', reward: 50000, hint: 'Build barns/coops, buy animals, unlock remaining techs' },
 ];
 
 export const MILESTONES = [
@@ -123,6 +131,11 @@ export const MILESTONES = [
   { id: 'm6', name: 'Zoo Keeper', desc: 'Own all 5 animal types', target: 5, reward: '$3,000', rewardMoney: 3000 },
   { id: 'm7', name: 'Solar Empire', desc: 'Build 3 solar arrays', target: 3, reward: '+20 energy/day', rewardEnergy: 20 },
   { id: 'm8', name: 'Full Automation', desc: 'Unlock all 13 techs', target: 13, reward: 'You WIN!', rewardWin: true },
+  { id: 'm9', name: 'Fish Farmer', desc: 'Sell 50+ fish', target: 50, reward: '$3,000', rewardMoney: 3000 },
+  { id: 'm10', name: 'Debt Free', desc: 'Repay a loan', target: 1, reward: '$2,000', rewardMoney: 2000 },
+  { id: 'm11', name: 'Cattle Baron', desc: 'Own 25 animals', target: 25, reward: '$5,000', rewardMoney: 5000 },
+  { id: 'm12', name: 'Market Master', desc: 'Earn $100K from sales', target: 100000, reward: '$15,000', rewardMoney: 15000 },
+  { id: 'm13', name: 'Seasonal Survivor', desc: 'Survive 4 full seasons', target: 121, reward: '+10 energy/day', rewardEnergy: 10 },
 ];
 
 export const WEATHER_EVENTS = [
@@ -145,6 +158,14 @@ export const WEATHER_EVENTS = [
   { name: 'Celebrity Endorsement', prob: 0.02, seasonBoost: {}, msg: 'Celebrity endorsement! One product sells at 3x for 2 days.', duration: 2, effect: 'celebrityBoost' },
   { name: 'Perfect Weather', prob: 0.02, seasonBoost: { spring: 2 }, msg: 'Perfect weather streak! +50% production for 3 days.', duration: 3, effect: 'perfectWeather' },
   { name: 'Golden Calf', prob: 0.005, seasonBoost: {}, msg: 'A golden calf was born on your farm! 2x production permanently.' },
+  { name: 'Meteor Shower', prob: 0.01, seasonBoost: {}, msg: 'Meteor shower draws tourists! +$5,000.' },
+  { name: 'Locusts', prob: 0.02, seasonBoost: { summer: 3 }, msg: 'Locust swarm! Grass regrowth halved for 3 days.', duration: 3, effect: 'locusts' },
+  { name: 'Rainbow', prob: 0.03, seasonBoost: { spring: 2 }, msg: 'A rainbow appears! All animals +15 happiness.' },
+  { name: 'Heat Wave', prob: 0.025, seasonBoost: { summer: 3 }, msg: 'Heat wave! Animals stressed, but fish thrive.', duration: 2, effect: 'heatWave' },
+  { name: 'Blizzard', prob: 0.02, seasonBoost: { winter: 5 }, seasonOnly: 'winter', msg: 'Blizzard! Energy drain 2x, animals suffer.', duration: 3, effect: 'blizzard' },
+  { name: 'Harvest Moon', prob: 0.03, seasonBoost: { fall: 3 }, msg: 'Harvest moon! All production +30% for 2 days.', duration: 2, effect: 'harvestMoon' },
+  { name: 'Animal Escape', prob: 0.02, seasonBoost: {}, msg: 'An animal escaped the farm!' },
+  { name: 'Tax Audit', prob: 0.015, seasonBoost: {}, msg: 'Tax audit! Pay 5% of your cash.' },
 ];
 
 export const DECISION_EVENTS = [
@@ -153,6 +174,13 @@ export const DECISION_EVENTS = [
   { id: 'investor_offer', title: 'Investor Offer', desc: 'Sell all milk at fixed $12/unit for 30 days.', options: [{ label: 'Accept Contract', reward: 'milkContract' }, { label: 'Decline' }] },
   { id: 'land_auction', title: 'Land Auction', desc: 'Prime 4x4 plot for $3,000.', options: [{ label: 'Buy ($3,000)', cost: 3000, reward: 'landPlot' }, { label: 'Pass' }] },
   { id: 'research_deal', title: 'Research Partnership', desc: 'Share data for $5,000 or keep for +10% tech speed.', options: [{ label: 'Sell Data ($5,000)', reward: 'dataSell' }, { label: 'Keep (+10% tech)', reward: 'techSpeed' }] },
+  { id: 'rival_farm', title: 'Rival Farm', desc: 'A rival farm is expanding. Compete or cooperate?', options: [{ label: 'Pay $5K to compete', cost: 5000, reward: 'rivalCompete' }, { label: 'Cooperate', reward: 'rivalCooperate' }] },
+  { id: 'insurance', title: 'Farm Insurance', desc: 'Insure your farm against the next disaster for $3,000.', options: [{ label: 'Buy Insurance ($3K)', cost: 3000, reward: 'insurance' }, { label: 'Decline' }] },
+  { id: 'genetic_lab', title: 'Genetic Lab', desc: 'A lab offers permanent +15% animal production for $8,000.', options: [{ label: 'Invest ($8K)', cost: 8000, reward: 'geneticLab' }, { label: 'Decline' }] },
+  { id: 'water_rights', title: 'Water Rights', desc: 'Buy water rights to unlock koi tiles.', options: [{ label: 'Full rights ($4K, 4 tiles)', cost: 4000, reward: 'waterFull' }, { label: 'Negotiate ($1.5K, 2 tiles)', cost: 1500, reward: 'waterPartial' }] },
+  { id: 'apprentice', title: 'Hire Apprentice', desc: 'Hire help for 20 days: auto-heal sick animals + 10% production.', options: [{ label: 'Hire ($10K total)', cost: 10000, reward: 'apprentice' }, { label: 'Decline' }] },
+  { id: 'black_market', title: 'Black Market', desc: 'Sell products at 2x now, but -10% prices for 30 days. Or report for a bonus.', options: [{ label: 'Sell (2x now, -10% later)', reward: 'blackMarketSell' }, { label: 'Report (+$2K, +5% prices)', reward: 'blackMarketReport' }] },
+  { id: 'crop_rotation', title: 'Crop Rotation', desc: 'Invest $2,000 in crop rotation for +30% grass regrowth for 30 days.', options: [{ label: 'Invest ($2K)', cost: 2000, reward: 'cropRotation' }, { label: 'Decline' }] },
 ];
 
 export const TUTORIAL_STEPS = [

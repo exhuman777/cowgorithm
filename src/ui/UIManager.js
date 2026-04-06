@@ -157,20 +157,33 @@ export class UIManager {
     const prices = gameState.marketPrices;
     const prev = gameState.prevMarketPrices;
 
-    this.setMarketCell(d.marketMilk, prices.milk, prev.milk);
-    this.setMarketCell(d.marketWool, prices.wool, prev.wool);
-    this.setMarketCell(d.marketEggs, prices.eggs, prev.eggs);
-    this.setMarketCell(d.marketFish, prices.fish, prev.fish);
+    this.setMarketCell(d.marketMilk, prices.milk, prev.milk, 'milk');
+    this.setMarketCell(d.marketWool, prices.wool, prev.wool, 'wool');
+    this.setMarketCell(d.marketEggs, prices.eggs, prev.eggs, 'eggs');
+    this.setMarketCell(d.marketFish, prices.fish, prev.fish, 'fish');
   }
 
-  setMarketCell(el, price, prevPrice) {
+  setMarketCell(el, price, prevPrice, product) {
     if (!el) return;
     let trendClass = 'flat';
     let trendSymbol = '--';
     if (price > prevPrice) { trendClass = 'up'; trendSymbol = '/\\'; }
     else if (price < prevPrice) { trendClass = 'down'; trendSymbol = '\\/'; }
+
+    // 7-day trend from price history
+    let weekTrend = '';
+    const history = gameState.priceHistory?.[product];
+    if (history && history.length >= 3) {
+      const first = history[0];
+      const last = history[history.length - 1];
+      const slope = (last - first) / first;
+      if (slope > 0.05) weekTrend = '<span class="week-trend up" title="7d trend: rising">+</span>';
+      else if (slope < -0.05) weekTrend = '<span class="week-trend down" title="7d trend: falling">-</span>';
+      else weekTrend = '<span class="week-trend flat" title="7d trend: stable">=</span>';
+    }
+
     el.className = trendClass;
-    el.innerHTML = `$${price.toFixed(1)} <span class="trend">${trendSymbol}</span>`;
+    el.innerHTML = `$${price.toFixed(1)} <span class="trend">${trendSymbol}</span>${weekTrend}`;
   }
 
   // --- Milestones ---
@@ -356,7 +369,7 @@ export class UIManager {
     d.activeEffects.style.display = 'block';
     let html = '';
     for (const effect of gameState.activeEffects) {
-      const isBad = ['pestBlock', 'buildingDisable', 'marketCrash', 'frostBlock'].includes(effect.name);
+      const isBad = ['pestBlock', 'buildingDisable', 'marketCrash', 'frostBlock', 'locusts', 'heatWave', 'blizzard'].includes(effect.name);
       const color = isBad ? 'var(--red)' : 'var(--emerald)';
       html += `<div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.6rem;padding:2px 0;border-bottom:1px solid var(--grid-line)">
         <span style="color:${color}">${effect.name}</span>
