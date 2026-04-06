@@ -127,9 +127,28 @@ export class InputSystem {
 
   onCanvasHover(event) {
     const worldPos = this.getWorldPosition(event);
-    if (!worldPos) return;
+    if (!worldPos) { this.farmGrid.clearHover(); return; }
     const { col, row } = this.farmGrid.worldToTile(worldPos.x, worldPos.z);
     this.hoveredTile = { col, row };
+
+    // Show hover indicator in expand mode
+    if (this.expandMode) {
+      const tile = this.farmGrid.getTileAt(col, row);
+      if (tile && !tile.owned) {
+        // Check if adjacent to owned land
+        const neighbors = [
+          this.farmGrid.getTileAt(col-1, row), this.farmGrid.getTileAt(col+1, row),
+          this.farmGrid.getTileAt(col, row-1), this.farmGrid.getTileAt(col, row+1),
+        ];
+        const adjacentOwned = neighbors.some(n => n && n.owned);
+        const buyable = adjacentOwned && tile.type !== 'water';
+        this.farmGrid.setHover(col, row, buyable);
+      } else {
+        this.farmGrid.clearHover();
+      }
+    } else {
+      this.farmGrid.clearHover();
+    }
   }
 
   onKeyDown(event) {
@@ -182,6 +201,7 @@ export class InputSystem {
     this.expandMode = active;
     this.demolishMode = false;
     gameState.selectedBuild = null;
+    if (!active) this.farmGrid.clearHover();
     eventBus.emit(Events.BUILD_MODE_CHANGED, { type: active ? 'expand' : null });
   }
 
