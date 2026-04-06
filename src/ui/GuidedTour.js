@@ -71,7 +71,7 @@ const TOUR_STEPS = [
     title: 'Expedition Logs',
     desc: 'Your farm\'s event feed. Every sale, weather event, milestone, animal birth, and day change is logged here. Scroll back to review your farm\'s history and track what happened.',
     selector: '#bottom-bar',
-    position: 'above',
+    position: 'center',
   },
 ];
 
