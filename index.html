@@ -563,6 +563,8 @@ body{background:var(--bg-base);color:var(--ink);font-family:var(--sans);overflow
         </div>
         <button class="action-btn tech" onclick="window.game?.openTechTree()">Tech Tree <span style="font-size:.62rem;opacity:.6">[T]</span></button>
         <button class="action-btn sell-btn" onclick="window.game?.sellProducts()">Sell Products <span style="font-size:.62rem;opacity:.6">[S]</span></button>
+        <button class="action-btn" onclick="window.game?.takeLoan()" id="loan-take-btn">Take Loan ($10K)</button>
+        <button class="action-btn danger" onclick="window.game?.repayLoan()" id="loan-repay-btn" style="display:none">Repay Loan <span id="loan-amount" style="font-size:.62rem"></span></button>
         <button class="build-btn" data-build="expand" onclick="window.game?.toggleExpand()">
           <span class="emoji-box" style="color:var(--cyan);font-family:var(--mono);font-size:.65rem">EXP</span>
           <span class="info">

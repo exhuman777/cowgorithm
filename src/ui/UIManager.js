@@ -44,6 +44,9 @@ export class UIManager {
       selectedPanelBody: document.getElementById('selected-panel-body'),
       activeEffects: document.getElementById('active-effects'),
       effectsList: document.getElementById('effects-list'),
+      loanTakeBtn: document.getElementById('loan-take-btn'),
+      loanRepayBtn: document.getElementById('loan-repay-btn'),
+      loanAmount: document.getElementById('loan-amount'),
       logFeed: document.getElementById('log-feed'),
       floatTexts: document.getElementById('float-texts'),
       toastContainer: document.getElementById('toast-container'),
@@ -70,6 +73,7 @@ export class UIManager {
     this.updateStationStats();
     this.updateSelectedPanel();
     this.updateActiveEffects();
+    this.updateLoanUI();
     this.updateSpeedButtons();
     this.updateToggleButtons();
     this.updateCanvasCursor();
@@ -360,6 +364,22 @@ export class UIManager {
       </div>`;
     }
     d.effectsList.innerHTML = html;
+  }
+
+  // --- Loan UI ---
+
+  updateLoanUI() {
+    const d = this.dom;
+    if (!d.loanTakeBtn || !d.loanRepayBtn) return;
+    if (gameState.loan > 0) {
+      d.loanTakeBtn.style.display = 'none';
+      d.loanRepayBtn.style.display = '';
+      const total = Math.ceil(gameState.loan + gameState.loanInterest);
+      if (d.loanAmount) d.loanAmount.textContent = `($${total.toLocaleString()})`;
+    } else {
+      d.loanTakeBtn.style.display = '';
+      d.loanRepayBtn.style.display = 'none';
+    }
   }
 
   // --- Speed Buttons ---

@@ -51,6 +51,8 @@ class GameState {
     this.merchantDiscount = false;
     this.milkContractDays = 0;
     this.stormProtected = false;
+    this.loan = 0;          // outstanding loan principal
+    this.loanInterest = 0;  // accrued interest
     this.disabledBuilding = null;
     this.visualDayProgress = 0;
     this.energyDeficit = false; // true when energy <= 0
@@ -108,6 +110,8 @@ class GameState {
       milkContractDays: this.milkContractDays,
       energyDeficit: this.energyDeficit,
       completionDay: this.completionDay,
+      loan: this.loan,
+      loanInterest: this.loanInterest,
     };
   }
 

@@ -354,6 +354,16 @@ class Game {
     this.economySystem.sellProducts();
   }
 
+  takeLoan() {
+    this.audio.init();
+    this.economySystem.takeLoan();
+  }
+
+  repayLoan() {
+    this.audio.init();
+    this.economySystem.repayLoan();
+  }
+
   openTechTree() { this.techModal.open(); }
   closeTechTree() { this.techModal.close(); }
   setSpeed(s) { gameState.gameSpeed = s; }

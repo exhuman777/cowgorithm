@@ -13,7 +13,7 @@ export function createTree() {
   group.add(trunk);
 
   // Foliage cone
-  const foliageMat = applyTreeSway(new THREE.MeshLambertMaterial({ color: 0x4a9e2e }));
+  const foliageMat = applyTreeSway(new THREE.MeshLambertMaterial({ color: 0x5cb83a }));
   const foliage = new THREE.Mesh(new THREE.ConeGeometry(0.6, 1.5, 6), foliageMat);
   foliage.position.y = 1.35;
   foliage.castShadow = true;
@@ -57,10 +57,10 @@ export function createSakuraTree() {
 
 // Season color maps -- bright and cheerful
 const TREE_SEASON_COLORS = {
-  spring: 0x4a9e2e,
-  summer: 0x55a835,
-  fall:   0xd4922a,
-  winter: 0x8a8a7a,
+  spring: 0x5cb83a,
+  summer: 0x66c040,
+  fall:   0xd4a030,
+  winter: 0x9a9a8a,
 };
 
 const SAKURA_SEASON_COLORS = {

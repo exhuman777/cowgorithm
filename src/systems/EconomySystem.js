@@ -124,6 +124,14 @@ export class EconomySystem {
       this.sellProducts();
     }
 
+    // 7b. Loan interest accrual (10% per year = 120 game-days)
+    if (gameState.loan > 0) {
+      const dailyRate = 0.10 / 120; // 10% annual / 120 days per year
+      const interest = (gameState.loan + gameState.loanInterest) * dailyRate;
+      gameState.loanInterest += interest;
+      gameState.dailyCosts += interest;
+    }
+
     // 8. Tick milk contract countdown
     if (gameState.milkContractDays > 0) {
       gameState.milkContractDays--;
@@ -208,6 +216,40 @@ export class EconomySystem {
       }
     }
     return Math.min(total, 1); // Clamp to max 1 (100%)
+  }
+
+  takeLoan() {
+    const amount = 10000;
+    if (gameState.loan > 0) {
+      eventBus.emit(Events.NOTIFICATION, { text: 'You already have an outstanding loan!', type: 'error' });
+      return;
+    }
+    gameState.loan = amount;
+    gameState.loanInterest = 0;
+    gameState.money += amount;
+    eventBus.emit(Events.MONEY_CHANGED, { money: gameState.money });
+    eventBus.emit(Events.NOTIFICATION, { text: `Loan taken: $${amount.toLocaleString()} at 10% annual interest`, type: 'success' });
+    eventBus.emit(Events.SFX_PLAY, { sound: 'sell' });
+  }
+
+  repayLoan() {
+    if (gameState.loan <= 0) {
+      eventBus.emit(Events.NOTIFICATION, { text: 'No outstanding loan!', type: 'error' });
+      return;
+    }
+    const total = Math.ceil(gameState.loan + gameState.loanInterest);
+    if (gameState.money < total) {
+      eventBus.emit(Events.NOTIFICATION, { text: `Not enough cash! Need $${total.toLocaleString()} to repay.`, type: 'error' });
+      return;
+    }
+    gameState.money -= total;
+    gameState.totalSpent += total;
+    const interestPaid = Math.ceil(gameState.loanInterest);
+    gameState.loan = 0;
+    gameState.loanInterest = 0;
+    eventBus.emit(Events.MONEY_CHANGED, { money: gameState.money });
+    eventBus.emit(Events.NOTIFICATION, { text: `Loan repaid! $${total.toLocaleString()} ($${interestPaid.toLocaleString()} interest)`, type: 'success' });
+    eventBus.emit(Events.SFX_PLAY, { sound: 'sell' });
   }
 
   formatMoney(n) {
