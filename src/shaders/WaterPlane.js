@@ -80,10 +80,10 @@ void main() {
   float spec = pow(max(dot(vNormal, halfDir), 0.0), 64.0);
   baseColor += vec3(1.0, 0.95, 0.8) * spec * 0.6;
 
-  // Day/night darkening
+  // Day/night darkening (subtle -- scene lights already handle most of it)
   float dayAngle = uDayProgress * 6.28318;
   float daylight = sin(dayAngle) * 0.5 + 0.5;
-  baseColor *= mix(0.3, 1.0, daylight);
+  baseColor *= mix(0.6, 1.0, daylight);
 
   float alpha = mix(0.80, 0.95, fresnel);
   gl_FragColor = vec4(baseColor, alpha);

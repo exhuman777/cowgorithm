@@ -9,7 +9,7 @@ const ColorGradeShader = {
     tDiffuse: { value: null },
     uDayProgress: { value: 0 },
     uSeasonTint: { value: new THREE.Vector3(1, 1, 1) },
-    uVignette: { value: 0.35 },
+    uVignette: { value: 0.15 },
   },
   vertexShader: /* glsl */ `
     varying vec2 vUv;
@@ -31,14 +31,14 @@ const ColorGradeShader = {
       // Season tint (subtle overlay)
       color.rgb = mix(color.rgb, color.rgb * uSeasonTint, 0.15);
 
-      // Day warmth curve: warm at dawn/dusk, neutral midday, cool at night
+      // Day warmth curve: subtle hue shift only, no brightness reduction
       float dayAngle = uDayProgress * 6.28318;
       float warmth = sin(dayAngle) * 0.5 + 0.5;
-      vec3 warmTint = mix(vec3(0.7, 0.75, 1.0), vec3(1.0, 0.95, 0.9), warmth);
+      vec3 warmTint = mix(vec3(0.92, 0.94, 1.0), vec3(1.0, 0.98, 0.96), warmth);
       color.rgb *= warmTint;
 
-      // Slight contrast boost
-      color.rgb = (color.rgb - 0.5) * 1.08 + 0.5;
+      // Very slight contrast boost
+      color.rgb = (color.rgb - 0.5) * 1.03 + 0.5;
 
       // Vignette
       vec2 uv = vUv * 2.0 - 1.0;
@@ -51,10 +51,10 @@ const ColorGradeShader = {
 };
 
 const SEASON_TINTS = {
-  spring: new THREE.Vector3(0.95, 1.05, 0.95),
-  summer: new THREE.Vector3(1.05, 1.02, 0.92),
-  fall:   new THREE.Vector3(1.08, 0.95, 0.85),
-  winter: new THREE.Vector3(0.90, 0.95, 1.08),
+  spring: new THREE.Vector3(0.98, 1.02, 0.98),
+  summer: new THREE.Vector3(1.02, 1.01, 0.97),
+  fall:   new THREE.Vector3(1.03, 0.98, 0.95),
+  winter: new THREE.Vector3(0.96, 0.98, 1.03),
 };
 
 export class PostProcessing {
@@ -66,7 +66,7 @@ export class PostProcessing {
     this.composer.addPass(renderPass);
 
     const size = renderer.getSize(new THREE.Vector2());
-    this.bloomPass = new UnrealBloomPass(size, 0.25, 0.4, 0.85);
+    this.bloomPass = new UnrealBloomPass(size, 0.15, 0.3, 0.9);
     this.composer.addPass(this.bloomPass);
 
     this.colorPass = new ShaderPass(ColorGradeShader);
