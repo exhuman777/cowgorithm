@@ -1,6 +1,6 @@
 // src/systems/BuildingSystem.js
 import * as THREE from 'three';
-import { GRID, BUILDING_DEFS, ANIMAL_DEFS } from '../core/Constants.js';
+import { GRID, BUILDING_DEFS, ANIMAL_DEFS, TECH_DEFS } from '../core/Constants.js';
 import { gameState } from '../core/GameState.js';
 import { eventBus, Events } from '../core/EventBus.js';
 import { createBuilding, createRangeRing } from '../entities/BuildingFactory.js';
@@ -145,6 +145,35 @@ export class BuildingSystem {
 
     const type = tile.building.type;
     const def = BUILDING_DEFS[type];
+
+    // Block demolishing housing if animals would be homeless
+    if (type === 'barn' || type === 'coop') {
+      const capacityAfter = (this.countBuildings(type) - 1) * (def.capacity || 0);
+      const currentAnimals = this.getHousingCount(type);
+      if (currentAnimals > capacityAfter) {
+        const name = type === 'barn' ? 'Barn' : 'Chicken Coop';
+        eventBus.emit(Events.NOTIFICATION, {
+          text: `Cannot demolish! ${currentAnimals} animals need ${name} housing (${capacityAfter} capacity left). Sell animals first.`,
+          type: 'error',
+        });
+        return;
+      }
+    }
+
+    // Block AI Center demolition if Tier 3+ techs depend on it
+    if (type === 'ai_center') {
+      const hasAdvancedTech = gameState.techs.some(techId => {
+        const tech = TECH_DEFS.find(t => t.id === techId);
+        return tech && tech.needsAI;
+      });
+      if (hasAdvancedTech) {
+        eventBus.emit(Events.NOTIFICATION, {
+          text: 'Cannot demolish! Advanced techs depend on AI Center.',
+          type: 'error',
+        });
+        return;
+      }
+    }
     const refund = Math.floor((def ? def.cost : 0) * 0.4);
 
     // Add refund

@@ -100,7 +100,15 @@ export class EconomySystem {
       this.sellProducts();
     }
 
-    // 8. Reset weather bonuses (they last only 1 day)
+    // 8. Tick milk contract countdown
+    if (gameState.milkContractDays > 0) {
+      gameState.milkContractDays--;
+      if (gameState.milkContractDays === 0) {
+        eventBus.emit(Events.NOTIFICATION, { text: 'Milk contract expired. Back to market prices.', type: 'info' });
+      }
+    }
+
+    // 9. Reset weather bonuses (they last only 1 day)
     gameState.weatherBonus = 1;
     gameState.weatherProdPenalty = 0;
     gameState.marketBonus = 0;
@@ -114,25 +122,35 @@ export class EconomySystem {
     const season = getSeason(gameState.day);
     const seasonPriceMod = SEASON_EFFECTS[season].priceMod;
 
-    // Sell milk
-    if (gameState.milk > 0) {
-      const income = gameState.milk * gameState.marketPrices.milk * bonus * seasonPriceMod;
-      total += income;
-      gameState.milk = 0;
-    }
+    // Check active effects
+    const marketCrash = gameState.activeEffects.find(e => e.name === 'marketCrash');
+    const celebrityBoost = gameState.activeEffects.find(e => e.name === 'celebrityBoost');
 
-    // Sell wool
-    if (gameState.wool > 0) {
-      const income = gameState.wool * gameState.marketPrices.wool * bonus * seasonPriceMod;
-      total += income;
-      gameState.wool = 0;
-    }
+    for (const product of ['milk', 'wool', 'eggs']) {
+      const amount = gameState[product];
+      if (amount <= 0) continue;
 
-    // Sell eggs
-    if (gameState.eggs > 0) {
-      const income = gameState.eggs * gameState.marketPrices.eggs * bonus * seasonPriceMod;
-      total += income;
-      gameState.eggs = 0;
+      let price;
+
+      // Milk contract: fixed $12/unit overrides market price
+      if (product === 'milk' && gameState.milkContractDays > 0) {
+        price = 12;
+      } else {
+        price = gameState.marketPrices[product] * bonus * seasonPriceMod;
+
+        // Market crash: -50% for targeted product
+        if (marketCrash && marketCrash.data === product) {
+          price *= 0.5;
+        }
+
+        // Celebrity endorsement: 3x for targeted product
+        if (celebrityBoost && celebrityBoost.data === product) {
+          price *= 3;
+        }
+      }
+
+      total += amount * price;
+      gameState[product] = 0;
     }
 
     if (total > 0) {

@@ -28,6 +28,7 @@ import { TitleScreen } from './ui/TitleScreen.js';
 import { Tutorial } from './ui/Tutorial.js';
 import { TechModal } from './ui/TechModal.js';
 import { DecisionModal } from './ui/DecisionModal.js';
+import { GuidedTour } from './ui/GuidedTour.js';
 
 // Audio
 import { AudioManager } from './audio/AudioManager.js';
@@ -88,7 +89,7 @@ class Game {
     this.techSystem = new TechSystem(this.buildingSystem);
     this.questSystem = new QuestSystem(this.buildingSystem);
     this.milestoneSystem = new MilestoneSystem(this.buildingSystem);
-    this.weatherSystem = new WeatherSystem(this.buildingSystem);
+    this.weatherSystem = new WeatherSystem(this.buildingSystem, this.animalSystem);
     this.dayNightSystem = new DayNightSystem(this.scene, this.dirLight, this.ambientLight);
     this.particles = new ParticleSystem(this.scene);
     this.animalSystem.particles = this.particles;
@@ -99,6 +100,7 @@ class Game {
     this.tutorial = new Tutorial();
     this.techModal = new TechModal(this.techSystem);
     this.decisionModal = new DecisionModal();
+    this.guidedTour = new GuidedTour();
 
     eventBus.on('decision:offer', ({ event }) => {
       this.decisionModal.show(event, (opt, idx) => {
@@ -240,10 +242,13 @@ class Game {
     this.economySystem.newDay();
     this.weatherSystem.checkWeatherEvent();
 
-    // Grass regrowth with tech bonuses
-    const techGrassRegrow = this.economySystem.getTechEffect('grassRegrow');
-    const techGrassBonus = this.economySystem.getTechEffect('grassBonus');
-    this.farmGrid.growGrass(gameState.weatherBonus, techGrassRegrow, techGrassBonus);
+    // Grass regrowth with tech bonuses (frost blocks all growth)
+    const hasFrost = gameState.activeEffects.some(e => e.name === 'frostBlock');
+    if (!hasFrost) {
+      const techGrassRegrow = this.economySystem.getTechEffect('grassRegrow');
+      const techGrassBonus = this.economySystem.getTechEffect('grassBonus');
+      this.farmGrid.growGrass(gameState.weatherBonus, techGrassRegrow, techGrassBonus);
+    }
 
     // Auto-heal from Predictive Vet AI
     if (this.economySystem.getTechEffect('autoHeal') > 0) {
@@ -327,6 +332,10 @@ class Game {
   tutorialEnd() { this.tutorial.end(); }
   toggleDemolish() { this.inputSystem.setDemolishMode(!this.inputSystem.demolishMode); }
   toggleExpand() { this.inputSystem.setExpandMode(!this.inputSystem.expandMode); }
+  startTour() { this.guidedTour.start(); }
+  tourNext() { this.guidedTour.next(); }
+  tourBack() { this.guidedTour.back(); }
+  tourEnd() { this.guidedTour.end(); }
 
   toggleQuestHint() {
     this.uiManager.toggleQuestHint();
@@ -361,7 +370,17 @@ class Game {
     }
     switch (opt.reward) {
       case 'sheep5':
-        for (let i = 0; i < 5; i++) this.animalSystem.buyAnimal('sheep');
+        // Spawn sheep directly (cost already paid via event), with capacity check
+        for (let i = 0; i < 5; i++) {
+          const capacity = this.buildingSystem.getCapacity('barn');
+          const current = this.buildingSystem.getHousingCount('barn');
+          if (current < capacity) {
+            this.animalSystem.spawnAnimal('sheep');
+          } else {
+            eventBus.emit(Events.NOTIFICATION, { text: 'No barn space for more sheep!', type: 'error' });
+            break;
+          }
+        }
         break;
       case 'stormProtect':
         gameState.stormProtected = true;

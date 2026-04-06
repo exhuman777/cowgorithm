@@ -3,8 +3,9 @@ import { WEATHER_EVENTS, TECH_DEFS, getSeason, DECISION_EVENTS } from '../core/C
 import { eventBus, Events } from '../core/EventBus.js';
 
 export class WeatherSystem {
-  constructor(buildingSystem) {
+  constructor(buildingSystem, animalSystem) {
     this.buildingSystem = buildingSystem;
+    this.animalSystem = animalSystem;
   }
 
   checkWeatherEvent() {
@@ -124,8 +125,9 @@ export class WeatherSystem {
         const chickens = gameState.animals.filter(a => a.type === 'chicken');
         const lost = Math.min(chickens.length, 1 + Math.floor(Math.random() * 2));
         for (let i = 0; i < lost; i++) {
-          const idx = gameState.animals.indexOf(chickens[i]);
-          if (idx !== -1) gameState.animals.splice(idx, 1);
+          if (this.animalSystem) {
+            this.animalSystem.removeAnimal(chickens[i]);
+          }
         }
         break;
       }
@@ -143,14 +145,17 @@ export class WeatherSystem {
         gameState.activeEffects.push({ name: 'perfectWeather', daysLeft: 3 });
         break;
       case 'Golden Calf': {
-        const animal = {
-          type: 'cow', x: 15 + Math.random() * 3, y: 8 + Math.random() * 3,
-          targetX: null, targetY: null, health: 100, happiness: 100, sick: false,
-          age: 0, prodTimer: 0, name: 'Golden ' + ['Belle', 'Star', 'Luna', 'Gem'][Math.floor(Math.random() * 4)],
-          task: null, autoManage: false, collarVisible: false, golden: true,
-        };
-        gameState.animals.push(animal);
-        eventBus.emit(Events.ANIMAL_SPAWN, { animal });
+        if (!this.animalSystem) break;
+        const capacity = this.buildingSystem.getCapacity('barn');
+        const current = this.buildingSystem.getHousingCount('barn');
+        if (current >= capacity) {
+          eventBus.emit(Events.NOTIFICATION, { text: 'Golden Calf appeared but no barn space!', type: 'error' });
+        } else {
+          const animal = this.animalSystem.spawnAnimal('cow');
+          animal.name = 'Golden ' + ['Belle', 'Star', 'Luna', 'Gem'][Math.floor(Math.random() * 4)];
+          animal.golden = true;
+          animal.happiness = 100;
+        }
         break;
       }
     }

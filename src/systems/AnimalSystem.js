@@ -1,6 +1,6 @@
 // src/systems/AnimalSystem.js
 import * as THREE from 'three';
-import { GRID, GAME, ANIMAL_DEFS, ANIMAL_NAMES, TECH_DEFS } from '../core/Constants.js';
+import { GRID, GAME, ANIMAL_DEFS, ANIMAL_NAMES, TECH_DEFS, getSeason, SEASON_EFFECTS } from '../core/Constants.js';
 import { gameState } from '../core/GameState.js';
 import { eventBus, Events } from '../core/EventBus.js';
 import { createAnimal, updateAnimalVisuals } from '../entities/AnimalFactory.js';
@@ -316,11 +316,26 @@ export class AnimalSystem {
     const def = ANIMAL_DEFS[animal.type];
     if (!def || def.prodAmt <= 0) return;
 
+    // Pest block: chickens can't produce during infestation
+    if (animal.type === 'chicken' && gameState.activeEffects.some(e => e.name === 'pestBlock')) return;
+
     let amount = def.prodAmt;
+
+    // Season production modifier (spring +20%, winter -30%)
+    const season = getSeason(gameState.day);
+    const seasonFx = SEASON_EFFECTS[season];
+    if (seasonFx && seasonFx.prodMod) {
+      amount *= seasonFx.prodMod;
+    }
 
     // Tech bonus
     const techBonus = this.getTechProdBonus();
     amount *= (1 + techBonus);
+
+    // Perfect weather bonus (+50% production)
+    if (gameState.activeEffects.some(e => e.name === 'perfectWeather')) {
+      amount *= 1.5;
+    }
 
     // Weather penalty
     amount *= (1 - gameState.weatherProdPenalty);
@@ -418,6 +433,13 @@ export class AnimalSystem {
     if (!def) return;
 
     let feedCost = def.feedCost;
+
+    // Season feed modifier (winter +50% feed cost)
+    const season = getSeason(gameState.day);
+    const seasonFx = SEASON_EFFECTS[season];
+    if (seasonFx && seasonFx.feedMod) {
+      feedCost *= seasonFx.feedMod;
+    }
 
     // Silo bonus (reduces feed cost)
     const animalCol = Math.floor(animal.x);
@@ -635,6 +657,12 @@ export class AnimalSystem {
     gameState.selectedAnimal = null;
     eventBus.emit(Events.SELECTION_CHANGED, { type: null, entity: null });
     this.sellAnimal(animal);
+  }
+
+  // --- Public removal (used by WeatherSystem for stampede etc.) ---
+
+  removeAnimal(animal) {
+    this._removeAnimal(animal);
   }
 
   // --- Healing ---
