@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { applyTreeSway } from '../shaders/TreeSway.js';
 
 export function createTree() {
   const group = new THREE.Group();
@@ -12,7 +13,7 @@ export function createTree() {
   group.add(trunk);
 
   // Foliage cone
-  const foliageMat = new THREE.MeshLambertMaterial({ color: 0x2d6a1e });
+  const foliageMat = applyTreeSway(new THREE.MeshLambertMaterial({ color: 0x2d6a1e }));
   const foliage = new THREE.Mesh(new THREE.ConeGeometry(0.6, 1.5, 6), foliageMat);
   foliage.position.y = 1.35;
   foliage.castShadow = true;
@@ -39,7 +40,7 @@ export function createSakuraTree() {
 
   // Rounder foliage (sphere instead of cone)
   const pinkShade = 0xf0b0c0 + Math.floor(Math.random() * 0x080808);
-  const foliageMat = new THREE.MeshLambertMaterial({ color: pinkShade });
+  const foliageMat = applyTreeSway(new THREE.MeshLambertMaterial({ color: pinkShade }));
   const foliage = new THREE.Mesh(new THREE.SphereGeometry(0.7, 8, 8), foliageMat);
   foliage.position.y = 1.2;
   foliage.castShadow = true;

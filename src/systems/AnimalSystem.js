@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { GRID, GAME, ANIMAL_DEFS, ANIMAL_NAMES, TECH_DEFS, getSeason, SEASON_EFFECTS } from '../core/Constants.js';
 import { gameState } from '../core/GameState.js';
 import { eventBus, Events } from '../core/EventBus.js';
-import { createAnimal, updateAnimalVisuals } from '../entities/AnimalFactory.js';
+import { createAnimal, updateAnimalVisuals, updateAnimalShaders } from '../entities/AnimalFactory.js';
 
 const MOVE_SPEED = 0.02;
 const WANDER_CHANCE = 0.02;
@@ -205,8 +205,10 @@ export class AnimalSystem {
 
   updateVisuals(delta) {
     this.elapsedTime += delta;
+    const season = getSeason(gameState.day);
     for (const [animal, group] of this.meshes) {
-      updateAnimalVisuals(group, animal, delta, this.elapsedTime);
+      updateAnimalVisuals(group, animal, delta, this.elapsedTime, this.ambientEffects, season);
+      updateAnimalShaders(group, gameState.visualDayProgress);
 
       // Update route line if animal has task
       if (animal.task && this.routeLines.has(animal)) {

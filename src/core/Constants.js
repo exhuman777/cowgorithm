@@ -23,10 +23,10 @@ export const SEASON_NAMES = ['Spring', 'Summer', 'Fall', 'Winter'];
 export const SEASON_DURATION = 30; // game-days per season
 
 export const SEASON_COLORS = {
-  spring: { grass: [0.29, 0.55, 0.18], sky: 0x8ecae6, sunset: 0xff9eb5 },
-  summer: { grass: [0.48, 0.60, 0.23], sky: 0x87ceeb, sunset: 0xff7b54 },
-  fall:   { grass: [0.54, 0.42, 0.17], sky: 0x7ba7bc, sunset: 0xc44536 },
-  winter: { grass: [0.55, 0.55, 0.50], sky: 0xb0c4d8, sunset: 0x8a7fa0 },
+  spring: { grass: [0.29, 0.55, 0.18], sky: 0x8ecae6, sunset: 0xff9eb5, forest: [0.11, 0.40, 0.13] },
+  summer: { grass: [0.48, 0.60, 0.23], sky: 0x87ceeb, sunset: 0xff7b54, forest: [0.13, 0.42, 0.15] },
+  fall:   { grass: [0.54, 0.42, 0.17], sky: 0x7ba7bc, sunset: 0xc44536, forest: [0.45, 0.30, 0.12] },
+  winter: { grass: [0.55, 0.55, 0.50], sky: 0xb0c4d8, sunset: 0x8a7fa0, forest: [0.30, 0.30, 0.28] },
 };
 
 export const SEASON_EFFECTS = {

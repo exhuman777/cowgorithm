@@ -184,7 +184,9 @@ export class BuildingSystem {
     gameState.map[row][col].building = null;
 
     // Remove 3D mesh
+    const key = `${col},${row}`;
     this._removeMesh(col, row);
+    if (this.buildingAnimator) this.buildingAnimator.removeDrone(key);
 
     // Emit events
     eventBus.emit(Events.MONEY_CHANGED, { money: gameState.money });

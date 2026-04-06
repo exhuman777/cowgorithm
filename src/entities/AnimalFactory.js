@@ -1,9 +1,47 @@
 import * as THREE from 'three';
 import { GRID, ANIMAL_DEFS } from '../core/Constants.js';
 
+// --- Fresnel rim lighting injection ---
+function applyFresnel(material) {
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.uRimStrength = { value: 0.4 };
+    shader.uniforms.uRimColor = { value: new THREE.Vector3(1.0, 0.8, 0.4) };
+
+    shader.vertexShader = shader.vertexShader.replace(
+      'void main() {',
+      `varying vec3 vWorldPosition;
+       void main() {`
+    );
+    shader.vertexShader = shader.vertexShader.replace(
+      '#include <worldpos_vertex>',
+      `#include <worldpos_vertex>
+       vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz;`
+    );
+
+    shader.fragmentShader = shader.fragmentShader.replace(
+      'void main() {',
+      `uniform float uRimStrength;
+       uniform vec3 uRimColor;
+       varying vec3 vWorldPosition;
+       void main() {`
+    );
+    shader.fragmentShader = shader.fragmentShader.replace(
+      '#include <dithering_fragment>',
+      `#include <dithering_fragment>
+       vec3 viewDir = normalize(cameraPosition - vWorldPosition);
+       vec3 norm = normalize(vNormal);
+       float fresnel = pow(1.0 - max(dot(viewDir, norm), 0.0), 3.0);
+       gl_FragColor.rgb += uRimColor * fresnel * uRimStrength;`
+    );
+
+    material.userData.shader = shader;
+  };
+  return material;
+}
+
 // --- Shared material helper ---
 function mat(color, emissive = 0x000000) {
-  return new THREE.MeshLambertMaterial({ color, emissive });
+  return applyFresnel(new THREE.MeshLambertMaterial({ color, emissive }));
 }
 
 // --- COW ---
@@ -228,7 +266,24 @@ export function createAnimal(type) {
   return group;
 }
 
-export function updateAnimalVisuals(group, animal, delta, elapsedTime) {
+export function updateAnimalShaders(group, dayProgress) {
+  if (!group) return;
+  const warmColor = new THREE.Vector3(1.0, 0.8, 0.4);
+  const coolColor = new THREE.Vector3(0.4, 0.6, 1.0);
+  const dayAngle = dayProgress * Math.PI * 2;
+  const daylight = Math.sin(dayAngle) * 0.5 + 0.5;
+  const rimColor = new THREE.Vector3().lerpVectors(coolColor, warmColor, daylight);
+
+  const parts = [group.userData.body, group.userData.head];
+  for (const mesh of parts) {
+    if (!mesh || !mesh.material || !mesh.material.userData.shader) continue;
+    const shader = mesh.material.userData.shader;
+    shader.uniforms.uRimColor.value.copy(rimColor);
+    shader.uniforms.uRimStrength.value = 0.3 + daylight * 0.2;
+  }
+}
+
+export function updateAnimalVisuals(group, animal, delta, elapsedTime, ambientEffects, season) {
   if (!group || !animal) return;
 
   // World position
@@ -256,5 +311,22 @@ export function updateAnimalVisuals(group, animal, delta, elapsedTime) {
   const collar = group.userData.collar;
   if (collar) {
     collar.visible = !!animal.collarVisible;
+  }
+
+  // Breath vapor in winter
+  if (ambientEffects && season === 'winter') {
+    if (group.userData.breathTimer === undefined) {
+      group.userData.breathTimer = 2 + Math.random();
+    }
+    group.userData.breathTimer -= delta;
+    if (group.userData.breathTimer <= 0) {
+      group.userData.breathTimer = 2 + Math.random();
+      const head = group.userData.head;
+      if (head) {
+        const worldPos = new THREE.Vector3();
+        head.getWorldPosition(worldPos);
+        ambientEffects.spawnBreath(worldPos.x + 0.15, worldPos.y + 0.1, worldPos.z);
+      }
+    }
   }
 }

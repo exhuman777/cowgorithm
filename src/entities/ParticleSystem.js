@@ -79,7 +79,7 @@ export class ParticleSystem {
   updateSnow(delta) {
     if (!this.snowing) return;
     // Spawn new snowflakes
-    if (Math.random() < 0.3) {
+    if (Math.random() < 0.45) {
       const geo = new THREE.SphereGeometry(0.05, 3, 3);
       const mat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 });
       const mesh = new THREE.Mesh(geo, mat);
@@ -104,7 +104,7 @@ export class ParticleSystem {
       }
     }
     // Cap at 80 snowflakes
-    while (this.snowParticles.length > 80) {
+    while (this.snowParticles.length > 120) {
       const sp = this.snowParticles.shift();
       this.scene.remove(sp.mesh);
       sp.mesh.geometry.dispose();
@@ -131,7 +131,7 @@ export class ParticleSystem {
     if (!this.petalActive || this.sakuraPositions.length === 0) return;
 
     // Spawn
-    if (this.petals.length < 40 && Math.random() < 0.15) {
+    if (this.petals.length < 80 && Math.random() < 0.2) {
       const src = this.sakuraPositions[Math.floor(Math.random() * this.sakuraPositions.length)];
       const geo = new THREE.PlaneGeometry(0.08, 0.08);
       const mat = new THREE.MeshBasicMaterial({

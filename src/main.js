@@ -21,6 +21,13 @@ import { DayNightSystem } from './systems/DayNightSystem.js';
 
 // Entities
 import { ParticleSystem } from './entities/ParticleSystem.js';
+import { AmbientEffects } from './entities/AmbientEffects.js';
+import { BuildingAnimator } from './systems/BuildingAnimator.js';
+
+// Shaders
+import { WaterPlane } from './shaders/WaterPlane.js';
+import { PostProcessing } from './shaders/PostProcessing.js';
+import { updateTreeSwayUniforms } from './shaders/TreeSway.js';
 
 // UI
 import { UIManager } from './ui/UIManager.js';
@@ -93,6 +100,12 @@ class Game {
     this.dayNightSystem = new DayNightSystem(this.scene, this.dirLight, this.ambientLight);
     this.particles = new ParticleSystem(this.scene);
     this.animalSystem.particles = this.particles;
+    this.ambientEffects = new AmbientEffects(this.scene);
+    this.buildingAnimator = new BuildingAnimator(this.buildingSystem);
+    this.animalSystem.ambientEffects = this.ambientEffects;
+    this.buildingSystem.buildingAnimator = this.buildingAnimator;
+    this.waterPlane = new WaterPlane(this.scene);
+    this.postProcessing = new PostProcessing(this.renderer, this.scene, this.camera);
     this.inputSystem = new InputSystem(this.camera, this.renderer.domElement, this.farmGrid);
 
     // UI
@@ -142,8 +155,11 @@ class Game {
     this.audio.init();
     gameState.reset();
     this.farmGrid.rebuild();
+    this.waterPlane.rebuild();
+    this.postProcessing.setSeason(getSeason(gameState.day));
     this.buildingSystem.init();
     this.animalSystem.init();
+    this._initAmbient();
     this.titleScreen.hide();
     document.getElementById('game-container').classList.add('active');
     this.onResize();
@@ -157,8 +173,11 @@ class Game {
     this.audio.init();
     gameState.load();
     this.farmGrid.rebuild();
+    this.waterPlane.rebuild();
+    this.postProcessing.setSeason(getSeason(gameState.day));
     this.buildingSystem.init();
     this.animalSystem.initFromState();
+    this._initAmbient();
     this.titleScreen.hide();
     document.getElementById('game-container').classList.add('active');
     this.onResize();
@@ -187,10 +206,19 @@ class Game {
     gameState.visualDayProgress = (this.visualTimeAccum % 60) / 60;
 
     this.animalSystem.updateVisuals(delta);
-    this.farmGrid.updateWater(this.clock.elapsedTime);
     this.farmGrid.maybeUpdateColors();
     this.dayNightSystem.update(gameState.visualDayProgress);
     this.particles.update(delta, this.clock.elapsedTime);
+    this.ambientEffects.update(delta, this.clock.elapsedTime, gameState.visualDayProgress);
+    this.buildingAnimator.update(delta, this.clock.elapsedTime, gameState.visualDayProgress);
+
+    // Water shader update
+    const sunPos = this.dayNightSystem.sun.position;
+    this.waterPlane.update(this.clock.elapsedTime, gameState.visualDayProgress, this.dayNightSystem.skyColor, sunPos);
+
+    // Tree sway uniforms
+    const windStrength = { spring: 0.8, summer: 0.5, fall: 1.2, winter: 0.3 }[getSeason(gameState.day)] || 0.5;
+    updateTreeSwayUniforms(this.farmGrid.trees, this.clock.elapsedTime, windStrength);
 
     // Fireflies at night
     const isNight = gameState.visualDayProgress > 0.5 && gameState.visualDayProgress < 0.9;
@@ -202,7 +230,9 @@ class Game {
 
     this.uiManager.update();
 
-    this.renderer.render(this.scene, this.camera);
+    // Post-processing (replaces renderer.render)
+    this.postProcessing.update(gameState.visualDayProgress);
+    this.postProcessing.render();
   }
 
   gameTick() {
@@ -223,6 +253,7 @@ class Game {
     // Update season
     const season = getSeason(gameState.day);
     this.dayNightSystem.setSeason(season);
+    this.postProcessing.setSeason(season);
     if (this.farmGrid.setSeason) this.farmGrid.setSeason(season);
 
     if (season === 'winter') {
@@ -238,6 +269,19 @@ class Game {
     } else {
       this.particles.stopPetals();
     }
+
+    // Ambient effects season
+    this.ambientEffects.setSeason(season);
+    if (season === 'spring' || season === 'summer') {
+      this.ambientEffects.placeWildflowers(this.farmGrid.getOwnedGrassPositions());
+    } else {
+      this.ambientEffects.clearWildflowers();
+    }
+    if (season === 'fall') {
+      this.ambientEffects.treePositions = this.farmGrid.getRegularTreePositions();
+    }
+    // Building frost
+    this.buildingAnimator.setFrost(season);
 
     this.economySystem.newDay();
     this.weatherSystem.checkWeatherEvent();
@@ -276,6 +320,7 @@ class Game {
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(w, h);
+    this.postProcessing.resize(w, h);
   }
 
   // --- Methods called by UI onclick handlers ---
@@ -357,6 +402,18 @@ class Game {
     }
     animal.autoManage = !animal.autoManage;
     eventBus.emit(Events.NOTIFICATION, { text: `${animal.name} auto-manage: ${animal.autoManage ? 'ON' : 'OFF'}`, type: 'info' });
+  }
+
+  _initAmbient() {
+    const season = getSeason(gameState.day);
+    this.ambientEffects.setSeason(season);
+    if (season === 'spring' || season === 'summer') {
+      this.ambientEffects.placeWildflowers(this.farmGrid.getOwnedGrassPositions());
+    }
+    if (season === 'fall') {
+      this.ambientEffects.treePositions = this.farmGrid.getRegularTreePositions();
+    }
+    this.buildingAnimator.setFrost(season);
   }
 
   _handleDecision(event, opt, idx) {
