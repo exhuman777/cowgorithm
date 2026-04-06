@@ -65,7 +65,7 @@ const TREE_SEASON_COLORS = {
 
 const SAKURA_SEASON_COLORS = {
   spring: 0xf8c8d8,
-  summer: 0x4a9e2e,
+  summer: 0x5cb83a,
   fall:   0xf0b888,
   winter: 0xd0d0d0,
 };

@@ -151,13 +151,11 @@ export class FarmGrid {
             row * GRID.TILE_SIZE + GRID.TILE_SIZE / 2
           );
 
-          // Dim trees on unowned land
+          // Mark unowned trees for dimming (season colors still apply)
           if (!gameState.map[row][col].owned) {
+            // Clone materials so dimming doesn't affect shared instances
             tree.children.forEach(child => {
-              if (child.material) {
-                child.material = child.material.clone();
-                child.material.color.multiplyScalar(0.8);
-              }
+              if (child.material) child.material = child.material.clone();
             });
             tree.userData.dimmed = true;
           }
@@ -172,8 +170,14 @@ export class FarmGrid {
 
   updateTreeColors() {
     for (const tree of this.trees) {
-      if (tree.userData.dimmed) continue;
       updateTreeSeason(tree, this.currentSeason);
+      // Slightly dim unowned trees after applying season color
+      if (tree.userData.dimmed) {
+        const foliage = tree.children[1];
+        if (foliage && foliage.material) {
+          foliage.material.color.multiplyScalar(0.85);
+        }
+      }
     }
   }
 
