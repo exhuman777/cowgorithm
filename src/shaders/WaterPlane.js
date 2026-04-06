@@ -77,6 +77,7 @@ export class WaterPlane {
   constructor(scene) {
     this.scene = scene;
     this.mesh = null;
+    this.koiGroups = new Map(); // "col,row" -> { group, fish[] }
     this.material = new THREE.ShaderMaterial({
       vertexShader,
       fragmentShader,
@@ -131,7 +132,108 @@ export class WaterPlane {
     if (sunPosition) u.uSunDir.value.set(sunPosition.x, sunPosition.y, sunPosition.z);
   }
 
+  // --- Koi Fish Visuals ---
+
+  addKoi(col, row) {
+    const key = `${col},${row}`;
+    if (this.koiGroups.has(key)) return;
+
+    const ts = GRID.TILE_SIZE;
+    const cx = col * ts + ts / 2;
+    const cz = row * ts + ts / 2;
+    const group = new THREE.Group();
+    group.position.set(cx, 0.12, cz);
+
+    const colors = [0xff6633, 0xffffff, 0xcc3333, 0xff9944];
+    const fish = [];
+
+    for (let i = 0; i < 4; i++) {
+      const fishGroup = new THREE.Group();
+
+      // Body (elongated sphere)
+      const body = new THREE.Mesh(
+        new THREE.SphereGeometry(0.1, 6, 4),
+        new THREE.MeshLambertMaterial({ color: colors[i % colors.length] })
+      );
+      body.scale.set(1.5, 0.7, 0.8);
+      fishGroup.add(body);
+
+      // Tail fin
+      const tail = new THREE.Mesh(
+        new THREE.ConeGeometry(0.06, 0.12, 4),
+        new THREE.MeshLambertMaterial({ color: colors[i % colors.length] })
+      );
+      tail.position.x = -0.18;
+      tail.rotation.z = Math.PI / 2;
+      fishGroup.add(tail);
+
+      // Randomize starting angle and radius
+      const angle = (i / 4) * Math.PI * 2 + Math.random() * 0.5;
+      const radius = 0.4 + Math.random() * 0.3;
+      const speed = 0.4 + Math.random() * 0.3;
+
+      fish.push({ mesh: fishGroup, angle, radius, speed, phase: Math.random() * Math.PI * 2 });
+      group.add(fishGroup);
+    }
+
+    this.scene.add(group);
+    this.koiGroups.set(key, { group, fish });
+  }
+
+  removeKoi(col, row) {
+    const key = `${col},${row}`;
+    const data = this.koiGroups.get(key);
+    if (!data) return;
+
+    this.scene.remove(data.group);
+    data.group.traverse(child => {
+      if (child.isMesh) {
+        if (child.geometry) child.geometry.dispose();
+        if (child.material) child.material.dispose();
+      }
+    });
+    this.koiGroups.delete(key);
+  }
+
+  rebuildKoi() {
+    // Clear all existing koi
+    for (const [key] of this.koiGroups) {
+      const [col, row] = key.split(',').map(Number);
+      this.removeKoi(col, row);
+    }
+    // Scan map for koi_pond buildings
+    for (let row = 0; row < GRID.ROWS; row++) {
+      for (let col = 0; col < GRID.COLS; col++) {
+        const tile = gameState.map[row]?.[col];
+        if (tile && tile.building && tile.building.type === 'koi_pond') {
+          this.addKoi(col, row);
+        }
+      }
+    }
+  }
+
+  updateKoi(elapsed) {
+    for (const [, data] of this.koiGroups) {
+      for (const f of data.fish) {
+        const t = elapsed * f.speed + f.phase;
+        // Figure-8 path
+        const x = f.radius * Math.sin(t);
+        const z = f.radius * Math.sin(t * 2) * 0.5;
+        f.mesh.position.set(x, 0, z);
+        // Face direction of movement
+        const dx = f.radius * Math.cos(t) * f.speed;
+        const dz = f.radius * Math.cos(t * 2) * f.speed;
+        f.mesh.rotation.y = Math.atan2(dx, dz);
+      }
+    }
+  }
+
   dispose() {
+    // Clean up koi
+    for (const [key] of this.koiGroups) {
+      const [col, row] = key.split(',').map(Number);
+      this.removeKoi(col, row);
+    }
     if (this.mesh) {
       this.scene.remove(this.mesh);
       this.mesh.geometry.dispose();

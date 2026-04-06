@@ -17,6 +17,7 @@ export class UIManager {
       milk: document.getElementById('r-milk'),
       wool: document.getElementById('r-wool'),
       eggs: document.getElementById('r-eggs'),
+      fish: document.getElementById('r-fish'),
       energy: document.getElementById('r-energy'),
       data: document.getElementById('r-data'),
       netIncome: document.getElementById('net-income'),
@@ -36,6 +37,7 @@ export class UIManager {
       marketMilk: document.getElementById('market-milk'),
       marketWool: document.getElementById('market-wool'),
       marketEggs: document.getElementById('market-eggs'),
+      marketFish: document.getElementById('market-fish'),
       milestonesList: document.getElementById('milestones-list'),
       selectedPanel: document.getElementById('selected-panel'),
       selectedPanelTitle: document.getElementById('selected-panel-title'),
@@ -81,6 +83,7 @@ export class UIManager {
     if (d.milk) d.milk.textContent = Math.floor(gameState.milk);
     if (d.wool) d.wool.textContent = Math.floor(gameState.wool);
     if (d.eggs) d.eggs.textContent = Math.floor(gameState.eggs);
+    if (d.fish) d.fish.textContent = Math.floor(gameState.fish);
     if (d.energy) d.energy.textContent = Math.floor(gameState.energy);
     const energyDiv = document.getElementById('res-energy');
     if (energyDiv) {
@@ -153,6 +156,7 @@ export class UIManager {
     this.setMarketCell(d.marketMilk, prices.milk, prev.milk);
     this.setMarketCell(d.marketWool, prices.wool, prev.wool);
     this.setMarketCell(d.marketEggs, prices.eggs, prev.eggs);
+    this.setMarketCell(d.marketFish, prices.fish, prev.fish);
   }
 
   setMarketCell(el, price, prevPrice) {

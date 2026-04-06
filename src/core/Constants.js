@@ -64,6 +64,7 @@ export const BUILDING_DEFS = {
   drone:     { name: 'Drone Station', cost: 15000, color: 0x4a4a5a, range: 12, desc: 'Pasture monitoring', energyCost: 5 },
   vet:       { name: 'Vet Lab', cost: 12000, color: 0xc8e6c9, range: 6, desc: '-30% disease chance nearby', energyCost: 3 },
   ai_center: { name: 'AI Command Center', cost: 25000, color: 0x1a5a8a, desc: 'Enables Tier 3+ tech', energyCost: 8 },
+  koi_pond: { name: 'Koi Pond', cost: 8000, color: 0x9e7c4a, desc: 'Fish farm on water. Produces 2 fish/day.', energyCost: 1, range: 0, bonusType: null, bonusAmt: 0 },
 };
 
 export const ANIMAL_DEFS = {
@@ -156,7 +157,7 @@ export const DECISION_EVENTS = [
 
 export const TUTORIAL_STEPS = [
   { title: 'Welcome, Farmer', text: 'You inherited a small farm with 3 dairy cows and $15,000.\n\nYour goal: build the world\'s most advanced AI-powered farm.\n\nFollow this walkthrough to learn the basics.', type: 'overlay' },
-  { title: 'Your Resources', text: 'The top bar shows your resources:\n$ = Cash | MLK = Milk | WOL = Wool | EGG = Eggs\nPWR = Energy | DAT = AI Data\n\nEverything runs on cash. Produce goods, sell them, invest.', type: 'overlay', highlight: '#top-bar' },
+  { title: 'Your Resources', text: 'The top bar shows your resources:\n$ = Cash | MLK = Milk | WOL = Wool | EGG = Eggs | FSH = Fish\nPWR = Energy | DAT = AI Data\n\nEverything runs on cash. Produce goods, sell them, invest.', type: 'overlay', highlight: '#top-bar' },
   { title: 'Meet Your Cows', text: 'Click on one of your cows in the 3D view to see its stats.\n\nEach animal has health, happiness, and production rate.', type: 'action', waitFor: 'animalSelected' },
   { title: 'Build a Milking Station', text: 'Click "Milking Station" in the left panel, then click a green tile near your cows.\n\nThis boosts milk production +50% for nearby cows.', type: 'action', waitFor: 'buildingPlaced', highlightBtn: '[data-build="milking"]' },
   { title: 'Watch Production', text: 'Your cows are now producing milk faster.\nWatch the floating numbers above them.\n\nLet a few days pass to accumulate milk.', type: 'overlay' },

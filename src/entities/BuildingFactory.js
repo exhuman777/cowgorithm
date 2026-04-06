@@ -292,6 +292,57 @@ function buildAICenter() {
   return group;
 }
 
+// --- KOI POND ---
+function buildKoiPond() {
+  const group = new THREE.Group();
+
+  // Wooden dock platform at water level
+  const platform = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.08, 1.8), mat(0x9e7c4a));
+  platform.position.y = 0.15;
+  platform.castShadow = true;
+  group.add(platform);
+
+  // Corner posts
+  const postMat = mat(0x7a5c30);
+  const postGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.6, 6);
+  for (const [px, pz] of [[-0.8, -0.8], [0.8, -0.8], [-0.8, 0.8], [0.8, 0.8]]) {
+    const post = new THREE.Mesh(postGeo, postMat);
+    post.position.set(px, 0.3, pz);
+    post.castShadow = true;
+    group.add(post);
+  }
+
+  // Railing bars along edges
+  const railMat = mat(0x8a6a3a);
+  const railGeo = new THREE.BoxGeometry(1.6, 0.04, 0.04);
+  for (const [pz, rx] of [[-0.8, 0], [0.8, 0]]) {
+    const rail = new THREE.Mesh(railGeo, railMat);
+    rail.position.set(0, 0.5, pz);
+    group.add(rail);
+  }
+  const railSideGeo = new THREE.BoxGeometry(0.04, 0.04, 1.6);
+  for (const px of [-0.8, 0.8]) {
+    const rail = new THREE.Mesh(railSideGeo, railMat);
+    rail.position.set(px, 0.5, 0);
+    group.add(rail);
+  }
+
+  // Lantern post on corner
+  const lanternPost = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.8, 6), mat(0x5a4020));
+  lanternPost.position.set(0.8, 0.7, 0.8);
+  group.add(lanternPost);
+
+  const lantern = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.15, 0.15), new THREE.MeshLambertMaterial({
+    color: 0xffcc44,
+    emissive: 0xffaa00,
+    emissiveIntensity: 0.4,
+  }));
+  lantern.position.set(0.8, 1.15, 0.8);
+  group.add(lantern);
+
+  return group;
+}
+
 // --- RANGE RING ---
 export function createRangeRing(radius, color) {
   const geo = new THREE.RingGeometry(radius - 0.1, radius, 48);
@@ -320,6 +371,7 @@ export function createBuilding(type) {
     case 'drone':     group = buildDrone();     break;
     case 'vet':       group = buildVet();       break;
     case 'ai_center': group = buildAICenter();  break;
+    case 'koi_pond':  group = buildKoiPond();   break;
     default:
       // Fallback: plain box
       group = new THREE.Group();

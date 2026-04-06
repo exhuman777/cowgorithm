@@ -1,5 +1,5 @@
 import { gameState } from '../core/GameState.js';
-import { BUILDING_DEFS, TECH_DEFS, getSeason, SEASON_EFFECTS, SOLAR_SEASON_MOD } from '../core/Constants.js';
+import { GRID, BUILDING_DEFS, TECH_DEFS, getSeason, SEASON_EFFECTS, SOLAR_SEASON_MOD } from '../core/Constants.js';
 import { eventBus, Events } from '../core/EventBus.js';
 
 export class EconomySystem {
@@ -25,8 +25,8 @@ export class EconomySystem {
 
     // 3. Market price fluctuation (random walk)
     gameState.prevMarketPrices = { ...gameState.marketPrices };
-    for (const product of ['milk', 'wool', 'eggs']) {
-      const base = product === 'milk' ? 15 : product === 'wool' ? 7 : 2;
+    for (const product of ['milk', 'wool', 'eggs', 'fish']) {
+      const base = { milk: 15, wool: 7, eggs: 2, fish: 10 }[product];
       const factor = 0.92 + Math.random() * 0.16; // 0.92 to 1.08
       gameState.marketPrices[product] = Math.max(
         base * 0.5,
@@ -95,6 +95,30 @@ export class EconomySystem {
       gameState.data += 5;
     }
 
+    // 6b. Koi pond fish production
+    const seasonFishMod = { spring: 1.5, summer: 1.0, fall: 1.0, winter: 0.5 }[season] || 1.0;
+    let fishProduced = 0;
+    for (let row = 0; row < GRID.ROWS; row++) {
+      for (let col = 0; col < GRID.COLS; col++) {
+        const tile = gameState.map[row]?.[col];
+        if (tile && tile.building && tile.building.type === 'koi_pond') {
+          const amount = 2 * seasonFishMod;
+          gameState.fish += amount;
+          fishProduced += amount;
+          const worldX = col * GRID.TILE_SIZE + GRID.TILE_SIZE / 2;
+          const worldZ = row * GRID.TILE_SIZE + GRID.TILE_SIZE / 2;
+          eventBus.emit(Events.FLOAT_TEXT, {
+            text: `+${amount} fish`,
+            x: worldX, y: 1.5, z: worldZ,
+            color: '#ff8844',
+          });
+        }
+      }
+    }
+    if (fishProduced > 0) {
+      gameState.dailyIncome += fishProduced * gameState.marketPrices.fish;
+    }
+
     // 7. Auto-sell if enabled
     if (gameState.autoSell) {
       this.sellProducts();
@@ -126,7 +150,7 @@ export class EconomySystem {
     const marketCrash = gameState.activeEffects.find(e => e.name === 'marketCrash');
     const celebrityBoost = gameState.activeEffects.find(e => e.name === 'celebrityBoost');
 
-    for (const product of ['milk', 'wool', 'eggs']) {
+    for (const product of ['milk', 'wool', 'eggs', 'fish']) {
       const amount = gameState[product];
       if (amount <= 0) continue;
 

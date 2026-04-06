@@ -75,8 +75,12 @@ export class BuildingSystem {
       eventBus.emit(Events.NOTIFICATION, { text: 'You don\'t own this tile!', type: 'error' });
       return;
     }
-    if (tile.type === 'water') {
+    if (tile.type === 'water' && type !== 'koi_pond') {
       eventBus.emit(Events.NOTIFICATION, { text: 'Cannot build on water!', type: 'error' });
+      return;
+    }
+    if (tile.type !== 'water' && type === 'koi_pond') {
+      eventBus.emit(Events.NOTIFICATION, { text: 'Must build on water!', type: 'error' });
       return;
     }
     if (tile.building) {
@@ -258,11 +262,6 @@ export class BuildingSystem {
       eventBus.emit(Events.NOTIFICATION, { text: 'You already own this tile!', type: 'error' });
       return;
     }
-    if (tile.type === 'water') {
-      eventBus.emit(Events.NOTIFICATION, { text: 'Cannot buy water tiles!', type: 'error' });
-      return;
-    }
-
     // Must be adjacent to at least one owned tile (4 cardinal neighbors)
     const neighbors = [
       { c: col - 1, r: row },

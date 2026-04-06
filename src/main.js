@@ -123,6 +123,14 @@ class Game {
 
     this.uiManager = new UIManager(this);
 
+    // Koi visual sync on building placed/demolished
+    eventBus.on(Events.BUILDING_PLACED, ({ col, row, type }) => {
+      if (type === 'koi_pond') this.waterPlane.addKoi(col, row);
+    });
+    eventBus.on(Events.BUILDING_DEMOLISHED, ({ col, row }) => {
+      this.waterPlane.removeKoi(col, row);
+    });
+
     // Game tick accumulator
     this.dayTickAccum = 0;
     this.visualTimeAccum = 0;
@@ -159,6 +167,7 @@ class Game {
     this.postProcessing.setSeason(getSeason(gameState.day));
     this.buildingSystem.init();
     this.animalSystem.init();
+    this.waterPlane.rebuildKoi();
     this._initAmbient();
     this.titleScreen.hide();
     document.getElementById('game-container').classList.add('active');
@@ -177,6 +186,7 @@ class Game {
     this.postProcessing.setSeason(getSeason(gameState.day));
     this.buildingSystem.init();
     this.animalSystem.initFromState();
+    this.waterPlane.rebuildKoi();
     this._initAmbient();
     this.titleScreen.hide();
     document.getElementById('game-container').classList.add('active');
@@ -212,9 +222,10 @@ class Game {
     this.ambientEffects.update(delta, this.clock.elapsedTime, gameState.visualDayProgress);
     this.buildingAnimator.update(delta, this.clock.elapsedTime, gameState.visualDayProgress);
 
-    // Water shader update
+    // Water shader update + koi animation
     const sunPos = this.dayNightSystem.sun.position;
     this.waterPlane.update(this.clock.elapsedTime, gameState.visualDayProgress, this.dayNightSystem.skyColor, sunPos);
+    this.waterPlane.updateKoi(this.clock.elapsedTime);
 
     // Tree sway uniforms
     const windStrength = { spring: 0.8, summer: 0.5, fall: 1.2, winter: 0.3 }[getSeason(gameState.day)] || 0.5;

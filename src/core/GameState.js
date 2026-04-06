@@ -10,6 +10,7 @@ class GameState {
     this.milk = 0;
     this.wool = 0;
     this.eggs = 0;
+    this.fish = 0;
     this.meat = 0;
     this.energy = 50;
     this.data = 0;
@@ -39,8 +40,8 @@ class GameState {
     this.selectedBuilding = null;
     this.programmingAnimal = null;
     this.programmingAction = null;
-    this.marketPrices = { milk: 15, wool: 5, eggs: 2 };
-    this.prevMarketPrices = { milk: 15, wool: 5, eggs: 2 };
+    this.marketPrices = { milk: 15, wool: 5, eggs: 2, fish: 10 };
+    this.prevMarketPrices = { milk: 15, wool: 5, eggs: 2, fish: 10 };
     this.dailyIncome = 0;
     this.dailyCosts = 0;
     this.lastDayIncome = 0;
@@ -92,7 +93,7 @@ class GameState {
   toJSON() {
     return {
       map: this.map, money: this.money, milk: this.milk, wool: this.wool,
-      eggs: this.eggs, meat: this.meat, energy: this.energy, data: this.data,
+      eggs: this.eggs, fish: this.fish, meat: this.meat, energy: this.energy, data: this.data,
       animals: this.animals, techs: this.techs, day: this.day,
       totalEarnings: this.totalEarnings, totalSpent: this.totalSpent,
       totalSellIncome: this.totalSellIncome,
