@@ -156,7 +156,7 @@ export class FarmGrid {
             tree.children.forEach(child => {
               if (child.material) {
                 child.material = child.material.clone();
-                child.material.color.multiplyScalar(0.4);
+                child.material.color.multiplyScalar(0.65);
               }
             });
             tree.userData.dimmed = true;

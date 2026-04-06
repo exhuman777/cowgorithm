@@ -7,10 +7,17 @@ const vertexShader = /* glsl */ `
 uniform float uTime;
 varying vec3 vWorldPos;
 varying vec3 vNormal;
+varying float vWave;
 
 void main() {
   vec3 pos = position;
-  pos.y += sin(pos.x * 2.5 + uTime * 1.5) * 0.08 + sin(pos.z * 3.0 + uTime * 2.0) * 0.05;
+
+  // Gentle layered sine waves
+  float wave1 = sin(pos.x * 1.8 + uTime * 1.2) * 0.06;
+  float wave2 = sin(pos.z * 2.2 + uTime * 0.9) * 0.04;
+  float wave3 = sin((pos.x + pos.z) * 1.0 + uTime * 1.6) * 0.03;
+  pos.y += wave1 + wave2 + wave3;
+  vWave = wave1 + wave2;
 
   vec4 worldPos = modelMatrix * vec4(pos, 1.0);
   vWorldPos = worldPos.xyz;
@@ -28,65 +35,41 @@ uniform vec3 uSunDir;
 
 varying vec3 vWorldPos;
 varying vec3 vNormal;
-
-// Simplex-ish noise (hash-based)
-vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-vec3 permute(vec3 x) { return mod289(((x * 34.0) + 1.0) * x); }
-
-float snoise(vec2 v) {
-  const vec4 C = vec4(0.211324865405187, 0.366025403784439,
-                      -0.577350269189626, 0.024390243902439);
-  vec2 i  = floor(v + dot(v, C.yy));
-  vec2 x0 = v - i + dot(i, C.xx);
-  vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-  vec4 x12 = x0.xyxy + C.xxzz;
-  x12.xy -= i1;
-  i = mod289(i);
-  vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
-  vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy), dot(x12.zw, x12.zw)), 0.0);
-  m = m * m;
-  m = m * m;
-  vec3 x = 2.0 * fract(p * C.www) - 1.0;
-  vec3 h = abs(x) - 0.5;
-  vec3 ox = floor(x + 0.5);
-  vec3 a0 = x - ox;
-  m *= 1.79284291400159 - 0.85373472095314 * (a0 * a0 + h * h);
-  vec3 g;
-  g.x = a0.x * x0.x + h.x * x0.y;
-  g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-  return 130.0 * dot(m, g);
-}
+varying float vWave;
 
 void main() {
-  vec3 deepTeal = vec3(0.05, 0.35, 0.65);
-  vec3 turquoise = vec3(0.12, 0.55, 0.85);
+  // Bright cheerful base colors
+  vec3 shallowBlue = vec3(0.30, 0.70, 0.92);
+  vec3 deepBlue = vec3(0.15, 0.50, 0.82);
 
-  // Noise caustics
-  float n = snoise(vWorldPos.xz * 3.0 + uTime * 0.5);
-  float caustic = smoothstep(0.3, 0.8, n) * 0.3;
+  // Smooth ripple pattern using sine waves (no noise = no ugly voids)
+  float ripple1 = sin(vWorldPos.x * 2.0 + vWorldPos.z * 1.5 + uTime * 1.3) * 0.5 + 0.5;
+  float ripple2 = sin(vWorldPos.x * 1.2 - vWorldPos.z * 2.5 + uTime * 0.8) * 0.5 + 0.5;
+  float ripple = ripple1 * 0.6 + ripple2 * 0.4;
 
-  vec3 baseColor = mix(deepTeal, turquoise, 0.5 + n * 0.3);
-  baseColor += caustic;
+  vec3 baseColor = mix(deepBlue, shallowBlue, ripple * 0.5 + 0.25);
 
-  // Fresnel reflection
+  // Bright shimmer highlights on wave peaks
+  float shimmer = smoothstep(0.03, 0.08, vWave);
+  baseColor += vec3(0.15, 0.18, 0.20) * shimmer;
+
+  // Gentle fresnel -- sky reflection at glancing angles
   vec3 viewDir = normalize(cameraPosition - vWorldPos);
-  float fresnel = pow(1.0 - max(dot(viewDir, vNormal), 0.0), 3.0);
-  baseColor = mix(baseColor, uSkyColor, fresnel * 0.5);
+  float fresnel = pow(1.0 - max(dot(viewDir, vNormal), 0.0), 2.5);
+  baseColor = mix(baseColor, uSkyColor * 0.9 + 0.1, fresnel * 0.35);
 
-  // Sun specular
+  // Soft sun specular
   vec3 sunDir = normalize(uSunDir - vWorldPos);
   vec3 halfDir = normalize(viewDir + sunDir);
-  float spec = pow(max(dot(vNormal, halfDir), 0.0), 64.0);
-  baseColor += vec3(1.0, 0.95, 0.8) * spec * 0.6;
+  float spec = pow(max(dot(vNormal, halfDir), 0.0), 32.0);
+  baseColor += vec3(1.0, 0.97, 0.90) * spec * 0.35;
 
-  // Day/night darkening (subtle -- scene lights already handle most of it)
+  // Day/night: subtle only, scene lights handle the rest
   float dayAngle = uDayProgress * 6.28318;
   float daylight = sin(dayAngle) * 0.5 + 0.5;
-  baseColor *= mix(0.6, 1.0, daylight);
+  baseColor *= mix(0.7, 1.0, daylight);
 
-  float alpha = mix(0.80, 0.95, fresnel);
-  gl_FragColor = vec4(baseColor, alpha);
+  gl_FragColor = vec4(baseColor, 0.75);
 }
 `;
 
@@ -105,7 +88,6 @@ export class WaterPlane {
       },
       transparent: true,
       depthWrite: false,
-      side: THREE.DoubleSide,
     });
   }
 
@@ -122,7 +104,7 @@ export class WaterPlane {
       for (let col = 0; col < GRID.COLS; col++) {
         const tile = gameState.map[row]?.[col];
         if (tile && tile.type === 'water') {
-          const geo = new THREE.PlaneGeometry(ts, ts, 2, 2);
+          const geo = new THREE.PlaneGeometry(ts, ts, 4, 4);
           geo.rotateX(-Math.PI / 2);
           geo.translate(col * ts + ts / 2, 0, row * ts + ts / 2);
           quads.push(geo);

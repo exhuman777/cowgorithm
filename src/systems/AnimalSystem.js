@@ -265,11 +265,20 @@ export class AnimalSystem {
       return;
     }
 
-    // Move toward target
+    // Move toward target, but avoid building tiles
     const nx = dx / dist;
     const ny = dy / dist;
-    animal.x += nx * MOVE_SPEED;
-    animal.y += ny * MOVE_SPEED;
+    const nextX = animal.x + nx * MOVE_SPEED;
+    const nextY = animal.y + ny * MOVE_SPEED;
+    const nextTile = this.buildingSystem.farmGrid.getTileAt(Math.floor(nextX), Math.floor(nextY));
+    if (nextTile && nextTile.building && !animal.task) {
+      // Blocked by building, cancel movement
+      animal.targetX = null;
+      animal.targetY = null;
+      return;
+    }
+    animal.x = nextX;
+    animal.y = nextY;
   }
 
   _randomWander(animal) {
@@ -288,8 +297,16 @@ export class AnimalSystem {
 
       const nx = dx / dist;
       const ny = dy / dist;
-      animal.x += nx * MOVE_SPEED * 0.5; // Wander slower
-      animal.y += ny * MOVE_SPEED * 0.5;
+      const nextX = animal.x + nx * MOVE_SPEED * 0.5;
+      const nextY = animal.y + ny * MOVE_SPEED * 0.5;
+      const nextTile = this.buildingSystem.farmGrid.getTileAt(Math.floor(nextX), Math.floor(nextY));
+      if (nextTile && nextTile.building) {
+        animal.targetX = null;
+        animal.targetY = null;
+        return;
+      }
+      animal.x = nextX;
+      animal.y = nextY;
       return;
     }
 
