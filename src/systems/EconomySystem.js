@@ -44,10 +44,14 @@ export class EconomySystem {
     // 3. Feed costs: handled per-animal in AnimalSystem._deductFeedCost()
     //    (includes silo proximity bonus + tech savings, so no duplicate here)
 
-    // 4. Energy: solar generation vs building + animal drain
+    // 4. Energy: solar + farmhouse generation vs building + animal drain
     const solarCount = this.buildingSystem.countBuildings('solar');
     const solarBase = solarCount * BUILDING_DEFS.solar.energyGen;
     const solarOutput = solarBase * (SOLAR_SEASON_MOD[season] || 1.0);
+
+    // Farmhouse baseline energy generation
+    const farmhouseCount = this.buildingSystem.countBuildings('farmhouse');
+    const farmhouseGen = farmhouseCount * (BUILDING_DEFS.farmhouse.energyGen || 0);
 
     // Building energy drain (skip disabled building)
     const smartGridSave = this.getTechEffect('buildingEnergySave');
@@ -74,7 +78,7 @@ export class EconomySystem {
     let totalDrain = buildingDrain + animalDrain * (1 - energySave);
     // Blizzard: 2x energy drain
     if (gameState.activeEffects.some(e => e.name === 'blizzard')) totalDrain *= 2;
-    const netEnergy = solarOutput + gameState.energyBonus - totalDrain;
+    const netEnergy = solarOutput + farmhouseGen + gameState.energyBonus - totalDrain;
 
     gameState.energy += netEnergy;
     gameState.energy = Math.max(-20, gameState.energy); // Hard floor at -20
@@ -84,7 +88,7 @@ export class EconomySystem {
     gameState.energyDeficit = gameState.energy <= 0;
 
     // Warnings
-    const maxEnergy = 50 + solarCount * 15; // rough capacity estimate
+    const maxEnergy = 100 + solarCount * 12; // rough capacity estimate
     const energyPct = gameState.energy / maxEnergy;
     if (energyPct <= 0 && !wasDeficit) {
       eventBus.emit(Events.TOAST, { text: 'POWER FAILURE. Buildings offline.', color: '#e06060', duration: 4000 });
@@ -189,7 +193,12 @@ export class EconomySystem {
       }
     }
 
-    // 9. Reset weather bonuses (they last only 1 day)
+    // 9. Starter subsidy expiry toast
+    if (gameState.day === 16) {
+      eventBus.emit(Events.TOAST, { text: 'Starter subsidy ended. Your farm is on its own now.', color: '#f0c060', duration: 5000 });
+    }
+
+    // 10. Reset weather bonuses (they last only 1 day)
     gameState.weatherBonus = 1;
     gameState.weatherProdPenalty = 0;
     gameState.marketBonus = 0;

@@ -194,9 +194,21 @@ export class AnimalSystem {
         // Feed cost deduction
         this._deductFeedCost(animal);
 
-        // Happiness decay (slight)
+        // Happiness: decay above 50, but recover from good conditions
         if (animal.happiness > 50) {
           animal.happiness -= 1;
+        }
+        // Passive happiness recovery from good grass
+        const hCol = Math.floor(animal.x);
+        const hRow = Math.floor(animal.y);
+        const hTile = this.buildingSystem.farmGrid.getTileAt(hCol, hRow);
+        if (hTile && hTile.type === 'grass' && (hTile.grassLevel || 0) > 70) {
+          animal.happiness = Math.min(90, animal.happiness + 0.5);
+        }
+        // Passive happiness recovery from barn proximity
+        const nearBarn = this.findNearestBuilding('barn', hCol, hRow);
+        if (nearBarn && Math.sqrt((nearBarn.col - hCol) ** 2 + (nearBarn.row - hRow) ** 2) <= 5) {
+          animal.happiness = Math.min(90, animal.happiness + 0.5);
         }
       }
 
@@ -496,6 +508,11 @@ export class AnimalSystem {
     feedSave = Math.min(feedSave, 1); // Cap at 100% savings
     feedCost *= (1 - feedSave);
 
+    // Starter subsidy: halve feed costs for first 15 days
+    if (gameState.day <= 15) {
+      feedCost *= 0.5;
+    }
+
     feedCost = Math.round(feedCost * 100) / 100;
     if (feedCost > 0) {
       gameState.money -= feedCost;
@@ -790,6 +807,13 @@ export class AnimalSystem {
     const newState = !gameState.animals[0]?.autoManage;
     for (const animal of gameState.animals) {
       animal.autoManage = newState;
+      // When turning off, clear tasks so animals resume wandering
+      if (!newState && animal.task) {
+        animal.task = null;
+        animal.targetX = null;
+        animal.targetY = null;
+        this._removeRouteLine(animal);
+      }
     }
 
     if (toggling) {

@@ -36,10 +36,10 @@ export class QuestSystem {
     let completed = false;
 
     switch (quest.id) {
-      case 'q1': completed = this.buildingSystem.countBuildings('milking') >= 1; break;
-      case 'q2': completed = gameState.totalSellIncome >= 10; break;
-      case 'q3': completed = gameState.animals.filter(a => a.type === 'cow').length >= 5; break;
-      case 'q4': completed = this.buildingSystem.countBuildings('solar') >= 1; break;
+      case 'q1': completed = gameState.totalSellIncome >= 10; break;
+      case 'q2': completed = this.buildingSystem.countBuildings('solar') >= 1; break;
+      case 'q3': completed = this.buildingSystem.countBuildings('milking') >= 1; break;
+      case 'q4': completed = gameState.animals.filter(a => a.type === 'cow').length >= 5; break;
       case 'q5': completed = gameState.techs.includes('gps'); break;
       case 'q6': completed = gameState.animals.some(a => a.task && (a.task.type === 'milk' || a.task.type === 'milking')); break;
       case 'q7': completed = gameState.techs.includes('health_mon'); break;

@@ -55,21 +55,21 @@ export function getSeasonProgress(day) {
 export const BUILDING_DEFS = {
   farmhouse: { name: 'Farmhouse', cost: 0, color: 0x8b4513, desc: 'Your home base', energyCost: 0, energyGen: 2 },
   pasture:   { name: 'Pasture', cost: 200, color: 0x2d6b11, desc: 'Managed grassland, faster regrowth', energyCost: 0 },
-  barn:      { name: 'Barn', cost: 5000, color: 0x8b6914, capacity: 10, desc: 'Houses up to 10 large animals', energyCost: 1 },
-  milking:   { name: 'Milking Station', cost: 6000, color: 0xe0e0e0, range: 5, bonus: 'dairy', bonusAmt: 0.5, desc: '+50% milk in range', energyCost: 3 },
-  shearing:  { name: 'Shearing Shed', cost: 4000, color: 0xd4a574, range: 5, bonus: 'wool', bonusAmt: 0.5, desc: '+50% wool in range', energyCost: 2 },
-  coop:      { name: 'Chicken Coop', cost: 3000, color: 0xc4a35a, capacity: 20, animalType: 'chicken', desc: 'Houses up to 20 chickens', energyCost: 1 },
-  silo:      { name: 'Feed Silo', cost: 3000, color: 0x708090, range: 10, bonus: 'feed', bonusAmt: 0.5, desc: '-50% feed cost in range', energyCost: 1 },
-  solar:     { name: 'Solar Array', cost: 6000, color: 0x1e3a5f, range: 8, energyGen: 12, desc: '+12 energy/day', energyCost: 0 },
-  drone:     { name: 'Drone Station', cost: 15000, color: 0x4a4a5a, range: 12, desc: 'Pasture monitoring', energyCost: 5 },
-  vet:       { name: 'Vet Lab', cost: 8000, color: 0xc8e6c9, range: 6, desc: '-30% disease chance nearby', energyCost: 3 },
-  ai_center: { name: 'AI Command Center', cost: 25000, color: 0x1a5a8a, desc: 'Enables Tier 3+ tech', energyCost: 5 },
-  koi_pond: { name: 'Koi Pond', cost: 8000, color: 0x9e7c4a, desc: 'Fish farm on water. Produces 2 fish/day.', energyCost: 1, range: 0, bonusType: null, bonusAmt: 0 },
+  barn:      { name: 'Barn', cost: 3000, color: 0x8b6914, capacity: 10, desc: 'Houses up to 10 large animals', energyCost: 1 },
+  milking:   { name: 'Milking Station', cost: 4000, color: 0xe0e0e0, range: 5, bonus: 'dairy', bonusAmt: 0.5, desc: '+50% milk in range', energyCost: 3 },
+  shearing:  { name: 'Shearing Shed', cost: 2000, color: 0xd4a574, range: 5, bonus: 'wool', bonusAmt: 0.5, desc: '+50% wool in range', energyCost: 2 },
+  coop:      { name: 'Chicken Coop', cost: 1000, color: 0xc4a35a, capacity: 20, animalType: 'chicken', desc: 'Houses up to 20 chickens', energyCost: 1 },
+  silo:      { name: 'Feed Silo', cost: 1000, color: 0x708090, range: 10, bonus: 'feed', bonusAmt: 0.5, desc: '-50% feed cost in range', energyCost: 1 },
+  solar:     { name: 'Solar Array', cost: 4000, color: 0x1e3a5f, range: 8, energyGen: 12, desc: '+12 energy/day', energyCost: 0 },
+  drone:     { name: 'Drone Station', cost: 13000, color: 0x4a4a5a, range: 12, desc: 'Pasture monitoring', energyCost: 5 },
+  vet:       { name: 'Vet Lab', cost: 6000, color: 0xc8e6c9, range: 6, desc: '-30% disease chance nearby', energyCost: 3 },
+  ai_center: { name: 'AI Command Center', cost: 23000, color: 0x1a5a8a, desc: 'Enables Tier 3+ tech', energyCost: 5 },
+  koi_pond: { name: 'Koi Pond', cost: 6000, color: 0x9e7c4a, desc: 'Fish farm on water. Produces 2 fish/day.', energyCost: 1, range: 0, bonusType: null, bonusAmt: 0 },
 };
 
 export const ANIMAL_DEFS = {
-  cow:     { name: 'Dairy Cow', cost: 1500, product: 'milk', prodAmt: 1, prodValue: 15, feedCost: 3, housing: 'barn', sellValue: 800, color: 0xffffff },
-  beef:    { name: 'Beef Cattle', cost: 1200, product: 'meat', prodAmt: 0, prodValue: 0, feedCost: 2.5, housing: 'barn', maturityDays: 60, matureValue: 3000, sellValue: 600, color: 0x8b4513 },
+  cow:     { name: 'Dairy Cow', cost: 1000, product: 'milk', prodAmt: 1, prodValue: 15, feedCost: 3, housing: 'barn', sellValue: 800, color: 0xffffff },
+  beef:    { name: 'Beef Cattle', cost: 900, product: 'meat', prodAmt: 0, prodValue: 0, feedCost: 2.5, housing: 'barn', maturityDays: 60, matureValue: 3000, sellValue: 600, color: 0x8b4513 },
   sheep:   { name: 'Sheep', cost: 300, product: 'wool', prodAmt: 1, prodValue: 7, feedCost: 1, housing: 'barn', sellValue: 150, color: 0xf5f5f5 },
   goat:    { name: 'Goat', cost: 250, product: 'milk', prodAmt: 1, prodValue: 5, feedCost: 1, housing: 'barn', sellValue: 120, color: 0xd2b48c },
   chicken: { name: 'Chicken', cost: 20, product: 'eggs', prodAmt: 1, prodValue: 2, feedCost: 0.2, housing: 'coop', sellValue: 5, color: 0xffd700 },
@@ -84,19 +84,19 @@ export const ANIMAL_NAMES = {
 };
 
 export const TECH_DEFS = [
-  { id: 'gps', name: 'GPS Tracking', tier: 1, cost: 5000, desc: 'Track animal positions. +10% production.', effect: { prodBonus: 0.1 } },
-  { id: 'health_mon', name: 'Health Monitor', tier: 1, cost: 5000, desc: 'Early disease alerts. -25% disease chance.', effect: { diseaseReduce: 0.25 } },
-  { id: 'solar_collar', name: 'Solar Collars', tier: 1, cost: 5000, desc: 'Self-charging collars. -30% energy costs.', effect: { energySave: 0.3 } },
-  { id: 'virtual_fence', name: 'Virtual Fencing', tier: 2, cost: 15000, desc: 'AI-guided boundaries. +15% pasture efficiency.', effect: { grassBonus: 0.15 }, requires: ['gps', 'health_mon'] },
-  { id: 'fertility_ai', name: 'Fertility AI', tier: 2, cost: 15000, desc: 'Breed optimization. New animals every 30 days.', effect: { breeding: true }, requires: ['health_mon'] },
-  { id: 'drone_scout', name: 'Drone Scouting', tier: 2, cost: 15000, desc: 'Aerial monitoring. +20% grass regrowth.', effect: { grassRegrow: 0.2 }, requires: ['gps', 'solar_collar'] },
-  { id: 'smart_grid', name: 'Smart Grid', tier: 2, cost: 12000, desc: 'Intelligent power distribution. Buildings use 25% less energy.', effect: { buildingEnergySave: 0.25 }, requires: ['solar_collar'] },
-  { id: 'cowgorithm_v1', name: 'CowGorithm v1', tier: 3, cost: 35000, desc: 'Herd route optimization. +25% all production.', effect: { prodBonus: 0.25 }, requires: ['virtual_fence', 'drone_scout'], needsAI: true },
-  { id: 'pred_vet', name: 'Predictive Vet AI', tier: 3, cost: 35000, desc: 'ML disease prediction. -60% disease, auto-treat.', effect: { diseaseReduce: 0.6, autoHeal: 1 }, requires: ['virtual_fence', 'fertility_ai'], needsAI: true },
-  { id: 'auto_robots', name: 'Farm Robots', tier: 3, cost: 35000, desc: 'Autonomous feeding. -50% feed costs.', effect: { feedSave: 0.5 }, requires: ['drone_scout'], needsAI: true },
-  { id: 'cowgorithm_v2', name: 'CowGorithm v2', tier: 4, cost: 75000, desc: 'Full herd AI. +50% all production.', effect: { prodBonus: 0.5 }, requires: ['cowgorithm_v1', 'pred_vet'], needsAI: true },
-  { id: 'vertical_farm', name: 'Vertical Feed Farm', tier: 4, cost: 75000, desc: 'Indoor AI farming. Feed cost = zero.', effect: { feedSave: 1 }, requires: ['auto_robots', 'pred_vet'], needsAI: true },
-  { id: 'carbon', name: 'Carbon Credits', tier: 4, cost: 75000, desc: 'Sustainability cert. +$750/day.', effect: { dailyBonus: 750 }, requires: ['cowgorithm_v2', 'vertical_farm'], needsAI: true },
+  { id: 'gps', name: 'GPS Tracking', tier: 1, cost: 3000, desc: 'Track animal positions. +10% production.', effect: { prodBonus: 0.1 } },
+  { id: 'health_mon', name: 'Health Monitor', tier: 1, cost: 3000, desc: 'Early disease alerts. -25% disease chance.', effect: { diseaseReduce: 0.25 } },
+  { id: 'solar_collar', name: 'Solar Collars', tier: 1, cost: 3000, desc: 'Self-charging collars. -30% energy costs.', effect: { energySave: 0.3 } },
+  { id: 'virtual_fence', name: 'Virtual Fencing', tier: 2, cost: 13000, desc: 'AI-guided boundaries. +15% pasture efficiency.', effect: { grassBonus: 0.15 }, requires: ['gps', 'health_mon'] },
+  { id: 'fertility_ai', name: 'Fertility AI', tier: 2, cost: 13000, desc: 'Breed optimization. New animals every 30 days.', effect: { breeding: true }, requires: ['health_mon'] },
+  { id: 'drone_scout', name: 'Drone Scouting', tier: 2, cost: 13000, desc: 'Aerial monitoring. +20% grass regrowth.', effect: { grassRegrow: 0.2 }, requires: ['gps', 'solar_collar'] },
+  { id: 'smart_grid', name: 'Smart Grid', tier: 2, cost: 10000, desc: 'Intelligent power distribution. Buildings use 25% less energy.', effect: { buildingEnergySave: 0.25 }, requires: ['solar_collar'] },
+  { id: 'cowgorithm_v1', name: 'CowGorithm v1', tier: 3, cost: 33000, desc: 'Herd route optimization. +25% all production.', effect: { prodBonus: 0.25 }, requires: ['virtual_fence', 'drone_scout'], needsAI: true },
+  { id: 'pred_vet', name: 'Predictive Vet AI', tier: 3, cost: 33000, desc: 'ML disease prediction. -60% disease, auto-treat.', effect: { diseaseReduce: 0.6, autoHeal: 1 }, requires: ['virtual_fence', 'fertility_ai'], needsAI: true },
+  { id: 'auto_robots', name: 'Farm Robots', tier: 3, cost: 33000, desc: 'Autonomous feeding. -50% feed costs.', effect: { feedSave: 0.5 }, requires: ['drone_scout'], needsAI: true },
+  { id: 'cowgorithm_v2', name: 'CowGorithm v2', tier: 4, cost: 73000, desc: 'Full herd AI. +50% all production.', effect: { prodBonus: 0.5 }, requires: ['cowgorithm_v1', 'pred_vet'], needsAI: true },
+  { id: 'vertical_farm', name: 'Vertical Feed Farm', tier: 4, cost: 73000, desc: 'Indoor AI farming. Feed cost = zero.', effect: { feedSave: 1 }, requires: ['auto_robots', 'pred_vet'], needsAI: true },
+  { id: 'carbon', name: 'Carbon Credits', tier: 4, cost: 73000, desc: 'Sustainability cert. +$750/day.', effect: { dailyBonus: 750 }, requires: ['cowgorithm_v2', 'vertical_farm'], needsAI: true },
 ];
 
 export const QUESTS = [
@@ -169,18 +169,18 @@ export const WEATHER_EVENTS = [
 ];
 
 export const DECISION_EVENTS = [
-  { id: 'neighbor_sale', title: 'Neighbor Selling Livestock', desc: '5 sheep at 40% off. Total: $900.', options: [{ label: 'Buy ($900)', cost: 900, reward: 'sheep5' }, { label: 'Decline' }] },
-  { id: 'storm_warning', title: 'Storm Warning', desc: 'Reinforce your barn for $2,000 or risk building damage.', options: [{ label: 'Reinforce ($2,000)', cost: 2000, reward: 'stormProtect' }, { label: 'Risk It' }] },
+  { id: 'neighbor_sale', title: 'Neighbor Selling Livestock', desc: '5 sheep at 40% off. Total: $600.', options: [{ label: 'Buy ($600)', cost: 600, reward: 'sheep5' }, { label: 'Decline' }] },
+  { id: 'storm_warning', title: 'Storm Warning', desc: 'Reinforce your barn for $1,000 or risk building damage.', options: [{ label: 'Reinforce ($1,000)', cost: 1000, reward: 'stormProtect' }, { label: 'Risk It' }] },
   { id: 'investor_offer', title: 'Investor Offer', desc: 'Sell all milk at fixed $12/unit for 30 days.', options: [{ label: 'Accept Contract', reward: 'milkContract' }, { label: 'Decline' }] },
-  { id: 'land_auction', title: 'Land Auction', desc: 'Prime 4x4 plot for $3,000.', options: [{ label: 'Buy ($3,000)', cost: 3000, reward: 'landPlot' }, { label: 'Pass' }] },
+  { id: 'land_auction', title: 'Land Auction', desc: 'Prime 4x4 plot for $1,500.', options: [{ label: 'Buy ($1,500)', cost: 1500, reward: 'landPlot' }, { label: 'Pass' }] },
   { id: 'research_deal', title: 'Research Partnership', desc: 'Share data for $5,000 or keep for +10% tech speed.', options: [{ label: 'Sell Data ($5,000)', reward: 'dataSell' }, { label: 'Keep (+10% tech)', reward: 'techSpeed' }] },
-  { id: 'rival_farm', title: 'Rival Farm', desc: 'A rival farm is expanding. Compete or cooperate?', options: [{ label: 'Pay $5K to compete', cost: 5000, reward: 'rivalCompete' }, { label: 'Cooperate', reward: 'rivalCooperate' }] },
-  { id: 'insurance', title: 'Farm Insurance', desc: 'Insure your farm against the next disaster for $3,000.', options: [{ label: 'Buy Insurance ($3K)', cost: 3000, reward: 'insurance' }, { label: 'Decline' }] },
-  { id: 'genetic_lab', title: 'Genetic Lab', desc: 'A lab offers permanent +15% animal production for $8,000.', options: [{ label: 'Invest ($8K)', cost: 8000, reward: 'geneticLab' }, { label: 'Decline' }] },
-  { id: 'water_rights', title: 'Water Rights', desc: 'Buy water rights to unlock koi tiles.', options: [{ label: 'Full rights ($4K, 4 tiles)', cost: 4000, reward: 'waterFull' }, { label: 'Negotiate ($1.5K, 2 tiles)', cost: 1500, reward: 'waterPartial' }] },
-  { id: 'apprentice', title: 'Hire Apprentice', desc: 'Hire help for 20 days: auto-heal sick animals + 10% production.', options: [{ label: 'Hire ($10K total)', cost: 10000, reward: 'apprentice' }, { label: 'Decline' }] },
+  { id: 'rival_farm', title: 'Rival Farm', desc: 'A rival farm is expanding. Compete or cooperate?', options: [{ label: 'Pay $3K to compete', cost: 3000, reward: 'rivalCompete' }, { label: 'Cooperate', reward: 'rivalCooperate' }] },
+  { id: 'insurance', title: 'Farm Insurance', desc: 'Insure your farm against the next disaster for $1,500.', options: [{ label: 'Buy Insurance ($1.5K)', cost: 1500, reward: 'insurance' }, { label: 'Decline' }] },
+  { id: 'genetic_lab', title: 'Genetic Lab', desc: 'A lab offers permanent +15% animal production for $6,000.', options: [{ label: 'Invest ($6K)', cost: 6000, reward: 'geneticLab' }, { label: 'Decline' }] },
+  { id: 'water_rights', title: 'Water Rights', desc: 'Buy water rights to unlock koi tiles.', options: [{ label: 'Full rights ($2K, 4 tiles)', cost: 2000, reward: 'waterFull' }, { label: 'Negotiate ($1K, 2 tiles)', cost: 1000, reward: 'waterPartial' }] },
+  { id: 'apprentice', title: 'Hire Apprentice', desc: 'Hire help for 20 days: auto-heal sick animals + 10% production.', options: [{ label: 'Hire ($8K total)', cost: 8000, reward: 'apprentice' }, { label: 'Decline' }] },
   { id: 'black_market', title: 'Black Market', desc: 'Sell products at 2x now, but -10% prices for 30 days. Or report for a bonus.', options: [{ label: 'Sell (2x now, -10% later)', reward: 'blackMarketSell' }, { label: 'Report (+$2K, +5% prices)', reward: 'blackMarketReport' }] },
-  { id: 'crop_rotation', title: 'Crop Rotation', desc: 'Invest $2,000 in crop rotation for +30% grass regrowth for 30 days.', options: [{ label: 'Invest ($2K)', cost: 2000, reward: 'cropRotation' }, { label: 'Decline' }] },
+  { id: 'crop_rotation', title: 'Crop Rotation', desc: 'Invest $1,000 in crop rotation for +30% grass regrowth for 30 days.', options: [{ label: 'Invest ($1K)', cost: 1000, reward: 'cropRotation' }, { label: 'Decline' }] },
 ];
 
 export const SCORE_WEIGHTS = {

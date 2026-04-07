@@ -415,6 +415,12 @@ export class UIManager {
     if (d.soundBtn) d.soundBtn.classList.toggle('on', gameState.soundEnabled);
     const themeBtn = document.getElementById('theme-btn');
     if (themeBtn) themeBtn.textContent = document.documentElement.dataset.theme === 'dark' ? 'Dark' : 'Light';
+    const autoBtn = document.getElementById('auto-manage-btn');
+    if (autoBtn) {
+      const isOn = gameState.animals.length > 0 && gameState.animals[0]?.autoManage;
+      autoBtn.classList.toggle('on', !!isOn);
+      autoBtn.textContent = isOn ? 'Auto-Pilot: ON' : 'Auto-Pilot [GPS]';
+    }
   }
 
   // --- Canvas Cursor ---
