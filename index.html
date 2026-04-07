@@ -85,6 +85,16 @@
 [data-theme="dark"] ::-webkit-scrollbar-thumb:hover{background:var(--accent)}
 .stat-muted{color:rgba(15,15,15,0.5)}
 [data-theme="dark"] .stat-muted{color:rgba(192,208,224,0.5)}
+[data-theme="dark"] #tut-card{background:var(--bg-base);border-color:var(--accent)}
+[data-theme="dark"] #tut-card h3{color:var(--ink)}
+[data-theme="dark"] #tut-card p{color:rgba(192,208,224,0.7)}
+[data-theme="dark"] #tut-card .tut-btn{border-color:var(--ink);color:var(--ink)}
+[data-theme="dark"] #tut-card .tut-btn.next{background:var(--ink);color:var(--bg-base)}
+[data-theme="dark"] #tut-card .tut-btn.next:hover{background:var(--accent);border-color:var(--accent)}
+[data-theme="dark"] #tut-card .tut-btn.skip{color:rgba(192,208,224,0.4);border-color:rgba(192,208,224,0.2)}
+[data-theme="dark"] #tut-card .tut-btn.skip:hover{color:var(--ink);border-color:var(--ink)}
+[data-theme="dark"] #quest-progress{color:rgba(192,208,224,0.5)}
+[data-theme="dark"] .resource .rate{color:rgba(192,208,224,0.4)}
 [data-theme="dark"] #title-screen{background:var(--bg-base);background-image:linear-gradient(to right,var(--grid-line) 1px,transparent 1px),linear-gradient(to bottom,var(--grid-line) 1px,transparent 1px);background-size:5vw 5vh}
 [data-theme="dark"] .title-logo{color:var(--ink);text-shadow:0 0 40px rgba(230,153,58,0.3)}
 [data-theme="dark"] .title-sub{color:var(--accent)}
@@ -255,14 +265,14 @@ body{background:var(--bg-base);color:var(--ink);font-family:var(--sans);overflow
 .tech-card.locked{opacity:.4;cursor:not-allowed}
 .tech-card.locked:hover{transform:none;border-color:rgba(15,15,15,0.15)}
 #tut-card h3{font-size:1.2rem;margin-bottom:10px;color:var(--ink);font-family:var(--mono);text-transform:uppercase;letter-spacing:2px}
-#tut-card p{color:rgba(15,15,15,0.7);line-height:1.7;margin-bottom:8px;font-size:.85rem}
+#tut-card p{color:var(--ink);opacity:0.7;line-height:1.7;margin-bottom:8px;font-size:.85rem}
 #tut-card .tut-step{font-size:.6rem;color:var(--accent);margin-bottom:14px;font-family:var(--mono);text-transform:uppercase;letter-spacing:2px}
 #tut-card .tut-btns{display:flex;gap:8px;justify-content:center;margin-top:16px}
 #tut-card .tut-btn{padding:8px 24px;border:1px solid var(--ink);cursor:pointer;font-size:.8rem;font-weight:700;font-family:var(--mono);letter-spacing:1px;text-transform:uppercase;transition:all .15s;background:transparent;color:var(--ink)}
 #tut-card .tut-btn.next{background:var(--ink);color:var(--bg-base)}
 #tut-card .tut-btn.next:hover{background:var(--accent);border-color:var(--accent)}
-#tut-card .tut-btn.skip{background:transparent;color:rgba(15,15,15,0.5)}
-#tut-card .tut-btn.skip:hover{color:var(--ink);border-color:var(--ink)}
+#tut-card .tut-btn.skip{background:transparent;color:var(--ink);opacity:0.5}
+#tut-card .tut-btn.skip:hover{color:var(--ink);border-color:var(--ink);opacity:1}
 #float-texts{position:fixed;inset:0;pointer-events:none;z-index:50}
 .float-text{position:absolute;font-weight:800;font-size:.8rem;animation:floatUp 1.4s ease-out forwards;pointer-events:none;font-family:var(--mono)}
 @keyframes floatUp{0%{opacity:1;transform:translateY(0) scale(1)}50%{opacity:.9;transform:translateY(-20px) scale(1.1)}100%{opacity:0;transform:translateY(-45px) scale(.8)}}
