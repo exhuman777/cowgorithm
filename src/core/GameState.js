@@ -12,7 +12,7 @@ class GameState {
     this.eggs = 0;
     this.fish = 0;
     this.meat = 0;
-    this.energy = 50;
+    this.energy = 100;
     this.data = 0;
     this.animals = [];
     this.techs = [];
@@ -73,6 +73,9 @@ class GameState {
     this.prodMod = 0;            // temporary production modifier from decisions
     this.prodModDays = 0;
     this.priceHistory = { milk: [], wool: [], eggs: [], fish: [] };
+    // Leaderboard
+    this.mogulScore = 0;         // computed at day 120
+    this.mogulSubmitted = false;  // prevent double submission
   }
 
   createMap() {
@@ -143,6 +146,8 @@ class GameState {
       prodMod: this.prodMod,
       prodModDays: this.prodModDays,
       priceHistory: this.priceHistory,
+      mogulScore: this.mogulScore,
+      mogulSubmitted: this.mogulSubmitted,
     };
   }
 

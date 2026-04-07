@@ -33,14 +33,14 @@ export const SEASON_EFFECTS = {
   spring: { prodMod: 1.2, feedMod: 1.0, priceMod: 1.0, breedMod: 2.0 },
   summer: { prodMod: 1.0, feedMod: 1.0, priceMod: 1.0, breedMod: 1.0 },
   fall:   { prodMod: 1.0, feedMod: 1.0, priceMod: 1.3, breedMod: 1.0 },
-  winter: { prodMod: 0.7, feedMod: 1.5, priceMod: 1.0, breedMod: 0.0 },
+  winter: { prodMod: 0.7, feedMod: 1.3, priceMod: 1.0, breedMod: 0.0 },
 };
 
 export const SOLAR_SEASON_MOD = {
   spring: 1.0,
   summer: 1.2,
   fall: 0.85,
-  winter: 0.67,
+  winter: 0.75,
 };
 
 export function getSeason(day) {
@@ -53,17 +53,17 @@ export function getSeasonProgress(day) {
 }
 
 export const BUILDING_DEFS = {
-  farmhouse: { name: 'Farmhouse', cost: 0, color: 0x8b4513, desc: 'Your home base', energyCost: 0 },
+  farmhouse: { name: 'Farmhouse', cost: 0, color: 0x8b4513, desc: 'Your home base', energyCost: 0, energyGen: 2 },
   pasture:   { name: 'Pasture', cost: 200, color: 0x2d6b11, desc: 'Managed grassland, faster regrowth', energyCost: 0 },
-  barn:      { name: 'Barn', cost: 5000, color: 0x8b6914, capacity: 10, desc: 'Houses up to 10 large animals', energyCost: 2 },
-  milking:   { name: 'Milking Station', cost: 8000, color: 0xe0e0e0, range: 5, bonus: 'dairy', bonusAmt: 0.5, desc: '+50% milk in range', energyCost: 3 },
-  shearing:  { name: 'Shearing Shed', cost: 6000, color: 0xd4a574, range: 5, bonus: 'wool', bonusAmt: 0.5, desc: '+50% wool in range', energyCost: 2 },
+  barn:      { name: 'Barn', cost: 5000, color: 0x8b6914, capacity: 10, desc: 'Houses up to 10 large animals', energyCost: 1 },
+  milking:   { name: 'Milking Station', cost: 6000, color: 0xe0e0e0, range: 5, bonus: 'dairy', bonusAmt: 0.5, desc: '+50% milk in range', energyCost: 3 },
+  shearing:  { name: 'Shearing Shed', cost: 4000, color: 0xd4a574, range: 5, bonus: 'wool', bonusAmt: 0.5, desc: '+50% wool in range', energyCost: 2 },
   coop:      { name: 'Chicken Coop', cost: 3000, color: 0xc4a35a, capacity: 20, animalType: 'chicken', desc: 'Houses up to 20 chickens', energyCost: 1 },
-  silo:      { name: 'Feed Silo', cost: 4000, color: 0x708090, range: 8, bonus: 'feed', bonusAmt: 0.3, desc: '-30% feed cost in range', energyCost: 1 },
-  solar:     { name: 'Solar Array', cost: 10000, color: 0x1e3a5f, range: 8, energyGen: 15, desc: '+15 energy/day', energyCost: 0 },
+  silo:      { name: 'Feed Silo', cost: 3000, color: 0x708090, range: 10, bonus: 'feed', bonusAmt: 0.5, desc: '-50% feed cost in range', energyCost: 1 },
+  solar:     { name: 'Solar Array', cost: 6000, color: 0x1e3a5f, range: 8, energyGen: 12, desc: '+12 energy/day', energyCost: 0 },
   drone:     { name: 'Drone Station', cost: 15000, color: 0x4a4a5a, range: 12, desc: 'Pasture monitoring', energyCost: 5 },
-  vet:       { name: 'Vet Lab', cost: 12000, color: 0xc8e6c9, range: 6, desc: '-30% disease chance nearby', energyCost: 3 },
-  ai_center: { name: 'AI Command Center', cost: 25000, color: 0x1a5a8a, desc: 'Enables Tier 3+ tech', energyCost: 8 },
+  vet:       { name: 'Vet Lab', cost: 8000, color: 0xc8e6c9, range: 6, desc: '-30% disease chance nearby', energyCost: 3 },
+  ai_center: { name: 'AI Command Center', cost: 25000, color: 0x1a5a8a, desc: 'Enables Tier 3+ tech', energyCost: 5 },
   koi_pond: { name: 'Koi Pond', cost: 8000, color: 0x9e7c4a, desc: 'Fish farm on water. Produces 2 fish/day.', energyCost: 1, range: 0, bonusType: null, bonusAmt: 0 },
 };
 
@@ -100,10 +100,10 @@ export const TECH_DEFS = [
 ];
 
 export const QUESTS = [
-  { id: 'q1', text: 'Place a Milking Station near your cows', reward: 2000, hint: 'Click "Milking Station" ($8,000) in left panel, then click a green tile near your cows' },
-  { id: 'q2', text: 'Sell your milk products for cash', reward: 1000, hint: 'Wait for cows to produce milk, then press S or click "Sell Products"' },
-  { id: 'q3', text: 'Grow your herd to 5 Dairy Cows', reward: 1500, hint: 'Click "Dairy Cow" ($1,500) in left panel' },
-  { id: 'q4', text: 'Build a Solar Array for energy', reward: 2000, hint: 'Click "Solar Array" ($10,000) in left panel, place on owned land' },
+  { id: 'q1', text: 'Sell your milk products for cash', reward: 1500, hint: 'Wait for cows to produce milk, then press S or click "Sell Products"' },
+  { id: 'q2', text: 'Build a Solar Array for energy', reward: 3000, hint: 'Click "Solar Array" ($6,000) in left panel, place on owned land' },
+  { id: 'q3', text: 'Place a Milking Station near your cows', reward: 2000, hint: 'Click "Milking Station" ($6,000) in left panel, then click a green tile near your cows' },
+  { id: 'q4', text: 'Grow your herd to 5 Dairy Cows', reward: 1500, hint: 'Click "Dairy Cow" ($1,500) in left panel' },
   { id: 'q5', text: 'Open Tech Tree (T) and unlock GPS Tracking', reward: 2000, hint: 'Press T to open Tech Tree. GPS Tracking is $5,000, Tier 1' },
   { id: 'q6', text: 'Program a cow: click it, then Send to Milk', reward: 2000, hint: 'Click a cow. In right panel, click "Send to Milk". Then click your milking station' },
   { id: 'q7', text: 'Unlock Health Monitor in Tech Tree', reward: 1500, hint: 'Press T. Health Monitor is $5,000, Tier 1' },
@@ -182,6 +182,19 @@ export const DECISION_EVENTS = [
   { id: 'black_market', title: 'Black Market', desc: 'Sell products at 2x now, but -10% prices for 30 days. Or report for a bonus.', options: [{ label: 'Sell (2x now, -10% later)', reward: 'blackMarketSell' }, { label: 'Report (+$2K, +5% prices)', reward: 'blackMarketReport' }] },
   { id: 'crop_rotation', title: 'Crop Rotation', desc: 'Invest $2,000 in crop rotation for +30% grass regrowth for 30 days.', options: [{ label: 'Invest ($2K)', cost: 2000, reward: 'cropRotation' }, { label: 'Decline' }] },
 ];
+
+export const SCORE_WEIGHTS = {
+  earnings: 0.01,       // $1 earned = 0.01 pts
+  animal: 200,          // per animal alive
+  tech: 1000,           // per tech unlocked
+  milestone: 500,       // per milestone completed
+  quest: 300,           // per quest completed
+  cashCap: 100000,      // max cash counted
+  cashRate: 0.1,        // cash / 10
+  building: 150,        // per building placed
+};
+
+export const MOGUL_DAY = 120; // Day when Mogul Score is computed
 
 export const TUTORIAL_STEPS = [
   { title: 'Welcome, Farmer', text: 'You inherited a small farm with 3 dairy cows and $15,000.\n\nYour goal: build the world\'s most advanced AI-powered farm.\n\nFollow this walkthrough to learn the basics.', type: 'overlay' },

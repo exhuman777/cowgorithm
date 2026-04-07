@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { eventBus, Events } from './core/EventBus.js';
 import { gameState } from './core/GameState.js';
-import { GRID, GAME, CAMERA, COLORS, getSeason, TECH_DEFS } from './core/Constants.js';
+import { GRID, GAME, CAMERA, COLORS, getSeason, TECH_DEFS, MOGUL_DAY } from './core/Constants.js';
 
 // Systems
 import { FarmGrid } from './systems/FarmGrid.js';
@@ -36,6 +36,10 @@ import { Tutorial } from './ui/Tutorial.js';
 import { TechModal } from './ui/TechModal.js';
 import { DecisionModal } from './ui/DecisionModal.js';
 import { GuidedTour } from './ui/GuidedTour.js';
+import { LeaderboardModal } from './ui/LeaderboardModal.js';
+
+// Scoring
+import { computeMogulScore, buildRunData, submitRun } from './systems/ScoreSystem.js';
 
 // Audio
 import { AudioManager } from './audio/AudioManager.js';
@@ -114,6 +118,7 @@ class Game {
     this.techModal = new TechModal(this.techSystem);
     this.decisionModal = new DecisionModal();
     this.guidedTour = new GuidedTour();
+    this.leaderboardModal = new LeaderboardModal();
 
     eventBus.on('decision:offer', ({ event }) => {
       this.decisionModal.show(event, (opt, idx) => {
@@ -332,6 +337,13 @@ class Game {
     this.animalSystem.tryBreeding();
 
     this.milestoneSystem.checkMilestones();
+
+    // Mogul Score trigger at day 120
+    if (gameState.day === MOGUL_DAY && !gameState.mogulSubmitted && gameState.completionDay === 0) {
+      gameState.mogulScore = computeMogulScore();
+      this.showMogulScreen();
+    }
+
     if (gameState.day % 10 === 0) gameState.save();
     eventBus.emit(Events.NOTIFICATION, { msg: 'Day ' + gameState.day + ' begins.' });
   }
@@ -593,8 +605,10 @@ class Game {
         this._weatherVisualTimer('rain', 1);
         break;
       case 'Sunny Day':
-        // Boost bloom briefly
-        this.bloomPass_origStrength = this.postProcessing.bloomPass.strength;
+        // Boost bloom briefly (only save original if not already saved by another effect)
+        if (this.bloomPass_origStrength === undefined) {
+          this.bloomPass_origStrength = this.postProcessing.bloomPass.strength;
+        }
         this.postProcessing.bloomPass.strength = 0.4;
         this._weatherVisualTimer('sunny', 1);
         break;
@@ -616,9 +630,12 @@ class Game {
         this._weatherVisualTimer('rainbow', 1);
         break;
       case 'Golden Calf':
+        this.particles.startGoldenSparkles();
+        this._weatherVisualTimer('goldenCalf', 1);
+        break;
       case 'Perfect Weather':
         this.particles.startGoldenSparkles();
-        // Perfect Weather has duration, Golden Calf is instant but sparkles for 1 day
+        // Duration-based, cleaned by _syncWeatherVisuals
         break;
       case 'Harvest Moon':
         this.particles.startGoldenSparkles();
@@ -677,6 +694,7 @@ class Game {
             case 'sunny':
               if (this.bloomPass_origStrength !== undefined) {
                 this.postProcessing.bloomPass.strength = this.bloomPass_origStrength;
+                this.bloomPass_origStrength = undefined;
               }
               break;
             case 'miasma': this.particles.stopMiasma(); break;
@@ -686,6 +704,12 @@ class Game {
               break;
             case 'meteors': this.particles.stopMeteors(); break;
             case 'rainbow': this.particles.hideRainbow(); break;
+            case 'goldenCalf':
+              // Only stop if no duration-based golden effects are active
+              if (!gameState.activeEffects.some(e => e.name === 'perfectWeather' || e.name === 'harvestMoon')) {
+                this.particles.stopGoldenSparkles();
+              }
+              break;
           }
           delete this._weatherTimers[key];
         }
@@ -796,6 +820,87 @@ class Game {
     location.reload();
   }
 
+  showMogulScreen() {
+    const overlay = document.getElementById('mogul-overlay');
+    const scoreEl = document.getElementById('mogul-score');
+    if (scoreEl) scoreEl.textContent = gameState.mogulScore.toLocaleString();
+    if (overlay) overlay.style.display = 'flex';
+    // Reset submit state
+    const btn = document.getElementById('mogul-submit-btn');
+    if (btn) { btn.disabled = false; btn.textContent = 'Submit to Leaderboard'; }
+    const statusEl = document.getElementById('mogul-submit-status');
+    if (statusEl) statusEl.textContent = '';
+    const rankEl = document.getElementById('mogul-rank');
+    if (rankEl) rankEl.style.display = 'none';
+  }
+
+  async submitMogul() {
+    const nameInput = document.getElementById('mogul-name');
+    const name = nameInput?.value.trim() || 'Anonymous';
+    const btn = document.getElementById('mogul-submit-btn');
+    const statusEl = document.getElementById('mogul-submit-status');
+    const rankEl = document.getElementById('mogul-rank');
+
+    if (btn) { btn.disabled = true; btn.textContent = 'Submitting...'; }
+    if (statusEl) statusEl.textContent = '';
+
+    const runData = buildRunData('mogul', name);
+    const result = await submitRun(runData);
+
+    if (result.ok) {
+      gameState.mogulSubmitted = true;
+      gameState.save();
+      if (btn) btn.textContent = 'Submitted';
+      if (rankEl) {
+        rankEl.textContent = `You ranked #${result.rank} globally!`;
+        rankEl.style.display = 'block';
+        rankEl.style.color = '#88e0b0';
+      }
+    } else {
+      if (btn) { btn.disabled = false; btn.textContent = 'Submit to Leaderboard'; }
+      if (statusEl) statusEl.textContent = result.error || 'Submission failed';
+    }
+  }
+
+  async submitSpeedrun() {
+    const nameInput = document.getElementById('win-name');
+    const name = nameInput?.value.trim() || 'Anonymous';
+    const btn = document.getElementById('win-submit-btn');
+    const statusEl = document.getElementById('win-submit-status');
+    const rankEl = document.getElementById('win-rank');
+
+    if (btn) { btn.disabled = true; btn.textContent = 'Submitting...'; }
+    if (statusEl) statusEl.textContent = '';
+
+    const runData = buildRunData('speedrun', name);
+    const result = await submitRun(runData);
+
+    if (result.ok) {
+      if (btn) btn.textContent = 'Submitted';
+      if (rankEl) {
+        rankEl.textContent = `You ranked #${result.rank} globally!`;
+        rankEl.style.display = 'block';
+        rankEl.style.color = '#88e0b0';
+      }
+      // Also update PB with name
+      try {
+        const rawPB = localStorage.getItem('cowgorithm_pb');
+        if (rawPB) {
+          const pb = JSON.parse(rawPB);
+          pb.playerName = name;
+          localStorage.setItem('cowgorithm_pb', JSON.stringify(pb));
+        }
+      } catch (e) {}
+    } else {
+      if (btn) { btn.disabled = false; btn.textContent = 'Submit to Leaderboard'; }
+      if (statusEl) statusEl.textContent = result.error || 'Submission failed';
+    }
+  }
+
+  openLeaderboard() {
+    this.leaderboardModal.open();
+  }
+
   // Demolish the currently selected building
   demolishSelected() {
     const building = gameState.selectedBuilding;
@@ -812,6 +917,7 @@ const game = new Game();
 // Expose window functions for onclick handlers in HTML
 window.startNewGame = () => game.startNewGame();
 window.loadAndStart = () => game.loadAndStart();
+window.openLeaderboard = () => game.openLeaderboard();
 
 // Game-creator required globals
 window.render_game_to_text = () => {
